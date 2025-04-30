@@ -18,8 +18,10 @@ public class TcpProperties {
     private int port;
 
     // Only allow "localhost" or valid IPv4 addresses
-    @Pattern(regexp = "^(localhost|(?:\\d{1,3}\\.){3}\\d{1,3})$",
-            message = "Invalid host. Must be 'localhost' or a valid IPv4 address.")
+    @Pattern(
+            regexp = "^(localhost|((25[0-5]|2[0-4]\\d|1\\d{2}|[1-9]?\\d)(\\.(?!$)|$)){4})$",
+            message = "Invalid host. Must be 'localhost' or a valid IPv4 address."
+    )
     private String host;
 
     @Min(1)
