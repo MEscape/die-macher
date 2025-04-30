@@ -1,11 +1,16 @@
 package com.die_macher.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import java.awt.image.BufferedImage;
 
 @Service
 public class ColorDetectionService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ColorDetectionService.class);
+
     public String detectDominantColor(BufferedImage image) {
+        LOGGER.debug("Analyzing image of size {}x{}", image.getWidth(), image.getHeight());
         ColorStats colorStats = calculateColorStats(image);
         return determineColor(colorStats);
     }
@@ -31,6 +36,8 @@ public class ColorDetectionService {
     }
 
     private String determineColor(ColorStats stats) {
+        LOGGER.debug("Color stats - R: {}, G: {}, B: {}", stats.red(), stats.green(), stats.blue());
+
         if (stats.red > stats.green && stats.red > stats.blue) {
             return "RED";
         } else if (stats.green > stats.red && stats.green > stats.blue) {
