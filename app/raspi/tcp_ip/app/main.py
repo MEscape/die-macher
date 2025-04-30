@@ -20,7 +20,7 @@ import sys
 def parse_args():
     """Parse command-line arguments for server configuration."""
     parser = argparse.ArgumentParser(description="TCP/IP webcam stream server")
-    parser.add_argument("--host", type=str, default="0.0.0.0",
+    parser.add_argument("--host", type=str, default="localhost",
                         help="Host/IP to bind the server (default all interfaces)")
     parser.add_argument("--port", type=int, default=8000,
                         help="TCP port to listen on (default 8000)")
@@ -50,13 +50,12 @@ def stream_camera(conn: socket.socket, frame_interval: float):
     if not cap.isOpened():
         print("Error: Could not open video capture device.", file=sys.stderr)
         return
-    # OPTIONAL: Set camera resolution (smaller -> faster streaming)&#8203;:contentReference[oaicite:8]{index=8}.
-    # E.g., 320x240:
-    # cap.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
-    # cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
+
+    # OPTIONAL: Set camera resolution (smaller -> faster streaming)
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
 
     try:
-        print("Streaming camera. Press Ctrl+C to stop.")
         while True:
             ret, frame = cap.read()
             if not ret:
@@ -100,8 +99,6 @@ def main():
             with conn:
                 # Stream video to the connected client
                 stream_camera(conn, frame_interval)
-    except KeyboardInterrupt:
-        print("\nServer interrupted by user, shutting down.")
     except Exception as e:
         print(f"Error: {e}", file=sys.stderr)
 
