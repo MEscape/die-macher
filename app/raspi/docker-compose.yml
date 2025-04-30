@@ -1,7 +1,10 @@
 version: '3.8'
 services:
   camera-server:
-    build: .
+    build:
+      context: .
+      dockerfile: tcp_ip/Dockerfile
+    container_name: camera-server
     ports:
       - "8000:8000"
     devices:
