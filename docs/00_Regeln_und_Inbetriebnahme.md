@@ -55,6 +55,10 @@ Dieses Kapitel beschreibt die grundlegenden **Projektregeln**, Konventionen und 
     
     *   **DB**: snake_case
     
+*   **Typensicherheit:** z.B. TypeScript (JS), MyPy (Python)
+
+*   **Code Formatierung:** z.B. Prettier (JS), Black (Python), Spotless (Java)
+
 *   **Linter verwenden:** z.B. ESLint (JS), Checkstyle (Java), PyLint (Python)
     
 *   **Logging:** Structured Logging mit Levels (INFO, DEBUG, ERROR) – mit SLF4J
