@@ -9,7 +9,12 @@ import time
 import cv2
 
 
-def test_camera():
+def test_camera() -> bool:
+    """Test camera functionality by displaying preview window and checking basic features.
+
+    Returns:
+        bool: True if camera test succeeds, False if any errors occur.
+    """
     print("Starte Kamera-Test...")
 
     # Initialisiere die Kamera
@@ -24,9 +29,11 @@ def test_camera():
     width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
     height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
     fps = cap.get(cv2.CAP_PROP_FPS)
-    print(f"Kamera-Eigenschaften:")
+    print("Kamera-Eigenschaften:")
     print(f"- Auflösung: {width}x{height}")
     print(f"- FPS: {fps}")
+
+    success = True
 
     try:
         print("\nÖffne Vorschaufenster (drücken Sie 'q' zum Beenden)...")
@@ -57,15 +64,24 @@ def test_camera():
                 print(f"✓ Aktuelle FPS: {actual_fps:.1f}")
                 break
 
+    except Exception as e:
+        print(f"Unerwarteter Fehler: {e}", file=sys.stderr)
+        success = False
     finally:
         # Aufräumen
         cap.release()
         cv2.destroyAllWindows()
         print("\nKamera-Test abgeschlossen")
-        return True
+
+    return success
 
 
-def main():
+def main() -> None:
+    """Run the camera test and display results.
+
+    Executes the camera test and provides feedback about the test results,
+    including next steps for the user.
+    """
     if test_camera():
         print("\n✓ Kamera-Test erfolgreich!")
         print("Der Server kann nun mit 'python main.py' gestartet werden.")
