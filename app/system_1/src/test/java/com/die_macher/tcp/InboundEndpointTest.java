@@ -1,50 +1,102 @@
 package com.die_macher.tcp;
 
-import com.die_macher.common.util.HexDump;
+import com.die_macher.service.ColorDetectionService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.integration.ip.IpHeaders;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.GenericMessage;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class InboundEndpointTest {
-    private static Message<byte[]> createMessage(byte[] payload) {
-        return new GenericMessage<>(payload, new HashMap<>() {{
-            put(IpHeaders.CONNECTION_ID, "CONNECTION_ID");
-        }});
+
+    @Mock
+    private ColorDetectionService colorDetectionService;
+
+    private InboundEndpoint inboundEndpoint;
+
+    @BeforeEach
+    void setUp() {
+        inboundEndpoint = new InboundEndpoint(colorDetectionService);
     }
 
     @Test
-    void onMessage_withEmptyPayload_shouldLogAndCallHexDump() {
-        byte[] payload = new byte[0];
-        Message<byte[]> message = createMessage(payload);
-        InboundEndpoint endpoint = new InboundEndpoint();
+    void onMessage_shouldProcessImageAndDetectColor() throws IOException {
+        // Prepare test image
+        BufferedImage testImage = new BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageIO.write(testImage, "jpg", baos);
+        byte[] imageBytes = baos.toByteArray();
 
-        try (MockedStatic<HexDump> hexDumpMock = mockStatic(HexDump.class)) {
-            hexDumpMock.when(() -> HexDump.hexDump(payload)).thenReturn("<empty>");
+        // Prepare message headers
+        Map<String, Object> headers = new HashMap<>();
+        headers.put(IpHeaders.CONNECTION_ID, "test-connection-1");
 
-            endpoint.onMessage(message);
+        // Create test message
+        Message<byte[]> message = new GenericMessage<>(imageBytes, headers);
 
-            hexDumpMock.verify(() -> HexDump.hexDump(payload), times(1));
-        }
+        // Configure mock
+        when(colorDetectionService.detectDominantColor(any(BufferedImage.class)))
+                .thenReturn("RED");
+
+        // Execute
+        inboundEndpoint.onMessage(message);
+
+        // Verify
+        verify(colorDetectionService).detectDominantColor(any(BufferedImage.class));
     }
 
     @Test
-    void onMessage_withPayload_shouldCallHexDump() {
-        byte[] payload = new byte[]{0x01, 0x02, 0x03};
-        Message<byte[]> message = createMessage(payload);
-        InboundEndpoint endpoint = new InboundEndpoint();
+    void onMessage_shouldHandleInvalidImageData() throws IOException {
+        // Prepare invalid image data
+        byte[] invalidImageData = "not an image".getBytes();
 
-        try (MockedStatic<HexDump> hexDumpMock = mockStatic(HexDump.class)) {
-            hexDumpMock.when(() -> HexDump.hexDump(payload)).thenReturn("01 02 03");
+        // Prepare message headers
+        Map<String, Object> headers = new HashMap<>();
+        headers.put(IpHeaders.CONNECTION_ID, "test-connection-2");
 
-            endpoint.onMessage(message);
+        // Create test message
+        Message<byte[]> message = new GenericMessage<>(invalidImageData, headers);
 
-            hexDumpMock.verify(() -> HexDump.hexDump(payload), times(1));
-        }
+        // Execute and verify no exception is thrown
+        inboundEndpoint.onMessage(message);
+
+        // Verify color detection was not called
+        verify(colorDetectionService, never()).detectDominantColor(any(BufferedImage.class));
+    }
+
+    @Test
+    void onMessage_shouldHandleNullConnectionId() throws IOException {
+        // Prepare test image
+        BufferedImage testImage = new BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageIO.write(testImage, "jpg", baos);
+        byte[] imageBytes = baos.toByteArray();
+
+        // Create message without connection ID
+        Message<byte[]> message = new GenericMessage<>(imageBytes);
+
+        // Configure mock
+        when(colorDetectionService.detectDominantColor(any(BufferedImage.class)))
+                .thenReturn("BLUE");
+
+        // Execute
+        inboundEndpoint.onMessage(message);
+
+        // Verify color detection still works
+        verify(colorDetectionService).detectDominantColor(any(BufferedImage.class));
     }
 }
