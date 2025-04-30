@@ -15,7 +15,7 @@ import socket
 import struct
 import sys
 import time
-from typing import Tuple
+from typing import Any, Tuple
 
 import cv2
 import numpy as np
@@ -72,7 +72,7 @@ def stream_camera(conn: socket.socket, frame_interval: float) -> None:
     try:
         while True:
             ret: bool
-            frame: NDArray
+            frame: NDArray[Any]
             ret, frame = cap.read()
             if not ret:
                 print("Warning: Failed to read frame from camera.", file=sys.stderr)
@@ -101,6 +101,12 @@ def stream_camera(conn: socket.socket, frame_interval: float) -> None:
 
 
 def main() -> None:
+    """Run the TCP/IP webcam stream server with specified configuration.
+
+    Parses command-line arguments, sets up the server socket, and starts
+    streaming camera frames to the connected client. Handles connection
+    setup and cleanup, and manages frame rate control if specified.
+    """
     args = parse_args()
     frame_interval: float = 0.0
     if args.fps and args.fps > 0:
@@ -114,8 +120,10 @@ def main() -> None:
             print(f"Connected by {addr}")
             with conn:
                 stream_camera(conn, frame_interval)
+    except (socket.error, IOError) as e:
+        print(f"Network or I/O error: {e}", file=sys.stderr)
     except Exception as e:
-        print(f"Error: {e}", file=sys.stderr)
+        print(f"Unexpected error: {e}", file=sys.stderr)
 
 
 if __name__ == "__main__":
