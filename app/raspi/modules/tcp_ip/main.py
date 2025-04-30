@@ -34,12 +34,6 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--port", type=int, default=8000, help="TCP port to listen on (default 8000)"
     )
-    parser.add_argument(
-        "--fps",
-        type=float,
-        default=0,
-        help="Target frames per second (0 for max speed)",
-    )
     return parser.parse_args()
 
 
@@ -56,7 +50,7 @@ def setup_server_socket(host: str, port: int) -> socket.socket:
     return server_socket
 
 
-def stream_camera(conn: socket.socket, frame_interval: float) -> None:
+def stream_camera(conn: socket.socket) -> None:
     """
     Capture frames from the default camera and send them over the socket.
     Each frame is JPEG-encoded and sent with a 4-byte length prefix.
@@ -65,9 +59,6 @@ def stream_camera(conn: socket.socket, frame_interval: float) -> None:
     if not cap.isOpened():
         print("Error: Could not open video capture device.", file=sys.stderr)
         return
-
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
 
     try:
         while True:
@@ -94,23 +85,20 @@ def stream_camera(conn: socket.socket, frame_interval: float) -> None:
                 print("Client disconnected.")
                 break
 
-            if frame_interval > 0:
-                time.sleep(frame_interval)
+            # Wait 10 seconds before capturing the next frame
+            time.sleep(10)
     finally:
         cap.release()
 
 
 def main() -> None:
-    """Run the TCP/IP webcam stream server with specified configuration.
+    """Run the TCP/IP webcam image server with specified configuration.
 
     Parses command-line arguments, sets up the server socket, and starts
-    streaming camera frames to the connected client. Handles connection
-    setup and cleanup, and manages frame rate control if specified.
+    sending camera frames to the connected client at 10-second intervals.
+    Handles connection setup and cleanup.
     """
     args = parse_args()
-    frame_interval: float = 0.0
-    if args.fps and args.fps > 0:
-        frame_interval = 1.0 / args.fps
 
     try:
         with setup_server_socket(args.host, args.port) as server_socket:
@@ -119,7 +107,7 @@ def main() -> None:
             conn, addr = server_socket.accept()
             print(f"Connected by {addr}")
             with conn:
-                stream_camera(conn, frame_interval)
+                stream_camera(conn)
     except (socket.error, IOError) as e:
         print(f"Network or I/O error: {e}", file=sys.stderr)
     except Exception as e:

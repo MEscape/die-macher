@@ -47,3 +47,9 @@ Add development dependencies:
 ```bash
 poetry add --dev <package-name>
 ```
+
+## 🔑 Executing the Entry Point
+
+```bash
+poetry run python main.py
+```
