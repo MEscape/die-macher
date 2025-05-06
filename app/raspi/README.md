@@ -51,5 +51,5 @@ poetry add --dev <package-name>
 ## 🔑 Executing the Entry Point
 
 ```bash
-poetry run python main.py
+scripts/start
 ```

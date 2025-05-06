@@ -10,7 +10,6 @@ adjusted via a command-line parameter.
 
 Requires: Python 3, OpenCV (cv2).
 """
-import argparse
 import socket
 import struct
 import sys
@@ -20,21 +19,6 @@ from typing import Any, Tuple
 import cv2
 import numpy as np
 from numpy.typing import NDArray
-
-
-def parse_args() -> argparse.Namespace:
-    """Parse command-line arguments for server configuration."""
-    parser = argparse.ArgumentParser(description="TCP/IP webcam stream server")
-    parser.add_argument(
-        "--host",
-        type=str,
-        default="localhost",
-        help="Host/IP to bind the server (default all interfaces)",
-    )
-    parser.add_argument(
-        "--port", type=int, default=8000, help="TCP port to listen on (default 8000)"
-    )
-    return parser.parse_args()
 
 
 def setup_server_socket(host: str, port: int) -> socket.socket:
@@ -91,17 +75,16 @@ def stream_camera(conn: socket.socket) -> None:
         cap.release()
 
 
-def main() -> None:
+def serve_webcam_stream(host: str = "localhost", port: int = 8000) -> None:
     """Run the TCP/IP webcam image server with specified configuration.
 
-    Parses command-line arguments, sets up the server socket, and starts
-    sending camera frames to the connected client at 10-second intervals.
-    Handles connection setup and cleanup.
+    Sets up the server socket, and starts sending camera frames
+    to the connected client at 10-second intervals. Handles connection
+    setup and cleanup.
     """
-    args = parse_args()
 
     try:
-        with setup_server_socket(args.host, args.port) as server_socket:
+        with setup_server_socket(host, port) as server_socket:
             conn: socket.socket
             addr: Tuple[str, int]
             conn, addr = server_socket.accept()
@@ -112,7 +95,3 @@ def main() -> None:
         print(f"Network or I/O error: {e}", file=sys.stderr)
     except Exception as e:
         print(f"Unexpected error: {e}", file=sys.stderr)
-
-
-if __name__ == "__main__":
-    main()
