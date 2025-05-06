@@ -1,7 +1,10 @@
 venv
-tcp_ip/__pycache__
-opc_ua/__pycache__
+modules/tcp_ip/__pycache__
+modules/opc_ua/__pycache__
+modules/__pycache__
+tests/__pycache__
 poetry.lock
 .mypy_cache
 .pytest_cache
 .coverage
+__pycache__

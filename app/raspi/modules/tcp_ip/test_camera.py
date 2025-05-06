@@ -1,3 +1,4 @@
+# coverage: ignore
 #!/usr/bin/env python3
 """
 Einfaches Testskript zur Überprüfung der Kamera-Funktionalität.
