@@ -23,8 +23,13 @@ Dieses Kapitel beschreibt die grundlegenden **Projektregeln**, Konventionen und 
 
 ```bash
 /  ├── app/
-/       ├── system_1/
-/  ├── docs/
+/       ├── raspi/          # Raspberry Pi Code
+/           ├── opc_ua/         # OPC UA Server
+/           └── tcp_ip/         # TCP/IP Server
+/       ├── system_1/         # Spring Boot Backend & Python Scripts
+/       ├── system_2/         # MQTT & Database Server
+/       ├── system_3/         # React Native Mobile App
+/  ├── docs/               # Project Documentation
 ```
 
 ### 💡 Best Practices (Coding & Architektur)
@@ -86,6 +91,7 @@ Um das Projekt lokal zu nutzen, muss das GitHub-Repository geklont werden:
 
 ```bash
 git clone https://github.com/MEscape/die-macher.git
+git config --global push.autosetupremote true
 
 cd die-macher
 ```  
@@ -99,6 +105,22 @@ Nachdem das Repository geklont wurde, müssen die Abhängigkeiten installiert we
 *   **Language Support for Java(TM) by Red Hat**
 
 *   **Markdown Preview Mermaid Support**
+
+*   **BasedPyright**
+
+*   **Python**
+
+*   **Docker**
+
+### 2. Java
+
+*   **JDK21**
+
+*   **Maven**
+
+### 3. Python
+
+*   **Python 3.11+**
 
 📎 Verknüpfte Kapitel
 ---------------------
