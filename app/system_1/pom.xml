@@ -63,6 +63,22 @@
 			<artifactId>spring-integration-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.eclipse.milo</groupId>
+			<artifactId>sdk-client</artifactId>
+			<version>0.6.8</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.milo</groupId>
+			<artifactId>opc-ua-sdk</artifactId>
+			<version>0.6.8</version>
+			<type>pom</type>
+		</dependency>
+		<dependency>
+			<groupId>org.bouncycastle</groupId>
+			<artifactId>bcprov-jdk15on</artifactId>
+			<version>1.70</version>
+		</dependency>
 	</dependencies>
 
 	<build>
