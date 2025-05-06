@@ -25,8 +25,8 @@ Dieses Kapitel beschreibt die grundlegenden **Projektregeln**, Konventionen und 
 /  ├── app/
 /       ├── raspi/          # Raspberry Pi Code
 /           ├── opc_ua/         # OPC UA Server
-/           └── tcp_ip/         # TCP/IP Server
-/       ├── system_1/         # Spring Boot Backend & Python Scripts
+/           └── tcp_ip/         # TCP/IP Socket
+/       ├── system_1/         # Spring Boot Backend
 /       ├── system_2/         # MQTT & Database Server
 /       ├── system_3/         # React Native Mobile App
 /  ├── docs/               # Project Documentation
@@ -50,6 +50,8 @@ Dieses Kapitel beschreibt die grundlegenden **Projektregeln**, Konventionen und 
 *   **Code Cleanliness:** 
 
     *   **Ordner**: snake_case
+
+    *   **Docs-Datein**: snake_case
     
     *   **Code**: camelCase, PascalCase
     
@@ -68,7 +70,7 @@ Dieses Kapitel beschreibt die grundlegenden **Projektregeln**, Konventionen und 
 
 #### 📦 Git-Konventionen
 
-*   Branch-Namen: feature/, bugfix/, hotfix/
+*   Branch-Namen: feature/, bugfix/, hotfix/, refactor/
 
 *   Git-Commits: 
 
@@ -90,8 +92,6 @@ Dieses Kapitel beschreibt die grundlegenden **Projektregeln**, Konventionen und 
 ### 📥 Repository klonen
 
 Um das Projekt lokal zu nutzen, muss das GitHub-Repository geklont werden:
-
-> **Hinweis:** Der Zugriff wird über eure GitHub-Accounts geregelt. Stellt sicher, dass ihr eingeladen seid und Schreibrechte besitzt.
 
 ```bash
 git clone https://github.com/MEscape/die-macher.git

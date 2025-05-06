@@ -1,113 +1,117 @@
 📄 03_Datenfluss_und_Kommunikation.md
-====================================
+==========================
 
-🔄 Kommunikationsübersicht
--------------------------
+🔄 Datenfluss und Kommunikation
+----------------------------------------------------------------------
 
-Dieses Kapitel beschreibt die dynamischen Kommunikationsabläufe zwischen den Systemkomponenten. Der Fokus liegt auf dem Datenfluss von der Sensorik über die Verarbeitung bis zur Visualisierung.
+Dieses Kapitel beschreibt die **Kommunikationswege** und **Datenflüsse** zwischen den verschiedenen Komponenten des Projekts "Die Macher". Es zeigt die Interaktionen zwischen Raspberry Pi, System 1 (Spring Boot) und externen Systemen sowie die verwendeten Protokolle und Datenformate.
 
-📊 Detaillierter Datenfluss
-------------------------
+🔄 Hauptprozess (Main Flow)
+--------------------------
 
 ```mermaid
 sequenceDiagram
-    participant S as Sensors (GPIO/Camera)
-    participant R as Raspberry Pi
-    participant S1 as System 1 (Spring Boot)
-    participant DB as Database
-    participant App as Mobile App
+    participant SB as System 1 (Spring Boot)
+    participant DB as Dobot
+    participant RPI_C as Raspberry Pi Camera
+    participant RPI_S as Raspberry Pi Sensors
+    participant AW as awattar API
+    participant S2 as System 2
+
+    Note over SB,S2: Hauptprozess (Main Flow)
     
-    S->>R: Raw Sensor Data
-    R->>S1: OPC UA / TCP Data
-    S1->>DB: Store Processed Data
-    S1->>App: Real-time Updates (MQTT)
-    App->>DB: Historical Data Query
-    
-    Note over S1,DB: Periodic Data Aggregation
-    Note over S1,App: Real-time Monitoring
+    SB->>DB: 1. Starte Pick & Place
+    DB->>DB: Greife Würfel an fester Position
+    DB->>RPI_C: 2. Platziere Würfel vor Kamera
+    SB->>RPI_C: 3. TCP-Anfrage: Bild anfordern
+    RPI_C->>RPI_C: Schneide Würfelbild zu
+    RPI_C->>SB: 4. Sende Byte-Array mit Custom Header
+    SB->>SB: Dekodiere Bild & analysiere Farbe
+    SB->>DB: 5. Sortiere Würfel basierend auf Farbe
+    DB->>DB: 6. Kehre zur Startposition zurück
+
+    rect rgb(51, 51, 109)
+    Note right of SB: Parallel ablaufende Prozesse
+    RPI_S->>RPI_S: Lese Temperatur & Luftfeuchtigkeit
+    RPI_S->>SB: OPC UA Datenaustausch (verschlüsselt)
+    SB->>AW: REST API Anfrage: Strompreise
+    AW->>SB: Liefere aktuelle Preisdaten
+    SB->>SB: Berechne Stromkosten
+    end
+
+    SB->>S2: 7. Übermittle alle Daten via TCP
 ```
 
-📎 Verknüpfte Kapitel
--------------------
+📡 Kommunikationsprotokolle im Detail
+----------------------------------
 
-- [02_Systemarchitektur.md](02_Systemarchitektur.md)
-- [04_Softwarekomponenten_System1.md](04_Softwarekomponenten_System1.md)
-- [08_MQTT_Nachrichtenmodell.md](08_MQTT_Nachrichtenmodell.md)
+### 🔌 TCP/IP Kommunikation (Raspberry Pi ↔ System 1)
 
-📄 02_Systemarchitektur.md
-==========================
+* **Richtung:** Bidirektional
+* **Initiator:** System 1 (Spring Boot) sendet Anfrage
+* **Responder:** Raspberry Pi (TCP-Client) antwortet
+* **Datenformat:** Byte-Array mit Custom Header
+* **Inhalt:** Zugeschnittenes Bild des Würfels
+* **Besonderheit:** Raspberry Pi agiert als TCP-Client, nicht als Server
 
-🔧 Systemübersicht
+### 🔐 OPC UA Kommunikation (Raspberry Pi → System 1)
+
+* **Richtung:** Unidirektional (Sensordaten)
+* **Sicherheit:** Verschlüsselt mit Zertifikaten
+* **Authentifizierung:** Zertifikatsbasiert
+* **Datentypen:** Temperatur (°C), Luftfeuchtigkeit (%)
+* **Aktualisierungsrate:** Regelmäßige Übertragung
+
+### 🌐 REST API Kommunikation (System 1 ↔ awattar)
+
+* **Richtung:** Request-Response
+* **Datenformat:** JSON
+* **Abfrageparameter:** Zeitraum, Region
+* **Rückgabewerte:** Strompreise (€/kWh)
+* **Verwendung:** Berechnung der Stromkosten
+
+### 📊 Datenweiterleitung (System 1 → System 2)
+
+* **Protokoll:** TCP
+* **Datenformat:** Strukturierte Daten
+* **Inhalte:**
+  * Farbklassifikation der Würfel
+  * Temperatur- und Luftfeuchtigkeitswerte
+  * Berechnete Stromkosten
+  * Prozessstatistiken
+
+🤖 Dobot Steuerung
 ----------------
 
-Die Systemarchitektur unseres Industrie 4.0-Projekts besteht aus drei Hauptkomponenten, die über verschiedene Kommunikationsprotokolle miteinander verbunden sind. Das System demonstriert moderne industrielle Kommunikationsstandards und ermöglicht eine durchgängige Datenkette von der Sensorik bis zur Visualisierung.
-
-📊 Systemkomponenten-Flow
-------------------------
-
 ```mermaid
-flowchart TD
-  subgraph "Raspberry Pi - Python"
-    A1[GPIO Sensor<br/>Temp & Feuchtigkeit]
-    A2[OPC UA Server]
-    A3[Farberkennung Kamera]
-    A4[TCP/IP Socket Server]
+sequenceDiagram
+    participant SB as System 1 (Spring Boot)
+    participant DB as Dobot Controller
+    participant Robot as Dobot Roboter
+
+    SB->>DB: Initialisiere Verbindung (USB)
+    SB->>DB: Setze Geschwindigkeit & Beschleunigung
+    SB->>DB: Kommando: Startposition anfahren
+    DB->>Robot: Führe Bewegung aus
+    Robot->>DB: Status: Bereit
+    DB->>SB: Bestätigung: Bereit
     
-    A1 --> A2
-    A3 --> A4
-  end
-
-  subgraph "System 1 - PC Spring Boot"
-    B1[OPC UA Client<br/>liest Temperatur & Feuchtigkeit]
-    B2[TCP/IP Client<br/>empfängt RGB-Daten]
-    B3[Farbanalyse & Sortierlogik]
-    B4[Dobot Steuerung<br/>USB]
-    B5[Stromkostenmodul]
-    B6[REST Client → awattar]
-  end
-
-  subgraph Extern
-    C1[awattar API<br/>REST]
-  end
-
-  A2 --> B1
-  A4 --> B2
-  B2 --> B3
-  B1 --> B3
-  B5 --> B3
-  B3 --> B4
-  C1 --> B6
-  B6 --> B5
+    loop Für jeden Würfel
+        SB->>DB: Kommando: Greife Würfel (feste Position)
+        DB->>Robot: Führe Greifbewegung aus
+        SB->>DB: Kommando: Positioniere vor Kamera
+        DB->>Robot: Führe Bewegung aus
+        Note over SB,Robot: Farbanalyse findet statt
+        SB->>DB: Kommando: Ablage nach Farbe (Position X)
+        DB->>Robot: Führe Ablagebewegung aus
+        SB->>DB: Kommando: Zurück zur Startposition
+        DB->>Robot: Führe Bewegung aus
+    end
 ```
-
-🔍 Hauptkomponenten
------------------
-
-### 1. Raspberry Pi (Python)
-- **Sensordatenerfassung:** Temperatur- und Feuchtigkeitsmessung über GPIO
-- **Bildverarbeitung:** Farberkennung mittels Kamera
-- **Kommunikation:** OPC UA Server für Sensordaten, TCP/IP Socket Server für Bilddaten
-
-### 2. System 1 - PC (Spring Boot)
-- **Datenempfang:** OPC UA Client und TCP/IP Client
-- **Verarbeitung:** Farbanalyse und Sortierlogik
-- **Steuerung:** Dobot-Roboter via USB
-- **Energiemanagement:** Stromkostenberechnung mit aWATTar-Integration
-
-### 3. Externe Systeme
-- **aWATTar API:** REST-Schnittstelle für Energiepreisdaten
-
-🔌 Kommunikationsprotokolle
--------------------------
-
-- **OPC UA:** Industriestandard für Sensordatenübertragung
-- **TCP/IP:** Netzwerkkommunikation für Bilddaten
-- **REST:** HTTP-basierte API-Kommunikation
-- **USB:** Direkte Hardwaresteuerung des Roboters
 
 📎 Verknüpfte Kapitel
 ---------------------
 
-- [03_Datenfluss_und_Kommunikation.md](03_Datenfluss_und_Kommunikation.md)
-- [04_Softwarekomponenten_System1.md](04_Softwarekomponenten_System1.md)
-- [08_MQTT_Nachrichtenmodell.md](08_MQTT_Nachrichtenmodell.md)
+* [02_Systemarchitektur.md](02_Systemarchitektur.md)
+* [04_Komponenten_und_System1.md](04_Komponenten_und_Module.md)
+* [05_System2_Architektur_und_Setup.md](05_System2_Architektur_und_Setup.md)
