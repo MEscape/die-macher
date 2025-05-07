@@ -14,10 +14,10 @@ flowchart TD
     %% Verbesserte Ausrichtung und Gruppierung
     subgraph RPI["Raspberry Pi (Python)"]
         direction TB
-        GPIO["GPIO Sensors\n(Temperatur, Luftfeuchtigkeit)"]
-        OPC_S["OPC UA Server\n(Verschlüsselt mit Zertifikaten)"]
-        CAM["Kamera\n(Würfel-Erkennung)"]
-        TCP_C["TCP Client\n(Custom Protocol)"]
+        GPIO["GPIO Sensors (Temperatur, Luftfeuchtigkeit)"]
+        OPC_S["OPC UA Server (Verschlüsselt mit Zertifikaten)"]
+        CAM["Kamera (Würfel-Erkennung)"]
+        TCP_C["TCP Server (Custom Protocol)"]
 
         GPIO --> OPC_S
         CAM --> TCP_C
@@ -25,11 +25,11 @@ flowchart TD
 
     subgraph SB["System 1 (Spring Boot, PC)"]
         direction TB
-        OPC_C["OPC UA Client\n(Zertifikats-Authentifizierung)"]
-        TCP_S["TCP Server\n(Inbound + Outbound)"]
-        IMG_A["Kamera-Analyse/\nFarbservice"]
-        DOBOT["Dobot Steuerung\n(USB)"]
-        AWATTAR["Stromkostenmodul/\nawattar"]
+        OPC_C["OPC UA Client (Zertifikats-Authentifizierung)"]
+        TCP_S["TCP Client (Inbound + Outbound)"]
+        IMG_A["Kamera-Analyse/Farbservice"]
+        DOBOT["Dobot Steuerung (USB)"]
+        AWATTAR["Stromkostenmodul/awattar"]
         FWD["Datenweiterleitung"]
 
         TCP_S --> IMG_A
@@ -40,7 +40,7 @@ flowchart TD
     end
 
     subgraph EXT["Externe Systeme"]
-        AWAT_API["awattar API\n(REST)"]
+        AWAT_API["awattar API (REST)"]
     end
 
     %% Verbesserte Verbindungen mit höherem Kontrast
@@ -84,31 +84,31 @@ flowchart TD
 flowchart TB
     %% Subflow 1: Dobot und Kamera-Zyklus
     subgraph SF1["Subflow 1: Dobot und Kamera-Zyklus"]
-        A1["1. Dobot platziert Würfel\nvor Kamera"]:::sf1_step
-        B1["2. Spring Boot sendet\nTCP-Anfrage"]:::sf1_step
-        C1["3. Raspberry Pi schneidet\nBild zu & sendet\nByte-Response"]:::sf1_step
-        D1["4. Spring Boot dekodiert\nBild & analysiert Farbe"]:::sf1_step
-        E1["5. Farbe bestimmt\nDobot-Ablageposition"]:::sf1_step
-        F1["6. Dobot kehrt zur\nStartposition zurück"]:::sf1_step
+        A1["1. Dobot platziert Würfel vor Kamera"]:::sf1_step
+        B1["2. Spring Boot sendet TCP-Anfrage"]:::sf1_step
+        C1["3. Raspberry Pi schneidet Bild zu & sendet Byte-Response"]:::sf1_step
+        D1["4. Spring Boot dekodiert Bild & analysiert Farbe"]:::sf1_step
+        E1["5. Farbe bestimmt Dobot-Ablageposition"]:::sf1_step
+        F1["6. Dobot kehrt zur Startposition zurück"]:::sf1_step
         
         A1 --> B1 --> C1 --> D1 --> E1 --> F1
     end
 
     %% Subflow 2: Sensorik & OPC UA
     subgraph SF2["Subflow 2: Sensorik & OPC UA"]
-        A2["1. Raspberry Pi liest\nGPIO Sensoren aus"]:::sf2_step
-        B2["2. Werte über OPC UA\nServer bereitgestellt"]:::sf2_step
-        C2["3. Spring Boot greift als\nOPC UA Client auf Daten zu"]:::sf2_step
-        D2["4. Temperatur- & Luftfeuchtigkeits-\ndaten weiterverarbeitet"]:::sf2_step
+        A2["1. Raspberry Pi liest GPIO Sensoren aus"]:::sf2_step
+        B2["2. Werte über OPC UA Server bereitgestellt"]:::sf2_step
+        C2["3. Spring Boot greift als OPC UA Client auf Daten zu"]:::sf2_step
+        D2["4. Temperatur- & Luftfeuchtigkeitsdaten weiterverarbeitet"]:::sf2_step
         
         A2 --> B2 --> C2 --> D2
     end
 
     %% Subflow 3: Stromkosten-Ermittlung
     subgraph SF3["Subflow 3: Stromkosten-Ermittlung"]
-        A3["1. Spring Boot nutzt awattar\nREST API für Strompreise"]:::sf3_step
-        B3["2. Stromkosten\nwerden berechnet"]:::sf3_step 
-        C3["3. Ergebnis wird\ngespeichert"]:::sf3_step
+        A3["1. Spring Boot nutzt awattar REST API für Strompreise"]:::sf3_step
+        B3["2. Stromkosten werden berechnet"]:::sf3_step 
+        C3["3. Ergebnis wird gespeichert"]:::sf3_step
         
         A3 --> B3 --> C3
     end
@@ -139,15 +139,15 @@ flowchart LR
     
     %% Datenquellen als dedizierte Gruppe
     subgraph INPUT["Datenquellen"]
-        SENS["Temperatur &\nLuftfeuchtigkeit"]:::source
+        SENS["Temperatur & Luftfeuchtigkeit"]:::source
         CAM["Kamera"]:::source
         AWAPI["awattar API"]:::source
     end
     
     %% Raspberry Pi Komponenten
     subgraph RPI["Raspberry Pi"]
-        RPI_OPC["OPC UA Server\n(verschlüsselt)"]:::rpi
-        RPI_TCP["TCP Client\n(Custom Protocol)"]:::rpi
+        RPI_OPC["OPC UA Server (verschlüsselt)"]:::rpi
+        RPI_TCP["TCP Server (Custom Protocol)"]:::rpi
         
         SENS --> RPI_OPC
         CAM --> RPI_TCP
@@ -157,21 +157,21 @@ flowchart LR
     subgraph SB["Spring Boot"]
         %% Unterteilung in logische Module
         subgraph COMM["Kommunikation"]
-            SB_OPC["OPC UA\nClient"]:::sb_comm
-            SB_TCP["TCP\nServer"]:::sb_comm
+            SB_OPC["OPC UA Client"]:::sb_comm
+            SB_TCP["TCP Client"]:::sb_comm
         end
         
         subgraph PROC["Verarbeitung"]
-            SB_IMG["Bildanalyse\nFarbservice"]:::sb_proc
-            SB_COST["Stromkosten-\nmodul"]:::sb_proc
+            SB_IMG["Bildanalyse Farbservice"]:::sb_proc
+            SB_COST["Stromkostenmodul"]:::sb_proc
         end
         
         subgraph CTRL["Steuerung"]
-            SB_ROB["Dobot\nController"]:::sb_ctrl
+            SB_ROB["Dobot Controller"]:::sb_ctrl
         end
         
         subgraph DATA["Datenmanagement"]
-            SB_FWD["Daten-\nverarbeitung"]:::sb_data
+            SB_FWD["Datenverarbeitung"]:::sb_data
         end
         
         %% Interne Verbindungen
@@ -186,7 +186,7 @@ flowchart LR
     end
     
     %% Externe Systeme
-    DOBOT["Dobot\nRoboter"]:::external
+    DOBOT["Dobot Roboter"]:::external
     
     %% Hauptdatenflüsse zwischen Systemen
     RPI_OPC -->|"Sensorwerte"| SB_OPC
@@ -222,11 +222,11 @@ flowchart LR
   * Zugeschnittene Bilder des Würfels (zentraler Bildausschnitt)
   * Reagiert auf TCP-Anfragen von System 1
   * Sendet Byte-Array (Bilddaten) im Custom Protocol Format
-  * Agiert als TCP-Client
+  * Agiert als TCP-Server
 
 ### 🔵 System 1 (Spring Boot, PC)
 
-* **TCP-Server (Inbound + Outbound)**
+* **TCP-Client (Inbound + Outbound)**
   * Empfängt Nachrichten vom Raspberry Pi
   * Stellt gezielte Bildanfragen an den Raspberry Pi
   * Verarbeitet Byte-Response mit Custom Header

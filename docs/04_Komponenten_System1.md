@@ -16,7 +16,7 @@ flowchart TB
         %% Unterteilung in logische Module
         subgraph COMM["Kommunikation"]
             SB_OPC["OPC UA Client"]:::sb_comm
-            SB_TCP["TCP Server"]:::sb_comm
+            SB_TCP["TCP Client"]:::sb_comm
         end
         
         subgraph PROC["Verarbeitung"]
@@ -61,10 +61,10 @@ flowchart TB
     classDef external fill:#1B10F1,stroke:#333,stroke-width:1px,stroke-dasharray: 5 5
 ```
 
-📡 TCP-Server (Inbound + Outbound)
+📡 TCP-Client (Inbound + Outbound)
 ----------------------------------
 
-Der TCP-Server ist für die bidirektionale Kommunikation mit dem Raspberry Pi verantwortlich.
+Der TCP-Client ist für die bidirektionale Kommunikation mit dem Raspberry Pi verantwortlich.
 
 ### 🔄 Funktionalität
 
@@ -81,7 +81,7 @@ Der TCP-Server ist für die bidirektionale Kommunikation mit dem Raspberry Pi ve
 🔍 Kamera-Analyse / Farbservice
 ------------------------------
 
-Der Bildanalyse-Service verarbeitet die vom TCP-Server empfangenen Bilddaten und extrahiert die dominante Farbe.
+Der Bildanalyse-Service verarbeitet die vom TCP-Client empfangenen Bilddaten und extrahiert die dominante Farbe.
 
 ### 🔄 Funktionalität
 
@@ -174,7 +174,7 @@ Die Datenweiterleitung sammelt alle relevanten Daten und übermittelt sie an Sys
 
 System 1 bildet das zentrale Steuerungssystem des Projekts "Die Macher" und integriert verschiedene Komponenten:
 
-* **TCP-Server:** Bidirektionale Kommunikation mit dem Raspberry Pi
+* **TCP-Client:** Bidirektionale Kommunikation mit dem Raspberry Pi
 * **Bildanalyse:** Verarbeitung und Farbklassifikation von Würfelbildern
 * **Dobot-Steuerung:** Präzise Kontrolle des Roboterarms für Pick-and-Place
 * **OPC UA Client:** Sichere Kommunikation mit dem Raspberry Pi für Sensordaten

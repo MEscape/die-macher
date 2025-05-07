@@ -38,7 +38,10 @@ public class ColorDetectionService {
     private String determineColor(ColorStats stats) {
         LOGGER.debug("Color stats - R: {}, G: {}, B: {}", stats.red(), stats.green(), stats.blue());
 
-        if (stats.red > stats.green && stats.red > stats.blue) {
+        if (stats.red > 150 && stats.green > 150 && stats.blue < 100 && 
+            Math.abs(stats.red - stats.green) < 80) {
+            return "YELLOW";
+        } else if (stats.red > stats.green && stats.red > stats.blue) {
             return "RED";
         } else if (stats.green > stats.red && stats.green > stats.blue) {
             return "GREEN";
