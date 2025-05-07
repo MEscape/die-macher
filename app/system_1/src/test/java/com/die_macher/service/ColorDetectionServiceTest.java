@@ -55,6 +55,18 @@ class ColorDetectionServiceTest {
     }
 
     @Test
+    @DisplayName("Should detect YELLOW as dominant color")
+    void detectDominantColor_shouldReturnYellow() {
+        // Create a test image with predominantly yellow pixels (high red and green, low blue)
+        BufferedImage image = new BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB);
+        fillImage(image, new Color(255, 255, 30));
+
+        String result = colorDetectionService.detectDominantColor(image);
+
+        assertEquals("YELLOW", result);
+    }
+
+    @Test
     @DisplayName("Should handle image with equal color values")
     void detectDominantColor_shouldHandleEqualColors() {
         BufferedImage image = new BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB);
