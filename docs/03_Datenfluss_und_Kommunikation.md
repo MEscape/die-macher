@@ -49,10 +49,9 @@ sequenceDiagram
 
 * **Richtung:** Bidirektional
 * **Initiator:** System 1 (Spring Boot) sendet Anfrage
-* **Responder:** Raspberry Pi (TCP-Client) antwortet
+* **Responder:** Raspberry Pi (TCP-Server) antwortet
 * **Datenformat:** Byte-Array mit Custom Header
 * **Inhalt:** Zugeschnittenes Bild des Würfels
-* **Besonderheit:** Raspberry Pi agiert als TCP-Client, nicht als Server
 
 ### 🔐 OPC UA Kommunikation (Raspberry Pi → System 1)
 

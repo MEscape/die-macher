@@ -34,7 +34,7 @@ Das System besteht aus fünf verbundenen Hauptkomponenten:
 
 **Dobot Magician** Robotersteuerung, Pick-and-Place
 
-**System 1** Zentrale Steuerung und Datenverarbeitung, Roboteranbindung, TCP/IP Socket, Java Spring Boot
+**System 1** Zentrale Steuerung und Datenverarbeitung, Roboteranbindung, TCP/IP, Java Spring Boot
 
 **System 2** Datenbank- und MQTT-Server, PostgreSQL, EMQX, Ubuntu-VM
 

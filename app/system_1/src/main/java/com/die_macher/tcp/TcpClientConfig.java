@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.ip.tcp.TcpReceivingChannelAdapter;
+import org.springframework.integration.ip.tcp.TcpSendingMessageHandler;
 import org.springframework.integration.ip.tcp.connection.AbstractClientConnectionFactory;
 import org.springframework.integration.ip.tcp.connection.TcpNetClientConnectionFactory;
 import org.springframework.integration.ip.tcp.serializer.ByteArrayLengthHeaderSerializer;
@@ -30,12 +31,13 @@ class TcpClientConfig {
 
         factory.setSingleUse(false);
 
-        final ByteArrayLengthHeaderSerializer deserializer = new ByteArrayLengthHeaderSerializer(
+        final ByteArrayLengthHeaderSerializer serializer = new ByteArrayLengthHeaderSerializer(
                 tcpProperties.getHeaderSize()
         );
-        deserializer.setMaxMessageSize(tcpProperties.getMaxMessageSize());
+        serializer.setMaxMessageSize(tcpProperties.getMaxMessageSize());
 
-        factory.setDeserializer(deserializer);
+        factory.setDeserializer(serializer);
+        factory.setSerializer(serializer);
 
         LOGGER.info("Creating connection factory to {}:{}", tcpProperties.getHost(), tcpProperties.getPort());
 
@@ -54,5 +56,12 @@ class TcpClientConfig {
     @Bean
     public MessageChannel tcpChannel() {
         return new DirectChannel();
+    }
+    
+    @Bean
+    public TcpSendingMessageHandler tcpSendingMessageHandler(AbstractClientConnectionFactory connectionFactory) {
+        TcpSendingMessageHandler messageHandler = new TcpSendingMessageHandler();
+        messageHandler.setConnectionFactory(connectionFactory);
+        return messageHandler;
     }
 }
