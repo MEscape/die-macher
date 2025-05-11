@@ -1,0 +1,61 @@
+[project]
+name = "raspi"
+version = "0.1.0"
+description = "TCP/IP Camera Streaming and OPC UA Temperature & Humidity Monitoring on Raspberry Pi"
+authors = [
+    {name = "Marvin Eschenbach",email = "marvin.eschenbach@edag.com"}
+]
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = ["opencv-python (>=4.11.0.86,<5.0.0.0)", "asyncio (>=3.4.3,<4.0.0)"]
+
+[tool.poetry]
+packages = [
+    { include = "tcp_ip", from = "modules" }
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py38']
+include = '\.pyi?$'
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+ignore_missing_imports = true
+strict = true
+exclude = "^tests/"
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = "-ra -q --cov=modules --cov=main --cov-report=term-missing"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+pythonpath = ["."]
+norecursedirs = [".*", "build", "dist", "docs"]
+xfail_strict = true
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+
+[tool.coverage.run]
+omit = [
+    "modules/tcp_ip/test_camera.py",
+]
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.5"
+black = "^25.1.0"
+mypy = "^1.15.0"
+pylint = "^3.3.6"
+pytest-cov = "^6.1.1"
+pytest-asyncio = "^0.26.0"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
