@@ -67,6 +67,28 @@ class ColorDetectionServiceTest {
     }
 
     @Test
+    @DisplayName("Should not detect YELLOW if red-green difference is too high")
+    void detectDominantColor_shouldNotReturnYellow() {
+        BufferedImage image = new BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB);
+        fillImage(image, new Color(200, 100, 50)); // Difference is > 80
+
+        String result = colorDetectionService.detectDominantColor(image);
+
+        assertNotEquals("YELLOW", result);
+    }
+
+    @Test
+    @DisplayName("Should handle borderline yellow")
+    void detectDominantColor_shouldReturnYellowOnBorderline() {
+        BufferedImage image = new BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB);
+        fillImage(image, new Color(151, 151, 90)); // Difference is < 80, should be YELLOW
+
+        String result = colorDetectionService.detectDominantColor(image);
+
+        assertEquals("YELLOW", result);
+    }
+
+    @Test
     @DisplayName("Should handle image with equal color values")
     void detectDominantColor_shouldHandleEqualColors() {
         BufferedImage image = new BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB);

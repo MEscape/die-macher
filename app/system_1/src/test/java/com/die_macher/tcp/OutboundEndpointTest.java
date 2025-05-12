@@ -7,10 +7,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.integration.ip.tcp.TcpSendingMessageHandler;
 import org.springframework.messaging.Message;
+import org.springframework.messaging.MessagingException;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class OutboundEndpointTest {
@@ -27,6 +27,15 @@ class OutboundEndpointTest {
 
     @Test
     void requestImage_shouldSendMessageToServer() {
+        outboundEndpoint.requestImage();
+
+        verify(tcpSendingMessageHandler, times(1)).handleMessage(any(Message.class));
+    }
+
+    @Test
+    void requestImage_shouldHandleExceptionGracefully() {
+        doThrow(new MessagingException("Test exception")).when(tcpSendingMessageHandler).handleMessage(any(Message.class));
+
         outboundEndpoint.requestImage();
 
         verify(tcpSendingMessageHandler, times(1)).handleMessage(any(Message.class));

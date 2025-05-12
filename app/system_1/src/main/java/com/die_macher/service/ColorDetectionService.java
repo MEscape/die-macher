@@ -35,11 +35,24 @@ public class ColorDetectionService {
         );
     }
 
+    private boolean isYellow(ColorStats stats) {
+        // Calculate average of red and green
+        long avgRG = (stats.red + stats.green) / 2;
+
+        // Check if both red and green are high enough and blue is significantly lower
+        boolean highRedGreen = stats.red > 150 && stats.green > 150;
+        boolean lowBlue = stats.blue < 100;
+
+        // Check if red and green are close to each other (within 10% of the average)
+        boolean similarRedGreen = Math.abs(stats.red - stats.green) <= (0.1 * avgRG);
+
+        return highRedGreen && lowBlue && similarRedGreen;
+    }
+
     private String determineColor(ColorStats stats) {
         LOGGER.debug("Color stats - R: {}, G: {}, B: {}", stats.red(), stats.green(), stats.blue());
 
-        if (stats.red > 150 && stats.green > 150 && stats.blue < 100 && 
-            Math.abs(stats.red - stats.green) < 80) {
+        if (isYellow(stats)) {
             return "YELLOW";
         } else if (stats.red > stats.green && stats.red > stats.blue) {
             return "RED";

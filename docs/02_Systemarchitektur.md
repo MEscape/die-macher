@@ -77,59 +77,6 @@ flowchart TD
     class MF flow
 ```
 
-🔄 Hauptprozesse
------------------
-
-```mermaid
-flowchart TB
-    %% Subflow 1: Dobot und Kamera-Zyklus
-    subgraph SF1["Subflow 1: Dobot und Kamera-Zyklus"]
-        A1["1. Dobot platziert Würfel vor Kamera"]:::sf1_step
-        B1["2. Spring Boot sendet TCP-Anfrage"]:::sf1_step
-        C1["3. Raspberry Pi schneidet Bild zu & sendet Byte-Response"]:::sf1_step
-        D1["4. Spring Boot dekodiert Bild & analysiert Farbe"]:::sf1_step
-        E1["5. Farbe bestimmt Dobot-Ablageposition"]:::sf1_step
-        F1["6. Dobot kehrt zur Startposition zurück"]:::sf1_step
-        
-        A1 --> B1 --> C1 --> D1 --> E1 --> F1
-    end
-
-    %% Subflow 2: Sensorik & OPC UA
-    subgraph SF2["Subflow 2: Sensorik & OPC UA"]
-        A2["1. Raspberry Pi liest GPIO Sensoren aus"]:::sf2_step
-        B2["2. Werte über OPC UA Server bereitgestellt"]:::sf2_step
-        C2["3. Spring Boot greift als OPC UA Client auf Daten zu"]:::sf2_step
-        D2["4. Temperatur- & Luftfeuchtigkeitsdaten weiterverarbeitet"]:::sf2_step
-        
-        A2 --> B2 --> C2 --> D2
-    end
-
-    %% Subflow 3: Stromkosten-Ermittlung
-    subgraph SF3["Subflow 3: Stromkosten-Ermittlung"]
-        A3["1. Spring Boot nutzt awattar REST API für Strompreise"]:::sf3_step
-        B3["2. Stromkosten werden berechnet"]:::sf3_step 
-        C3["3. Ergebnis wird gespeichert"]:::sf3_step
-        
-        A3 --> B3 --> C3
-    end
-
-    %% Verbesserte Struktur durch Platzierung
-    SF1 --> SF2 --> SF3
-    
-    %% Verbessertes Styling mit deutlicheren Schritten
-    classDef subflow1 fill:#F9844A,stroke:#1D3557,stroke-width:3px,color:black
-    classDef subflow2 fill:#4D908E,stroke:#1D3557,stroke-width:3px,color:black
-    classDef subflow3 fill:#90BE6D,stroke:#1D3557,stroke-width:3px,color:black
-    
-    classDef sf1_step fill:#FFBB98,stroke:#1D3557,stroke-width:2px,color:black,font-weight:bold
-    classDef sf2_step fill:#A7D5D3,stroke:#1D3557,stroke-width:2px,color:black,font-weight:bold
-    classDef sf3_step fill:#C8E1B9,stroke:#1D3557,stroke-width:2px,color:black,font-weight:bold
-    
-    class SF1 subflow1
-    class SF2 subflow2
-    class SF3 subflow3
-```
-
 📊 Datenflüsse
 --------------
 

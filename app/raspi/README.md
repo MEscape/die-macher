@@ -53,3 +53,9 @@ poetry add --dev <package-name>
 ```bash
 scripts/start
 ```
+
+## 📄 Building the module
+
+```bash
+scripts/build
+```
