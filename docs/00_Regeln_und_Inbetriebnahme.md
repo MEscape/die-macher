@@ -126,6 +126,10 @@ Nachdem das Repository geklont wurde, müssen die Abhängigkeiten installiert we
 
 *   **Python 3.11+**
 
+### 4. Dobot Magician
+
+*   **CP210x VCP Windows**: https://www.silabs.com/developer-tools/usb-to-uart-bridge-vcp-drivers?tab=downloads
+
 📎 Verknüpfte Kapitel
 ---------------------
 
