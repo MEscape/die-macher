@@ -1,4 +1,4 @@
-package com.die_macher.dobot;
+package com.die_macher.dobot.config;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
