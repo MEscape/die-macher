@@ -1,5 +1,8 @@
-package com.system_1.opcua_client;
+package com.die_macher.opcua_client;
 
+import com.die_macher.opcua_client.OpcuaConnectionManager;
+import com.die_macher.opcua_client.OpcuaSensorDataService;
+import com.die_macher.opcua_client.SensorData;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
 import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;

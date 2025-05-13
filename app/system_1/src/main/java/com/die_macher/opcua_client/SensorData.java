@@ -1,4 +1,4 @@
-package com.system_1.opcua_client;
+package com.die_macher.opcua_client;
 
 import java.time.LocalDateTime;
 

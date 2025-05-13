@@ -1,4 +1,4 @@
-package com.system_1.opcua_client;
+package com.die_macher.opcua_client;
 
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
@@ -23,6 +23,8 @@ public class OpcuaSecurityUtils {
         try (PEMParser parser = new PEMParser(new FileReader(certPath))) {
             X509CertificateHolder holder = (X509CertificateHolder) parser.readObject();
             return new JcaX509CertificateConverter().setProvider("BC").getCertificate(holder);
+        } catch (java.io.FileNotFoundException e) {
+            throw new java.io.FileNotFoundException("Certificate file not found: " + certPath);
         }
     }
     
@@ -38,6 +40,8 @@ public class OpcuaSecurityUtils {
             } else {
                 throw new IllegalArgumentException("Unsupported private key format in PEM file.");
             }
+        }  catch (java.io.FileNotFoundException e) {
+            throw new java.io.FileNotFoundException("Private key file not found: " + keyPath);
         }
     }
 }

@@ -11,7 +11,8 @@ dependencies = ["opencv-python (>=4.11.0.86,<5.0.0.0)", "asyncio (>=3.4.3,<4.0.0
 
 [tool.poetry]
 packages = [
-    { include = "tcp_ip", from = "modules" }
+    { include = "tcp_ip", from = "modules" },
+    { include = "opc_ua", from = "modules" }
 ]
 
 [tool.black]

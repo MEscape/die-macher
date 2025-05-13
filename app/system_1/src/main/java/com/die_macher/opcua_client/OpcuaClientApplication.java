@@ -1,10 +1,10 @@
-package com.system_1.opcua_client;
+package com.die_macher.opcua_client;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import java.util.Map;
+
 import java.util.Optional;
 
 /**
@@ -69,10 +69,7 @@ public class OpcuaClientApplication {
      */
     public Optional<SensorData> getLatestSensorData() {
         String id = readAndStoreSensorData();
-        if (id != null) {
-            return sensorDataService.getSensorData(id);
-        }
-        return Optional.empty();
+        return sensorDataService.getSensorData(id);
     }
     
     /**

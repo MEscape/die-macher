@@ -1,14 +1,13 @@
-package com.system_1.opcua_client;
+package com.die_macher.opcua_client;
 
+import com.die_macher.opcua_client.OpcuaSecurityUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.FileWriter;
 import java.nio.file.Path;
-import java.security.PrivateKey;
 import java.security.Security;
-import java.security.cert.X509Certificate;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import static org.junit.jupiter.api.Assertions.*;
@@ -28,37 +27,40 @@ class OpcuaSecurityUtilsTest {
         }
         securityUtils = new OpcuaSecurityUtils();
     }
-    
+
     @Test
     void testLoadCertificateInvalidPath() {
         // Arrange
         String nonExistentPath = tempDir.resolve("non-existent-cert.pem").toString();
-        
+
         // Act & Assert
         Exception exception = assertThrows(Exception.class, () -> {
             securityUtils.loadCertificate(nonExistentPath);
         });
-        
-        assertTrue(exception.getMessage().contains("no such file") || 
+
+        assertTrue(exception.getMessage().contains("no such file") ||
                    exception.getMessage().contains("cannot find") ||
                    exception.getMessage().contains("not found"),
                    "Exception should indicate file not found");
     }
-    
+
     @Test
     void testLoadPrivateKeyInvalidPath() {
         // Arrange
         String nonExistentPath = tempDir.resolve("non-existent-key.pem").toString();
-        
+
         // Act & Assert
         Exception exception = assertThrows(Exception.class, () -> {
             securityUtils.loadPrivateKey(nonExistentPath);
         });
-        
-        assertTrue(exception.getMessage().contains("no such file") || 
-                   exception.getMessage().contains("cannot find") ||
-                   exception.getMessage().contains("not found"),
-                   "Exception should indicate file not found");
+
+        // System.out.println("Actual exception message: " + exception.getMessage());
+
+        assertTrue(exception.getMessage().contains("no such file") ||
+                        exception.getMessage().contains("cannot find") ||
+                        exception.getMessage().contains("not found") ||
+                        exception.getMessage().contains("kann die angegebene Datei nicht finden"),
+                "Exception should indicate file not found");
     }
     
     @Test

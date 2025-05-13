@@ -26,7 +26,7 @@ async def main() -> None:
     try:
         # Create tasks for both servers
         tcp_task = asyncio.create_task(run_tcp_server())
-        # opc_task = asyncio.create_task(run_opc_server())
+        #opc_task = asyncio.create_task(run_opc_server())
 
         # Wait for both tasks to complete
         # await asyncio.gather(tcp_task, opc_task)

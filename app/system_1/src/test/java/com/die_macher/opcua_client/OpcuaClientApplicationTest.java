@@ -1,5 +1,9 @@
-package com.system_1.opcua_client;
+package com.die_macher.opcua_client;
 
+import com.die_macher.opcua_client.OpcuaClientApplication;
+import com.die_macher.opcua_client.OpcuaConnectionManager;
+import com.die_macher.opcua_client.OpcuaSensorDataService;
+import com.die_macher.opcua_client.SensorData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

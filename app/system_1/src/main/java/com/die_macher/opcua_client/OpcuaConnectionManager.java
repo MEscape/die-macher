@@ -1,5 +1,6 @@
-package com.system_1.opcua_client;
+package com.die_macher.opcua_client;
 
+import lombok.Getter;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.sdk.client.api.UaClient;
@@ -39,9 +40,24 @@ public class OpcuaConnectionManager {
     
     @Value("${opcua.namespace}")
     private String namespace;
-    
+
+    /**
+     * -- GETTER --
+     *  Get the OPC UA client instance.
+     */
+    @Getter
     private OpcUaClient client;
+    /**
+     * -- GETTER --
+     *  Get the namespace index.
+     */
+    @Getter
     private int namespaceIndex;
+    /**
+     * -- GETTER --
+     *  Check if the client is connected.
+     */
+    @Getter
     private boolean connected = false;
     
     private final OpcuaSecurityUtils securityUtils;
@@ -115,6 +131,8 @@ public class OpcuaConnectionManager {
                 connected = false;
             } catch (Exception e) {
                 System.err.println("[OPC UA] Error disconnecting client: " + e.getMessage());
+            } finally {
+                connected = false;
             }
         }
     }
@@ -126,29 +144,6 @@ public class OpcuaConnectionManager {
         disconnect();
         return connectToServer();
     }
-    
-    /**
-     * Check if the client is connected.
-     */
-    public boolean isConnected() {
-        return connected;
-    }
-    
-    /**
-     * Get the OPC UA client instance.
-     */
-    public OpcUaClient getClient() {
-        return client;
-    }
-    
-    /**
-     * Get the namespace index.
-     */
-    public int getNamespaceIndex() {
-        return namespaceIndex;
-    }
-    
-    // Private helper methods
     
     private void logEndpoints(List<EndpointDescription> endpoints) {
         System.out.println("=== Available endpoints ===");
