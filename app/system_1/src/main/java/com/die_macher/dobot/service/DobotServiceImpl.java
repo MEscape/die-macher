@@ -12,10 +12,6 @@ import org.springframework.stereotype.Service;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 
-/**
- * Enhanced version of the DobotService that uses the command pattern.
- * This improves extensibility and separates concerns more clearly.
- */
 @Service
 public class DobotServiceImpl implements DobotService {
     private static final Logger LOGGER = LoggerFactory.getLogger(DobotServiceImpl.class);
@@ -64,7 +60,6 @@ public class DobotServiceImpl implements DobotService {
 
         boolean connected = connector.connect(
                 properties.getPortName(),
-                properties.getBaudRate(),
                 properties.getTimeoutMillis()
         );
 
@@ -107,6 +102,86 @@ public class DobotServiceImpl implements DobotService {
         } catch (DobotCommunicationException e) {
             LOGGER.error("Failed to get device name: {}", e.getMessage());
             return null;
+        }
+    }
+    
+    @Override
+    public boolean moveToPosition(float x, float y, float z, float r) {
+        try {
+            return commandExecutor.moveToPosition(x, y, z, r, true);
+        } catch (DobotCommunicationException e) {
+            LOGGER.error("Failed to move: {}", e.getMessage());
+            return false;
+        }
+    }
+
+    @Override
+    public boolean goHome() {
+        try {
+            return commandExecutor.goHome(true);
+        } catch (DobotCommunicationException e) {
+            LOGGER.error("Failed to go home: {}", e.getMessage());
+            return false;
+        }
+    }
+
+    @Override
+    public boolean setVacuumState(boolean isSucked) {
+        try {
+            return commandExecutor.setVacuumState(isSucked, true);
+        } catch (DobotCommunicationException e) {
+            LOGGER.error("Failed to change the suck state: {}", e.getMessage());
+            return false;
+        }
+    }
+
+    @Override
+    public boolean executeQueue() {
+        try {
+            return commandExecutor.executeQueue();
+        } catch (DobotCommunicationException e) {
+            LOGGER.error("Failed to execute the queue: {}", e.getMessage());
+            return false;
+        }
+    }
+
+    @Override
+    public boolean setDefaultHome() {
+        try {
+            return commandExecutor.setDefaultHomeCommand();
+        } catch (DobotCommunicationException e) {
+            LOGGER.error("Failed to set home: {}", e.getMessage());
+            return false;
+        }
+    }
+
+    @Override
+    public boolean setMovementConfig(float xyzVelocity, float rVelocity, float xyzAcceleration, float rAcceleration) {
+        try {
+            return commandExecutor.setMovementConfig(xyzVelocity, rVelocity, xyzAcceleration, rAcceleration);
+        } catch (DobotCommunicationException e) {
+            LOGGER.error("Failed to set new movement config: {}", e.getMessage());
+            return false;
+        }
+    }
+
+    @Override
+    public float[] getMovementConfig() {
+        try {
+            return commandExecutor.getMovementConfig();
+        } catch (DobotCommunicationException e) {
+            LOGGER.error("Failed to retrieve movement config: {}", e.getMessage());
+            return null;
+        }
+    }
+
+    @Override
+    public boolean setDeviceName(String deviceName) {
+        try {
+            return commandExecutor.setDeviceName(deviceName);
+        } catch (DobotCommunicationException e) {
+            LOGGER.error("Failed to set new device name: {}", e.getMessage());
+            return false;
         }
     }
 }
