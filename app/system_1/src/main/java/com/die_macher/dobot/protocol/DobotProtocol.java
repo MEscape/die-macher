@@ -1,6 +1,5 @@
 package com.die_macher.dobot.protocol;
 
-import java.util.Arrays;
 
 /**
  * Constants for Dobot protocol communication.
@@ -18,6 +17,14 @@ public final class DobotProtocol {
     public static final class Commands {
         public static final int GET_DEVICE_SN = 0;
         public static final int GET_DEVICE_NAME = 1;
+        public static final int SET_DEVICE_NAME = 1;
+        public static final int SET_HOME_PARAMS = 30;
+        public static final int SET_HOME_CMD = 31;
+        public static final int SET_END_EFFECTOR_SUCTION_CUP = 62;
+        public static final int SET_PTP_CMD = 84;
+        public static final int SET_PTP_COORDINATE_PARAMS = 81;
+        public static final int GET_PTP_COORDINATE_PARAMS = 81;
+        public static final int SET_QUEUED_CMD_START_EXEC = 240;
     }
 
     // Control bits
@@ -42,11 +49,15 @@ public final class DobotProtocol {
      */
     public static byte calculateChecksum(byte[] data) {
         int sum = 0;
+
         for (int i = 3; i < data.length; i++) {
             sum += (data[i] & 0xFF);
         }
+
         sum = sum & 0xFF; // Keep only the lowest 8 bits
-        return (byte) (256 - sum); // Two's complement
+
+        // Two's complement (256 - sum) modulo 256
+        return (byte) ((~sum + 1) & 0xFF);
     }
 
     /**
@@ -70,25 +81,38 @@ public final class DobotProtocol {
     }
 
     /**
-     * Extracts the payload from a protocol response.
+     * Extracts the payload from a protocol response and validates its checksum using 2's complement.
      *
      * @param response the full response received from Dobot
-     * @return byte array containing just the payload, or null if invalid
+     * @return byte array containing just the payload if valid, or null if invalid
      */
     public static byte[] extractResponsePayload(byte[] response) {
-        if (response.length < 5) {  // Header(2) + Len(1) + ID(1) + Ctrl(1)
+        if (response.length < 6) {  // Header(2) + Len(1) + ID(1) + Ctrl(1) + Checksum(1)
             return null;
         }
 
         // The length field is the payload size + 2
         int payloadLength = (response[2] & 0xFF) - 2;
 
-        if (payloadLength < 0 || payloadLength > response.length - 5) {
+        if (payloadLength < 0 || payloadLength > response.length - 6) {
             return null;
         }
 
+        // Compute checksum: sum of all payload bytes + the "check byte"
+        int sum = 0;
+        for (int i = 3; i < response.length - 1; i++) {
+            sum += (response[i] & 0xFF);
+        }
+
+        // Validate checksum (it should be 0 if correct)
+        if ((sum & 0xFF) != 0) {
+            return null;
+        }
+
+        // Getting the payload
         byte[] payload = new byte[payloadLength];
         System.arraycopy(response, 5, payload, 0, payloadLength);
+
         return payload;
     }
 }

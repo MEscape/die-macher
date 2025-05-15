@@ -24,11 +24,10 @@ public class DobotSerialConnector {
      * Opens a connection to the specified serial port.
      *
      * @param portName the name of the serial port
-     * @param baudRate the baud rate
      * @param timeout the connection timeout in milliseconds
      * @return true if connection was successful, false otherwise
      */
-    public boolean connect(String portName, int baudRate, int timeout) {
+    public boolean connect(String portName, int timeout) {
         LOGGER.info("Connecting to Dobot on port: {}", portName);
 
         // List available ports
@@ -36,7 +35,7 @@ public class DobotSerialConnector {
 
         // Open port
         serialPort = SerialPort.getCommPort(portName);
-        serialPort.setBaudRate(baudRate);
+        serialPort.setBaudRate(115200);
         serialPort.setNumDataBits(8);
         serialPort.setNumStopBits(1);
         serialPort.setParity(SerialPort.NO_PARITY);
