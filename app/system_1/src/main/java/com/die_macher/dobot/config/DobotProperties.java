@@ -17,10 +17,6 @@ public class DobotProperties {
     @NotBlank
     private String portName;
 
-    @Min(value = 9600)
-    @Max(value = 115200)
-    private int baudRate;
-
     @Min(value = 1000)
     @Max(value = 10000)
     private int timeoutMillis;
