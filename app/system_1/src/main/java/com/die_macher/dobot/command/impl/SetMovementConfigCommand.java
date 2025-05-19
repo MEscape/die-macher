@@ -21,7 +21,8 @@ public class SetMovementConfigCommand extends AbstractDobotCommand<Boolean> {
     @Override
     protected byte[] createMessage() {
         return DobotMessageFactory.createSetPTPCoordinateParamsMessage(
-                xyzVelocity, rVelocity, xyzAcceleration, rAcceleration);
+                xyzVelocity, rVelocity, xyzAcceleration, rAcceleration
+        );
     }
 
     @Override
