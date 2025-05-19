@@ -158,6 +158,9 @@ public class DobotSerialConnector {
      * @return true if connected, false otherwise
      */
     public boolean isConnected() {
-        return serialPort != null && serialPort.isOpen();
+        final boolean isConnected = serialPort != null && serialPort.isOpen();
+        LOGGER.debug("Dobot connection status: {}", isConnected ? "Connected" : "Not Connected");
+
+        return isConnected;
     }
 }

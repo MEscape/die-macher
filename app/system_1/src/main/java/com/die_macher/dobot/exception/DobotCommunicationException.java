@@ -1,4 +1,4 @@
-package com.die_macher.dobot;
+package com.die_macher.dobot.exception;
 
 /**
  * Exception thrown when communication with the Dobot device fails.

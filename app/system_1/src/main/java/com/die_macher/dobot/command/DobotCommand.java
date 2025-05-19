@@ -1,7 +1,7 @@
 package com.die_macher.dobot.command;
 
 import com.die_macher.dobot.config.DobotSerialConnector;
-import com.die_macher.dobot.DobotCommunicationException;
+import com.die_macher.dobot.exception.DobotCommunicationException;
 
 /**
  * Base interface for all Dobot commands.
