@@ -2,18 +2,23 @@ package com.die_macher.dobot.command;
 
 import com.die_macher.dobot.command.impl.*;
 import com.die_macher.dobot.config.DobotSerialConnector;
-import com.die_macher.dobot.DobotCommunicationException;
+import com.die_macher.dobot.exception.DobotCommunicationException;
 import org.springframework.stereotype.Component;
 
 /**
  * Factory for creating and executing Dobot commands.
  * Encapsulates the command pattern implementation and provides
- * a convenient API for the service layer.
+ * a convenient API for the service layer to interact with the Dobot.
  */
 @Component
 public class DobotCommandExecutor {
     private final DobotSerialConnector connector;
 
+    /**
+     * Constructs a new DobotCommandExecutor with the given connector.
+     *
+     * @param connector the serial connector for communication with the Dobot
+     */
     public DobotCommandExecutor(DobotSerialConnector connector) {
         this.connector = connector;
     }
@@ -31,9 +36,9 @@ public class DobotCommandExecutor {
     }
 
     /**
-     * Gets the device serial number.
+     * Retrieves the serial number of the connected Dobot device.
      *
-     * @return the device serial number
+     * @return the serial number of the Dobot
      * @throws DobotCommunicationException if communication with the device fails
      */
     public String getDeviceSN() throws DobotCommunicationException {
@@ -41,7 +46,7 @@ public class DobotCommandExecutor {
     }
 
     /**
-     * Gets the device name.
+     * Retrieves the name of the connected Dobot device.
      *
      * @return the device name
      * @throws DobotCommunicationException if communication with the device fails
@@ -51,13 +56,13 @@ public class DobotCommandExecutor {
     }
 
     /**
-     * Moves the Dobot to the specified position.
+     * Commands the Dobot to move to the specified position.
      *
-     * @param x X coordinate
-     * @param y Y coordinate
-     * @param z Z coordinate
-     * @param r R rotation
-     * @param isQueued true if the command should be queued, false otherwise
+     * @param x         X coordinate (mm)
+     * @param y         Y coordinate (mm)
+     * @param z         Z coordinate (mm)
+     * @param r         Rotation angle (°)
+     * @param isQueued  true if the command should be queued, false otherwise
      * @return true if the command was successfully sent
      * @throws DobotCommunicationException if communication with the device fails
      */
@@ -66,10 +71,10 @@ public class DobotCommandExecutor {
     }
 
     /**
-     * Moves the Dobot to its home position.
+     * Commands the Dobot to move back to its home position.
      *
      * @param isQueued true if the command should be queued, false otherwise
-     * @return true if the command was successfully sent
+     * @return true if the robot reached the home position successfully
      * @throws DobotCommunicationException if communication with the device fails
      */
     public boolean goHome(boolean isQueued) throws DobotCommunicationException {
@@ -77,11 +82,11 @@ public class DobotCommandExecutor {
     }
 
     /**
-     * Sets the vacuum state of the Dobot end effector.
+     * Activates or deactivates the vacuum end effector.
      *
-     * @param isSucked true to activate the suction, false to release it
+     * @param isSucked true to activate suction, false to release it
      * @param isQueued true if the command should be queued, false otherwise
-     * @return true if the command was successfully sent
+     * @return true if the vacuum state was successfully changed
      * @throws DobotCommunicationException if communication with the device fails
      */
     public boolean setVacuumState(boolean isSucked, boolean isQueued) throws DobotCommunicationException {
@@ -89,9 +94,9 @@ public class DobotCommandExecutor {
     }
 
     /**
-     * Executes the queue of commands, which were held back by the dobot.
+     * Executes the queue of commands held back by the Dobot.
      *
-     * @return true if the command was successfully sent
+     * @return true if the commands were successfully executed
      * @throws DobotCommunicationException if communication with the device fails
      */
     public boolean executeQueue() throws DobotCommunicationException {
@@ -99,50 +104,58 @@ public class DobotCommandExecutor {
     }
 
     /**
-     * Sets the Dobot to its default home position (0°, 45°, 45°, 0°).
+     * Commands the Dobot to move to its default home position (0°, 45°, 45°, 0°).
      *
-     * @return true if the command was successfully sent and acknowledged by the Dobot
+     * @return true if the command was successfully sent and acknowledged
      * @throws DobotCommunicationException if communication with the device fails
      */
     public boolean setDefaultHomeCommand() throws DobotCommunicationException {
         return executeCommand(new SetDefaultHomeCommand());
     }
-    
+
     /**
-     * Sets the velocity and acceleration parameters for PTP (Point-to-Point) motion in Cartesian coordinate system.
+     * Sets velocity and acceleration parameters for PTP (Point-to-Point) motion.
      *
-     * @param xyzVelocity     The velocity of xyz coordinate (mm/s)
-     * @param rVelocity       The velocity of end-effector (°/s)
-     * @param xyzAcceleration The acceleration of xyz coordinate (mm/s²)
-     * @param rAcceleration   The acceleration of end-effector (°/s²)
-     * @return true if the command was successfully sent and acknowledged by the Dobot
+     * @param xyzVelocity             Velocity for XYZ movement (mm/s)
+     * @param rVelocity               Velocity for rotation (°/s)
+     * @param xyzAcceleration         Acceleration for XYZ movement (mm/s²)
+     * @param rAcceleration           Acceleration for rotation (°/s²)
+     * @return true if the configuration was successful
      * @throws DobotCommunicationException if communication with the device fails
      */
     public boolean setMovementConfig(float xyzVelocity, float rVelocity,
-                                         float xyzAcceleration, float rAcceleration) throws DobotCommunicationException {
-        return executeCommand(new SetMovementConfigCommand(xyzVelocity, rVelocity,
-                                                              xyzAcceleration, rAcceleration));
-    }
-    
-    /**
-     * Gets the current velocity and acceleration parameters for PTP (Point-to-Point) motion.
-     *
-     * @return array of float values [xyzVelocity, rVelocity, xyzAcceleration, rAcceleration]
-     * @throws DobotCommunicationException if communication with the device fails
-     */
-    public float[] getMovementConfig() throws DobotCommunicationException {
-        return executeCommand(new GetMovementConfigCommand());
+                                     float xyzAcceleration, float rAcceleration) throws DobotCommunicationException {
+        return executeCommand(new SetMovementConfigCommand(xyzVelocity, rVelocity, xyzAcceleration, rAcceleration));
     }
 
     /**
-     * Sets the device name of the Dobot.
+     * Sets a custom name for the Dobot device.
      *
-     * @param deviceName The desired name for the Dobot device.
-     * @return true if the command was successfully sent and the device name was updated;
-     *         false otherwise.
+     * @param deviceName the desired name for the Dobot
+     * @return true if the name was successfully set
      * @throws DobotCommunicationException if communication with the device fails
      */
     public boolean setDeviceName(String deviceName) throws DobotCommunicationException {
         return executeCommand(new SetDeviceNameCommand(deviceName));
+    }
+
+    /**
+     * Clears all pending commands in the Dobot's queue.
+     *
+     * @return true if the queue was cleared successfully
+     * @throws DobotCommunicationException if communication with the device fails
+     */
+    public boolean clearQueue() throws DobotCommunicationException {
+        return executeCommand(new ClearQueueCommand());
+    }
+
+    /**
+     * Halts the execution of the current command queue.
+     *
+     * @return true if the execution was stopped successfully
+     * @throws DobotCommunicationException if communication with the device fails
+     */
+    public boolean stopExecuteQueue() throws DobotCommunicationException {
+        return executeCommand(new StopExecuteQueueCommand());
     }
 }
