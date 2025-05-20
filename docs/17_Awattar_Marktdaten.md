@@ -34,9 +34,7 @@ curl "https://api.awattar.at/v1/marketdata?start=1561932000000"
 "end_timestamp": 1561939200000,
 "marketprice": 26.23,
 "unit": "Eur/MWh"
-},
-...
-]
+}
 ```
 
  Die Antwort besteht aus einer Liste von Objekten mit folgenden Feldern:
@@ -95,26 +93,18 @@ curl "https://api.awattar.at/v1/marketdata?start=1561932000000"
 **Beispielantwort:**
 
 {
-
-"object":"list",
-
- "data":[
-
- {
-
-    "startTimestamp": 1717970400000,
-
-      "endTimestamp": 1717974000000,
-
-      "marketprice": 120.5,
-
-      "unit": "EUR/MWh"
-
-     ,
-     ...
-
+  "object": "list",
+  "data": [
+    {
+      "start_timestamp": 1747778400000,
+      "end_timestamp": 1747782000000,
+      "marketprice": 107.93,
+      "unit": "Eur/MWh",
+      "priceInEurPerKwh": 0.10793,
+      "startTimeFormatted": "21.05.2025 00:00",
+      "endTimeFormatted": "21.05.2025 01:00"
+    }
   ]
-
 }
 
 ---
@@ -131,15 +121,13 @@ curl "https://api.awattar.at/v1/marketdata?start=1561932000000"
 **Beispielantwort:**
 
 {
-
-  "startTimestamp": 1717970400000,
-
-  "endTimestamp": 1717974000000,
-
-  "marketprice": 120.5,
-
-  "unit": "EUR/MWh"
-
+  "start_timestamp": 1747749600000,
+  "end_timestamp": 1747753200000,
+  "marketprice": 70.05,
+  "unit": "Eur/MWh",
+  "priceInEurPerKwh": 0.07005,
+  "startTimeFormatted": "20.05.2025 16:00",
+  "endTimeFormatted": "20.05.2025 17:00"
 }
 
 ---
@@ -156,31 +144,41 @@ curl "https://api.awattar.at/v1/marketdata?start=1561932000000"
 **Beispielantwort:**
 
 {
-
-  "startTimestamp": 1717970400000,
-
-  "endTimestamp": 1717981200000,
-
+  "startTimestamp": 1747821600000,
+  "endTimestamp": 1747832400000,
   "prices": [
-
     {
-
-       "start_timestamp": 1717970400000,
-
-      "end_timestamp": 1717974000000,
-
-      "marketprice": 120.5,
-
-       "unit": "EUR/MWh"
-
-     },
-
-    ...
-
+      "start_timestamp": 1747821600000,
+      "end_timestamp": 1747825200000,
+      "marketprice": -0.1,
+      "unit": "Eur/MWh",
+      "priceInEurPerKwh": -0.0001,
+      "startTimeFormatted": "21.05.2025 12:00",
+      "endTimeFormatted": "21.05.2025 13:00"
+    },
+    {
+      "start_timestamp": 1747825200000,
+      "end_timestamp": 1747828800000,
+      "marketprice": -2.2,
+      "unit": "Eur/MWh",
+      "priceInEurPerKwh": -0.0022,
+      "startTimeFormatted": "21.05.2025 13:00",
+      "endTimeFormatted": "21.05.2025 14:00"
+    },
+    {
+      "start_timestamp": 1747828800000,
+      "end_timestamp": 1747832400000,
+      "marketprice": -1.53,
+      "unit": "Eur/MWh",
+      "priceInEurPerKwh": -0.00153,
+      "startTimeFormatted": "21.05.2025 14:00",
+      "endTimeFormatted": "21.05.2025 15:00"
+    }
   ],
-
-  "totalCost": 2.34
-
+  "totalCost": -0.00383,
+  "priceInEurPerKwh": 0,
+  "startTimeFormatted": "21.05.2025 12:00",
+  "endTimeFormatted": "21.05.2025 15:00"
 }
 
 ---
