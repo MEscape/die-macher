@@ -342,21 +342,21 @@ public class DobotServiceTest {
     @DisplayName("Sollte die Standard-Home-Position erfolgreich setzen")
     public void testSetDefaultHome() throws DobotCommunicationException {
         // Arrange
-        when(commandExecutor.setDefaultHomeCommand()).thenReturn(true);
+        when(commandExecutor.setDefaultHomeCommand(true)).thenReturn(true);
 
         // Act
         boolean result = dobotService.setDefaultHome();
 
         // Assert
         assertTrue(result);
-        verify(commandExecutor).setDefaultHomeCommand();
+        verify(commandExecutor).setDefaultHomeCommand(true);
     }
 
     @Test
     @DisplayName("Sollte false zurückgeben, wenn das Setzen der Standard-Home-Position fehlschlägt")
     public void testSetDefaultHomeFailure() throws DobotCommunicationException {
         // Arrange
-        when(commandExecutor.setDefaultHomeCommand()).thenThrow(new DobotCommunicationException("Test-Fehler"));
+        when(commandExecutor.setDefaultHomeCommand(true)).thenThrow(new DobotCommunicationException("Test-Fehler"));
 
         // Act
         boolean result = dobotService.setDefaultHome();

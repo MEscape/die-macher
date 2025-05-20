@@ -11,6 +11,7 @@ import java.nio.charset.StandardCharsets;
  * Each method corresponds to a specific Dobot command as defined in the protocol.
  */
 public class DobotMessageFactory {
+    private DobotMessageFactory() {}
 
     /**
      * Creates a message to retrieve the Device Serial Number (SN) from the Dobot.
@@ -49,9 +50,10 @@ public class DobotMessageFactory {
      */
     public static byte[] createSetPTPCmdMessage(float x, float y, float z, float r, boolean isQueued) {
         // Allocate a ByteBuffer with 16 bytes (4 floats * 4 bytes each)
-        ByteBuffer buffer = ByteBuffer.allocate(16);
+        ByteBuffer buffer = ByteBuffer.allocate(17);
         buffer.order(ByteOrder.LITTLE_ENDIAN);
 
+        buffer.put((byte) DobotProtocol.PTPModes.MOVJ_XYZ.getValue());
         buffer.putFloat(x);
         buffer.putFloat(y);
         buffer.putFloat(z);
@@ -145,18 +147,18 @@ public class DobotMessageFactory {
      *
      * @return A byte array containing the complete message for SET_HOME_PARAMS.
      */
-    public static byte[] createSetHomeParamsMessage() {
+    public static byte[] createSetHomeParamsMessage(boolean isQueued) {
         // Allocate a ByteBuffer with 16 bytes (4 floats * 4 bytes each)
         ByteBuffer buffer = ByteBuffer.allocate(16);
         buffer.order(ByteOrder.LITTLE_ENDIAN);
 
-        buffer.putFloat(0.0f);   // X-coordinate
-        buffer.putFloat(45.0f);  // Y-coordinate
-        buffer.putFloat(45.0f);  // Z-coordinate
+        buffer.putFloat(137.8012f);   // X-coordinate
+        buffer.putFloat(148.6876f);  // Y-coordinate
+        buffer.putFloat(29.1770f);  // Z-coordinate
         buffer.putFloat(0.0f);   // Rotation
 
         return DobotMessageBuilder.command(DobotProtocol.Commands.SET_HOME_PARAMS)
-                .control(true, false)
+                .control(true, isQueued)
                 .payload(buffer.array())
                 .build();
     }

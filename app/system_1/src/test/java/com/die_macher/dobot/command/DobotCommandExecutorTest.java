@@ -157,7 +157,7 @@ public class DobotCommandExecutorTest {
     @DisplayName("Should set default home command successfully")
     public void shouldSetDefaultHomeCommand() throws DobotCommunicationException {
         mockSuccessfulCommunication(DobotProtocol.Commands.SET_HOME_CMD, new byte[]{1});
-        boolean result = commandExecutor.setDefaultHomeCommand();
+        boolean result = commandExecutor.setDefaultHomeCommand(true);
         assertTrue(result, "Should return true for successful default home command");
         verifyCommunication();
     }

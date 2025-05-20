@@ -53,7 +53,6 @@ public class DobotMessageBuilder {
         if (payload == null) {
             payload = new byte[0];
         }
-
         // Calculate the message length (command ID + control byte + payload)
         int contentLength = 2 + payload.length; // 2 = commandId + controlByte
 

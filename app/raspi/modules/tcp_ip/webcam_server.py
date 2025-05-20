@@ -55,7 +55,7 @@ class WebcamServer:
         self.host = host
         self.port = port
         self.command_queue: Queue[str] = Queue()
-        self.camera_streamer: Optional[CameraStreamer] = CameraStreamer()
+        self.camera_streamer: Optional[CameraStreamer] = CameraStreamer(1)
         self.server_socket: Optional[socket.socket] = None
         self.client_connection: Optional[Connection] = None
         self.command_handler: Optional[CommandHandler] = None
