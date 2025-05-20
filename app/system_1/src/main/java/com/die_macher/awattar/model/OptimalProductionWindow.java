@@ -8,6 +8,10 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+/**
+ * Represents an optimal time window for electricity production based on market prices.
+ * Contains information about the start and end times, associated prices, and total cost.
+ */
 @Getter
 public class OptimalProductionWindow {
     private final long startTimestamp;
@@ -16,6 +20,14 @@ public class OptimalProductionWindow {
     private final double totalCost;
     private final double priceInEurPerKwh;
 
+    /**
+     * Constructs an OptimalProductionWindow with the specified parameters.
+     * 
+     * @param startTimestamp The start time of the optimal window in milliseconds since epoch
+     * @param endTimestamp The end time of the optimal window in milliseconds since epoch
+     * @param prices The list of market prices within this window
+     * @param totalCost The total cost for production during this window
+     */
     public OptimalProductionWindow(long startTimestamp, long endTimestamp,
                                   List<MarketData.MarketPrice> prices, double totalCost) {
         this.startTimestamp = startTimestamp;
@@ -25,6 +37,15 @@ public class OptimalProductionWindow {
         this.priceInEurPerKwh = 0.0; // Default value
     }
     
+    /**
+     * Constructs an OptimalProductionWindow with the specified parameters including price per kWh.
+     * 
+     * @param startTimestamp The start time of the optimal window in milliseconds since epoch
+     * @param endTimestamp The end time of the optimal window in milliseconds since epoch
+     * @param prices The list of market prices within this window
+     * @param totalCost The total cost for production during this window
+     * @param priceInEurPerKwh The price in EUR per kWh
+     */
     public OptimalProductionWindow(long startTimestamp, long endTimestamp,
                                   List<MarketData.MarketPrice> prices, double totalCost, 
                                   double priceInEurPerKwh) {
@@ -34,20 +55,25 @@ public class OptimalProductionWindow {
         this.totalCost = totalCost;
         this.priceInEurPerKwh = priceInEurPerKwh;
     }
-    
-    // Add formatted time getters for convenience
+
     public String getStartTimeFormatted() {
         return formatTimestamp(startTimestamp);
     }
-    
+
     public String getEndTimeFormatted() {
         return formatTimestamp(endTimestamp);
     }
 
+    /**
+     * Formats a timestamp to a human-readable date and time string.
+     * 
+     * @param timestamp The timestamp in milliseconds
+     * @return The formatted date and time string or "Invalid date" for invalid timestamps
+     */
     private String formatTimestamp(long timestamp) {
         if (timestamp <= 0) {
-            // Behandlung von ungültigen Timestamps
-            return "Ungültiges Datum";
+            // Handling of invalid timestamps
+            return "Invalid date";
         }
         Instant instant = Instant.ofEpochMilli(timestamp);
         ZonedDateTime dateTime = instant.atZone(ZoneId.of("Europe/Berlin"));

@@ -26,6 +26,10 @@ class AwattarControllerTest {
     @MockitoBean
     private AwattarService awattarService;
 
+    AwattarControllerTest(AwattarService awattarService) {
+        this.awattarService = awattarService;
+    }
+
     @Test
     void testGetMarketData_returnsOk() throws Exception {
         MarketData marketData = new MarketData();
@@ -49,7 +53,7 @@ class AwattarControllerTest {
     @Test
     void testGetCurrentMarketData_returnsOk() throws Exception {
         MarketPrice price = new MarketPrice();
-        price.setStartTimestamp(123L);
+        price.setStart_timestamp(123L);
         price.setEnd_timestamp(456L);
         price.setMarketprice(100.0);
         price.setUnit("EUR/MWh");

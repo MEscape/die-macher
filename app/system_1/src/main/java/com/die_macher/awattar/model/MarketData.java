@@ -9,43 +9,68 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+/**
+ * Represents electricity market data from Awattar API.
+ * Contains a list of market prices for different time periods.
+ */
 @Setter
 @Getter
 public class MarketData {
     private String object;
     private List<MarketPrice> data;
 
-    public MarketPrice getFirstPrice() {
+    /**
+     * Returns the current market price from the data list.
+     * 
+     * @return The first market price in the list or null if the list is empty
+     */
+    public MarketPrice getCurrentPrice() {
         if (data != null && !data.isEmpty()) {
             return data.getFirst();
         }
         return null;
     }
+    
+    /**
+     * Represents a single market price entry for a specific time period.
+     */
     @Getter
     @Setter
     public static class MarketPrice {
-        @Getter
         @Setter
         private long start_timestamp;
-        @Getter
         @Setter
         private long end_timestamp;
-        @Getter
         @Setter
         private double marketprice;
-        @Getter
         @Setter
         private String unit;
 
-        // Hilfsmethoden zur Formatierung
+        /**
+         * Helper methods for formatting
+         * Returns the formatted start time.
+         * 
+         * @return The start time formatted as "dd.MM.yyyy HH:mm"
+         */
         public String getStartTimeFormatted() {
             return formatTimestamp(start_timestamp);
         }
 
+        /**
+         * Returns the formatted end time.
+         * 
+         * @return The end time formatted as "dd.MM.yyyy HH:mm"
+         */
         public String getEndTimeFormatted() {
             return formatTimestamp(end_timestamp);
         }
 
+        /**
+         * Formats a timestamp to a human-readable date and time string.
+         * 
+         * @param timestamp The timestamp in milliseconds
+         * @return The formatted date and time string
+         */
         private String formatTimestamp(long timestamp) {
             LocalDateTime dateTime = LocalDateTime.ofInstant(
                     Instant.ofEpochMilli(timestamp),
@@ -53,10 +78,14 @@ public class MarketData {
             return dateTime.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"));
         }
 
-        // Umrechnung von EUR/MWh in EUR/kWh
+        /**
+         * Conversion from EUR/MWh to EUR/kWh
+         * Returns the price in EUR per kWh.
+         * 
+         * @return The price converted from EUR/MWh to EUR/kWh
+         */
         public double getPriceInEurPerKwh() {
             return marketprice / 1000.0;
         }
-
     }
 }
