@@ -102,9 +102,9 @@ curl "https://api.awattar.at/v1/marketdata?start=1561932000000"
 
  {
 
-    "start_timestamp": 1717970400000,
+    "startTimestamp": 1717970400000,
 
-      "end_timestamp": 1717974000000,
+      "endTimestamp": 1717974000000,
 
       "marketprice": 120.5,
 
@@ -132,9 +132,9 @@ curl "https://api.awattar.at/v1/marketdata?start=1561932000000"
 
 {
 
-  "start_timestamp": 1717970400000,
+  "startTimestamp": 1717970400000,
 
-  "end_timestamp": 1717974000000,
+  "endTimestamp": 1717974000000,
 
   "marketprice": 120.5,
 

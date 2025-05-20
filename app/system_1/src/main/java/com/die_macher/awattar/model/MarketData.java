@@ -17,7 +17,7 @@ public class MarketData {
 
     public MarketPrice getFirstPrice() {
         if (data != null && !data.isEmpty()) {
-            return data.get(0);
+            return data.getFirst();
         }
         return null;
     }
@@ -26,7 +26,7 @@ public class MarketData {
     public static class MarketPrice {
         @Getter
         @Setter
-        private long startTimestamp;
+        private long start_timestamp;
         @Getter
         @Setter
         private long end_timestamp;
@@ -37,14 +37,9 @@ public class MarketData {
         @Setter
         private String unit;
 
-        // Getter und Setter
-        public long getStart_timestamp() {
-            return startTimestamp;
-        }
-
         // Hilfsmethoden zur Formatierung
         public String getStartTimeFormatted() {
-            return formatTimestamp(startTimestamp);
+            return formatTimestamp(start_timestamp);
         }
 
         public String getEndTimeFormatted() {
