@@ -1,7 +1,8 @@
 package com.die_macher.tcp;
 
 import com.die_macher.common.util.HexDump;
-import com.die_macher.service.ColorDetectionService;
+import com.die_macher.pick_and_place.service.ColorDetectionService;
+import com.die_macher.pick_and_place.service.MovementService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,10 +21,12 @@ public class InboundEndpoint {
     private static final Logger LOGGER = LoggerFactory.getLogger(InboundEndpoint.class);
 
     private final ColorDetectionService colorDetectionService;
+    private final MovementService movementService;
 
     @Autowired
-    public InboundEndpoint(ColorDetectionService colorDetectionServiceLocal) {
+    public InboundEndpoint(ColorDetectionService colorDetectionServiceLocal, MovementService movementService) {
         this.colorDetectionService = colorDetectionServiceLocal;
+        this.movementService = movementService;
     }
 
     @ServiceActivator(inputChannel = "tcpChannel", requiresReply = "false")
@@ -32,11 +35,14 @@ public class InboundEndpoint {
                 message.getHeaders().get(IpHeaders.CONNECTION_ID));
 
         byte[] bytePayload = message.getPayload();
-        String hexDump =  HexDump.hexDump(bytePayload);
+        String hexDump = HexDump.hexDump(bytePayload);
         LOGGER.info("Received: \n{}", hexDump);
 
         BufferedImage image = ImageIO.read(new ByteArrayInputStream(bytePayload));
         String dominantColor = colorDetectionService.detectDominantColor(image);
-        System.out.println(dominantColor);
+        LOGGER.info("Detected dominant color: {}", dominantColor);
+        
+        // Notify the movement service about the detected color
+        movementService.processDetectedColor(dominantColor);
     }
 }

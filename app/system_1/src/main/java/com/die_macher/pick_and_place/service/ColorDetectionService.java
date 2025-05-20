@@ -1,4 +1,4 @@
-package com.die_macher.service;
+package com.die_macher.pick_and_place.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,17 +36,30 @@ public class ColorDetectionService {
     }
 
     private boolean isYellow(ColorStats stats) {
-        // Calculate average of red and green
-        long avgRG = (stats.red + stats.green) / 2;
+        // Total color intensity
+        double totalIntensity = stats.red + stats.green + stats.blue;
 
-        // Check if both red and green are high enough and blue is significantly lower
-        boolean highRedGreen = stats.red > 150 && stats.green > 150;
-        boolean lowBlue = stats.blue < 100;
+        // Skip processing if the color is too dark overall
+        if (totalIntensity < 150) {
+            return false;
+        }
 
-        // Check if red and green are close to each other (within 10% of the average)
-        boolean similarRedGreen = Math.abs(stats.red - stats.green) <= (0.1 * avgRG);
+        // Calculate each color's contribution percentage
+        double redPercent = stats.red / totalIntensity;
+        double greenPercent = stats.green / totalIntensity;
+        double bluePercent = stats.blue / totalIntensity;
 
-        return highRedGreen && lowBlue && similarRedGreen;
+        // Yellow has high red and green percentages, and low blue percentage
+        boolean strongRedGreen = (redPercent > 0.3 && greenPercent > 0.3);
+        boolean weakBlue = (bluePercent < 0.25);
+
+        // For yellow, red and green should be relatively balanced
+        boolean balancedRedGreen = Math.abs(redPercent - greenPercent) < 0.15;
+
+        // Additional check: combined red+green should significantly outweigh blue
+        boolean redGreenDominant = (redPercent + greenPercent) > 0.75;
+
+        return strongRedGreen && weakBlue && balancedRedGreen && redGreenDominant;
     }
 
     private String determineColor(ColorStats stats) {
