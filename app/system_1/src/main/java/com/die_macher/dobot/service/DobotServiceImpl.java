@@ -228,7 +228,7 @@ public class DobotServiceImpl implements DobotService {
     public boolean setDefaultHome() {
         try {
             LOGGER.debug("Setting default home position for Dobot...");
-            return commandExecutor.setDefaultHomeCommand();
+            return commandExecutor.setDefaultHomeCommand(true);
         } catch (DobotCommunicationException e) {
             LOGGER.error("Failed to set default home: {}", e.getMessage(), e);
             return false;

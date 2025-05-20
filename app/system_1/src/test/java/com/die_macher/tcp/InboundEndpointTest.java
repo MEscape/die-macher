@@ -1,6 +1,6 @@
 package com.die_macher.tcp;
 
-import com.die_macher.service.ColorDetectionService;
+import com.die_macher.pick_and_place.service.ColorDetectionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

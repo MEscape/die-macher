@@ -1,4 +1,4 @@
-package com.die_macher.service;
+package com.die_macher.pick_and_place.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

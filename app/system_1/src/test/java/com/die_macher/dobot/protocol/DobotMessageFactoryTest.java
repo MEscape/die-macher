@@ -171,7 +171,7 @@ public class DobotMessageFactoryTest {
     @DisplayName("Sollte eine SET_HOME_PARAMS-Nachricht korrekt erstellen")
     public void testCreateSetHomeParamsMessage() {
         // Act
-        byte[] message = DobotMessageFactory.createSetHomeParamsMessage();
+        byte[] message = DobotMessageFactory.createSetHomeParamsMessage(true);
         
         // Assert
         assertNotNull(message, "Die erstellte Nachricht sollte nicht null sein");

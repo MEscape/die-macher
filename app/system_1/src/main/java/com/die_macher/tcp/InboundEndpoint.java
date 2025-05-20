@@ -1,7 +1,7 @@
 package com.die_macher.tcp;
 
 import com.die_macher.common.util.HexDump;
-import com.die_macher.service.ColorDetectionService;
+import com.die_macher.pick_and_place.service.ColorDetectionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
