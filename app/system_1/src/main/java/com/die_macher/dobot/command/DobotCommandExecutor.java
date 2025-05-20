@@ -109,8 +109,8 @@ public class DobotCommandExecutor {
      * @return true if the command was successfully sent and acknowledged
      * @throws DobotCommunicationException if communication with the device fails
      */
-    public boolean setDefaultHomeCommand() throws DobotCommunicationException {
-        return executeCommand(new SetDefaultHomeCommand());
+    public boolean setDefaultHomeCommand(boolean isQueued) throws DobotCommunicationException {
+        return executeCommand(new SetDefaultHomeCommand(isQueued));
     }
 
     /**

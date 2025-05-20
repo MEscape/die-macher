@@ -1,7 +1,7 @@
 package com.die_macher.api.controller;
 
-import com.die_macher.common.util.QueueManager;
 import com.die_macher.dobot.service.DobotService;
+import com.die_macher.pick_and_place.service.MovementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,10 +10,12 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api")
 public class DobotController {
     private final DobotService dobotService;
+    private final MovementService movementService;
 
     @Autowired
-    public DobotController(DobotService dobotService) {
+    public DobotController(DobotService dobotService, MovementService movementService) {
         this.dobotService = dobotService;
+        this.movementService = movementService;
     }
 
     //working
@@ -149,26 +151,9 @@ public class DobotController {
         }
     }
 
-    @GetMapping("/pick-and-place")
-    public ResponseEntity<String> pickAndPlace() {
-        QueueManager<String> manager = new QueueManager<>();
-        manager.addQueue("cameraMovement");
-
-        // Enqueue commands (as Runnable)
-        manager.enqueue("cameraMovement", dobotService::stopExecuteQueue);
-        manager.enqueue("cameraMovement", () -> dobotService.moveToPosition(283.9522F, 10.8680F, -40.3899F, 55.7961F));
-        manager.enqueue("cameraMovement", () -> dobotService.setVacuumState(true));
-        manager.enqueue("cameraMovement", () -> dobotService.moveToPosition(139.1296F, -267.4972F, -39.6540F, 4.2960F));
-        manager.enqueue("cameraMovement", () -> dobotService.setVacuumState(false));
-        manager.enqueue("cameraMovement", dobotService::goHome);
-        manager.enqueue("cameraMovement", dobotService::executeQueue);
-
-        // Execute the queued commands one by one
-        while (!manager.isQueueEmpty("cameraMovement")) {
-            manager.executeNext("cameraMovement");
-        }
-
-        return ResponseEntity.ok("Commands executed in order.");
+    @GetMapping("/pickAndPlace")
+    public void pickAndPlace() {
+        movementService.startPickAndPlace(2);
     }
 
     public record SuckRequest(boolean isSucked) {}
