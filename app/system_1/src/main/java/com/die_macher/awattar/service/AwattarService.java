@@ -33,11 +33,12 @@ public class AwattarService {
     }
 
     /**
-     * Ruft die Marktdaten für einen beliebigen Startzeitpunkt ab
+     * Ruft die Marktdaten für einen beliebigen Startzeitpunkt ab (immer für 24h)
      */
     public MarketData fetchMarketDataFor(long startMillis) {
         try {
-            String url = "https://api.awattar.at/v1/marketdata?start=" + startMillis;
+            long endMillis = startMillis + 24 * 60 * 60 * 1000; // 24 hours later
+            String url = "https://api.awattar.at/v1/marketdata?start=" + startMillis + "&end=" + endMillis;
             logger.info("Rufe aWATTar API ab: {}", url);
             ResponseEntity<MarketData> response = restTemplate.getForEntity(url, MarketData.class);
             return response.getBody();
@@ -47,12 +48,10 @@ public class AwattarService {
         }
     }
 
-        /**
-     * Holt die aktuellen Strompreise ab jetzt für die nächsten 24h
-     */
     public MarketData fetchCurrentMarketData() {
-        long now = System.currentTimeMillis();
-        return fetchMarketDataFor(now);
+        ZonedDateTime nowHour = ZonedDateTime.now(ZoneId.of("Europe/Vienna")).truncatedTo(ChronoUnit.HOURS);
+        long startMillis = nowHour.toInstant().toEpochMilli();
+        return fetchMarketDataFor(startMillis);
     }
 
     /**
@@ -67,9 +66,9 @@ public class AwattarService {
     }
 
     /**
-     * Aktualisiert die Marktdaten einmal täglich um 6 Uhr morgens
+     * Aktualisiert die Marktdaten einmal täglich um 14 Uhr
      */
-    @Scheduled(cron = "0 0 6 * * *")
+    @Scheduled(cron = "0 0 14 * * *")
     public void updateMarketData() {
         logger.info("Aktualisiere Marktdaten für morgen...");
         cachedMarketData = fetchTomorrowMarketData();
