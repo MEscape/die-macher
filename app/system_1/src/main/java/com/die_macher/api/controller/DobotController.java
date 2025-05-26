@@ -1,8 +1,11 @@
 package com.die_macher.api.controller;
 
-import com.die_macher.dobot.service.DobotService;
-import com.die_macher.pick_and_place.service.MovementService;
+import com.die_macher.pick_and_place.dobot.protocol.api.PTPModes;
+import com.die_macher.pick_and_place.dobot.service.api.DobotService;
+import com.die_macher.pick_and_place.event.api.ImageRequestedEvent;
+import com.die_macher.pick_and_place.service.api.PickAndPlaceService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,12 +13,14 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api")
 public class DobotController {
     private final DobotService dobotService;
-    private final MovementService movementService;
+    private final PickAndPlaceService pickAndPlaceService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Autowired
-    public DobotController(DobotService dobotService, MovementService movementService) {
+    public DobotController(DobotService dobotService, PickAndPlaceService pickAndPlaceService, ApplicationEventPublisher eventPublisher) {
         this.dobotService = dobotService;
-        this.movementService = movementService;
+        this.pickAndPlaceService = pickAndPlaceService;
+        this.eventPublisher = eventPublisher;
     }
 
     //working
@@ -28,6 +33,7 @@ public class DobotController {
     @PostMapping("/move")
     public ResponseEntity<String> moveDobot(@RequestBody MoveRequest moveRequest) {
         boolean success = dobotService.moveToPosition(
+                PTPModes.MOVJ_XYZ,
                 moveRequest.x(),
                 moveRequest.y(),
                 moveRequest.z(),
@@ -80,7 +86,7 @@ public class DobotController {
     // not working
     @PostMapping("/default-home")
     public ResponseEntity<String> defaultHomeDobot() {
-        boolean success = dobotService.setDefaultHome();
+        boolean success = dobotService.setDefaultHome(137.8012F, 148.6876F, 29.1770F, 0.0F);
 
         if (success) {
             return ResponseEntity.ok("Default home command sent successfully");
@@ -151,9 +157,15 @@ public class DobotController {
         }
     }
 
+    //MAX 5
     @GetMapping("/pickAndPlace")
     public void pickAndPlace() {
-        movementService.startPickAndPlace(2);
+        pickAndPlaceService.startPickAndPlace(5);
+    }
+
+    @GetMapping("/color")
+    public void color() {
+        eventPublisher.publishEvent(new ImageRequestedEvent(this, 1));
     }
 
     public record SuckRequest(boolean isSucked) {}
