@@ -1,7 +1,7 @@
 package com.die_macher.api.controller;
 
-import com.die_macher.dobot.service.DobotService;
-import com.die_macher.pick_and_place.service.MovementService;
+import com.die_macher.pick_and_place.dobot.service.api.DobotService;
+import com.die_macher.pick_and_place.service.api.MovementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -80,7 +80,7 @@ public class DobotController {
     // not working
     @PostMapping("/default-home")
     public ResponseEntity<String> defaultHomeDobot() {
-        boolean success = dobotService.setDefaultHome();
+        boolean success = dobotService.setDefaultHome(137.8012F, 148.6876F, 29.1770F, 0.0F);
 
         if (success) {
             return ResponseEntity.ok("Default home command sent successfully");
