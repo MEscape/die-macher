@@ -1,1 +1,3 @@
-- integration test for tcp-ip connection
+- bugfix yellow
+- prevent from hitting obstacles
+- improved time management -> camera image
