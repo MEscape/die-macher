@@ -105,30 +105,30 @@ class MarketDataTest {
     class MarketPriceTest {
 
         @Test
-        @DisplayName("Setter und Getter für start_timestamp sollten korrekt funktionieren")
+        @DisplayName("Setter und Getter für startTimestamp sollten korrekt funktionieren")
         void testStartTimestampSetterAndGetter() {
             // Vorbereitung
             MarketData.MarketPrice price = new MarketData.MarketPrice();
             long expectedTimestamp = System.currentTimeMillis();
 
             // Ausführung
-            price.setStart_timestamp(expectedTimestamp);
-            long result = price.getStart_timestamp();
+            price.setStartTimestamp(expectedTimestamp);
+            long result = price.getStartTimestamp();
 
             // Überprüfung
             assertEquals(expectedTimestamp, result);
         }
 
         @Test
-        @DisplayName("Setter und Getter für end_timestamp sollten korrekt funktionieren")
+        @DisplayName("Setter und Getter für endTimestamp sollten korrekt funktionieren")
         void testEndTimestampSetterAndGetter() {
             // Vorbereitung
             MarketData.MarketPrice price = new MarketData.MarketPrice();
             long expectedTimestamp = System.currentTimeMillis();
 
             // Ausführung
-            price.setEnd_timestamp(expectedTimestamp);
-            long result = price.getEnd_timestamp();
+            price.setEndTimestamp(expectedTimestamp);
+            long result = price.getEndTimestamp();
 
             // Überprüfung
             assertEquals(expectedTimestamp, result);
@@ -173,7 +173,7 @@ class MarketDataTest {
             long timestamp = now.atZone(ZoneId.of("Europe/Vienna")).toInstant().toEpochMilli();
             String expected = now.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"));
             
-            price.setStart_timestamp(timestamp);
+            price.setStartTimestamp(timestamp);
 
             // Ausführung
             String result = price.getStartTimeFormatted();
@@ -191,7 +191,7 @@ class MarketDataTest {
             long timestamp = now.atZone(ZoneId.of("Europe/Vienna")).toInstant().toEpochMilli();
             String expected = now.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"));
             
-            price.setEnd_timestamp(timestamp);
+            price.setEndTimestamp(timestamp);
 
             // Ausführung
             String result = price.getEndTimeFormatted();

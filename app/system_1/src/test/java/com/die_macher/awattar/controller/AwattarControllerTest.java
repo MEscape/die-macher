@@ -4,94 +4,205 @@ import com.die_macher.awattar.model.MarketData;
 import com.die_macher.awattar.model.MarketData.MarketPrice;
 import com.die_macher.awattar.model.OptimalProductionWindow;
 import com.die_macher.awattar.service.AwattarService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
-@WebMvcTest(AwattarController.class)
+@ExtendWith(MockitoExtension.class)
 class AwattarControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-
-    @MockitoBean
+    @Mock
     private AwattarService awattarService;
 
-    AwattarControllerTest(AwattarService awattarService) {
-        this.awattarService = awattarService;
+    @InjectMocks
+    private AwattarController awattarController;
+
+    private MarketData marketData;
+    private MarketPrice marketPrice;
+    private OptimalProductionWindow optimalWindow;
+
+    @BeforeEach
+    void setUp() {
+        // Erstellen von Testdaten für MarketData
+        marketData = new MarketData();
+        marketData.setObject("list");
+        
+        marketPrice = new MarketPrice();
+        marketPrice.setStartTimestamp(1609459200000L); // 2021-01-01 00:00:00
+        marketPrice.setEndTimestamp(1609462800000L);   // 2021-01-01 01:00:00
+        marketPrice.setMarketprice(42.42);
+        marketPrice.setUnit("EUR/MWh");
+        
+        List<MarketPrice> prices = new ArrayList<>();
+        prices.add(marketPrice);
+        marketData.setData(prices);
+        
+        // Erstellen von Testdaten für OptimalProductionWindow
+        optimalWindow = new OptimalProductionWindow(
+            1609459200000L,  // 2021-01-01 00:00:00
+            1609470000000L,  // 2021-01-01 03:00:00
+            prices,
+            126.26,          // Gesamtkosten
+            0.04242          // Preis in EUR/kWh
+        );
     }
 
     @Test
-    void testGetMarketData_returnsOk() throws Exception {
-        MarketData marketData = new MarketData();
-        marketData.setObject("list");
-        marketData.setData(Collections.emptyList());
+    @DisplayName("getMarketData sollte MarketData zurückgeben, wenn Daten verfügbar sind")
+    void getMarketData_WhenDataAvailable_ShouldReturnOkWithData() {
+        // Arrange
         when(awattarService.fetchTomorrowMarketData()).thenReturn(marketData);
 
-        mockMvc.perform(get("/api/awattar/tomorrow-prices"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.object").value("list"));
+        // Act
+        ResponseEntity<MarketData> response = awattarController.getMarketData();
+
+        // Assert
+        assertEquals(HttpStatus.OK, response.getStatusCode(), "Der Status-Code sollte OK sein");
+        assertNotNull(response.getBody(), "Der Response-Body sollte nicht null sein");
+        assertEquals(marketData, response.getBody(), "Der Response-Body sollte die erwarteten Marktdaten enthalten");
+        
+        // Verify
+        verify(awattarService).fetchTomorrowMarketData();
     }
 
     @Test
-    void testGetMarketData_returnsNotFound() throws Exception {
+    @DisplayName("getMarketData sollte 404 zurückgeben, wenn keine Daten verfügbar sind")
+    void getMarketData_WhenNoDataAvailable_ShouldReturnNotFound() {
+        // Arrange
         when(awattarService.fetchTomorrowMarketData()).thenReturn(null);
 
-        mockMvc.perform(get("/api/awattar/tomorrow-prices"))
-                .andExpect(status().isNotFound());
+        // Act
+        ResponseEntity<MarketData> response = awattarController.getMarketData();
+
+        // Assert
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode(), "Der Status-Code sollte NOT_FOUND sein");
+        assertNull(response.getBody(), "Der Response-Body sollte null sein");
+        
+        // Verify
+        verify(awattarService).fetchTomorrowMarketData();
     }
 
     @Test
-    void testGetCurrentMarketData_returnsOk() throws Exception {
-        MarketPrice price = new MarketPrice();
-        price.setStart_timestamp(123L);
-        price.setEnd_timestamp(456L);
-        price.setMarketprice(100.0);
-        price.setUnit("EUR/MWh");
-
-        MarketData marketData = new MarketData();
-        marketData.setData(List.of(price));
+    @DisplayName("getCurrentMarketData sollte aktuellen Marktpreis zurückgeben, wenn Daten verfügbar sind")
+    void getCurrentMarketData_WhenDataAvailable_ShouldReturnOkWithCurrentPrice() {
+        // Arrange
         when(awattarService.fetchCurrentMarketData()).thenReturn(marketData);
 
-        mockMvc.perform(get("/api/awattar/current-price"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.marketprice").value(100.0));
+        // Act
+        ResponseEntity<MarketPrice> response = awattarController.getCurrentMarketData();
+
+        // Assert
+        assertEquals(HttpStatus.OK, response.getStatusCode(), "Der Status-Code sollte OK sein");
+        assertNotNull(response.getBody(), "Der Response-Body sollte nicht null sein");
+        assertEquals(marketPrice, response.getBody(), "Der Response-Body sollte den aktuellen Marktpreis enthalten");
+        
+        // Verify
+        verify(awattarService).fetchCurrentMarketData();
     }
 
     @Test
-    void testGetCurrentMarketData_returnsNotFound() throws Exception {
+    @DisplayName("getCurrentMarketData sollte 404 zurückgeben, wenn keine Marktdaten verfügbar sind")
+    void getCurrentMarketData_WhenNoMarketDataAvailable_ShouldReturnNotFound() {
+        // Arrange
         when(awattarService.fetchCurrentMarketData()).thenReturn(null);
 
-        mockMvc.perform(get("/api/awattar/current-price"))
-                .andExpect(status().isNotFound());
+        // Act
+        ResponseEntity<MarketPrice> response = awattarController.getCurrentMarketData();
+
+        // Assert
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode(), "Der Status-Code sollte NOT_FOUND sein");
+        assertNull(response.getBody(), "Der Response-Body sollte null sein");
+        
+        // Verify
+        verify(awattarService).fetchCurrentMarketData();
     }
 
     @Test
-    void testGetOptimalProductionWindow_returnsOk() throws Exception {
-        OptimalProductionWindow window = new OptimalProductionWindow(
-                123L, 456L, Collections.emptyList(), 12.34
-        );
-        when(awattarService.getOptimalProductionWindow()).thenReturn(window);
+    @DisplayName("getCurrentMarketData sollte 404 zurückgeben, wenn Marktdaten ohne Preise verfügbar sind")
+    void getCurrentMarketData_WhenMarketDataHasNoCurrentPrice_ShouldReturnNotFound() {
+        // Arrange
+        MarketData emptyMarketData = new MarketData();
+        emptyMarketData.setObject("list");
+        emptyMarketData.setData(new ArrayList<>()); // Leere Preisliste
+        
+        when(awattarService.fetchCurrentMarketData()).thenReturn(emptyMarketData);
 
-        mockMvc.perform(get("/api/awattar/optimal-window"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.totalCost").value(12.34));
+        // Act
+        ResponseEntity<MarketPrice> response = awattarController.getCurrentMarketData();
+
+        // Assert
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode(), "Der Status-Code sollte NOT_FOUND sein");
+        assertNull(response.getBody(), "Der Response-Body sollte null sein");
+        
+        // Verify
+        verify(awattarService).fetchCurrentMarketData();
     }
 
     @Test
-    void testGetOptimalProductionWindow_returnsNotFound() throws Exception {
+    @DisplayName("getCurrentMarketData sollte 404 zurückgeben, wenn Marktdaten mit null-Preisliste verfügbar sind")
+    void getCurrentMarketData_WhenMarketDataHasNullPriceList_ShouldReturnNotFound() {
+        // Arrange
+        MarketData nullListMarketData = new MarketData();
+        nullListMarketData.setObject("list");
+        nullListMarketData.setData(null); // Null-Preisliste
+        
+        when(awattarService.fetchCurrentMarketData()).thenReturn(nullListMarketData);
+
+        // Act
+        ResponseEntity<MarketPrice> response = awattarController.getCurrentMarketData();
+
+        // Assert
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode(), "Der Status-Code sollte NOT_FOUND sein");
+        assertNull(response.getBody(), "Der Response-Body sollte null sein");
+        
+        // Verify
+        verify(awattarService).fetchCurrentMarketData();
+    }
+
+    @Test
+    @DisplayName("getOptimalProductionWindow sollte optimales Produktionsfenster zurückgeben, wenn verfügbar")
+    void getOptimalProductionWindow_WhenDataAvailable_ShouldReturnOkWithWindow() {
+        // Arrange
+        when(awattarService.getOptimalProductionWindow()).thenReturn(optimalWindow);
+
+        // Act
+        ResponseEntity<OptimalProductionWindow> response = awattarController.getOptimalProductionWindow();
+
+        // Assert
+        assertEquals(HttpStatus.OK, response.getStatusCode(), "Der Status-Code sollte OK sein");
+        assertNotNull(response.getBody(), "Der Response-Body sollte nicht null sein");
+        assertEquals(optimalWindow, response.getBody(), "Der Response-Body sollte das optimale Produktionsfenster enthalten");
+        
+        // Verify
+        verify(awattarService).getOptimalProductionWindow();
+    }
+
+    @Test
+    @DisplayName("getOptimalProductionWindow sollte 404 zurückgeben, wenn kein optimales Fenster verfügbar ist")
+    void getOptimalProductionWindow_WhenNoDataAvailable_ShouldReturnNotFound() {
+        // Arrange
         when(awattarService.getOptimalProductionWindow()).thenReturn(null);
 
-        mockMvc.perform(get("/api/awattar/optimal-window"))
-                .andExpect(status().isNotFound());
+        // Act
+        ResponseEntity<OptimalProductionWindow> response = awattarController.getOptimalProductionWindow();
+
+        // Assert
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode(), "Der Status-Code sollte NOT_FOUND sein");
+        assertNull(response.getBody(), "Der Response-Body sollte null sein");
+        
+        // Verify
+        verify(awattarService).getOptimalProductionWindow();
     }
 }
