@@ -38,9 +38,9 @@ public class MarketData {
     @Setter
     public static class MarketPrice {
         @Setter
-        private long start_timestamp;
+        private long startTimestamp;
         @Setter
-        private long end_timestamp;
+        private long endTimestamp;
         @Setter
         private double marketprice;
         @Setter
@@ -53,7 +53,7 @@ public class MarketData {
          * @return The start time formatted as "dd.MM.yyyy HH:mm"
          */
         public String getStartTimeFormatted() {
-            return formatTimestamp(start_timestamp);
+            return formatTimestamp(startTimestamp);
         }
 
         /**
@@ -62,7 +62,7 @@ public class MarketData {
          * @return The end time formatted as "dd.MM.yyyy HH:mm"
          */
         public String getEndTimeFormatted() {
-            return formatTimestamp(end_timestamp);
+            return formatTimestamp(endTimestamp);
         }
 
         /**
