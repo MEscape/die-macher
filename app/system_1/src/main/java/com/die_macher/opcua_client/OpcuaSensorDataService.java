@@ -5,6 +5,8 @@ import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
 import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
 import org.eclipse.milo.opcua.stack.core.types.builtin.Variant;
 import org.eclipse.milo.opcua.stack.core.types.enumerated.TimestampsToReturn;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -20,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Component
 public class OpcuaSensorDataService {
-    
+    private static final Logger logger = LoggerFactory.getLogger(OpcuaSensorDataService.class);
     @Value("${opcua.node.temperature:7}")
     private int temperatureNodeId;
     
@@ -54,21 +56,24 @@ public class OpcuaSensorDataService {
             double temperature = extractDoubleValue(tempFuture.get());
             double humidity = extractDoubleValue(humFuture.get());
             
-            System.out.println("Temp: " + temperature);
-            System.out.println("Humidity: " + humidity);
+            logger.info("Temp: {}", temperature);
+            logger.info("Humidity: {}", humidity);
             
             // Generate unique ID and store data
             String id = UUID.randomUUID().toString();
             SensorData data = new SensorData(id, temperature, humidity);
             sensorDataMap.put(id, data);
-            
-            System.out.println("[OPC UA] Stored sensor data with ID: " + id);
+
+            logger.info("[OPC UA] Stored sensor data with ID: {}", id);
             return id;
-            
-        } catch (Exception e) {
-            System.err.println("[OPC UA] Error reading sensor data: " + e.getMessage());
-            e.printStackTrace();
-            return null;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            logger.error("[OPC UA] Disconnect interrupted: {}", e.getMessage());
+            return "";
+        }
+        catch (Exception e) {
+            logger.error("[OPC UA] Error reading sensor data: {}", e.getMessage());
+            return "";
         }
     }
     
@@ -79,11 +84,11 @@ public class OpcuaSensorDataService {
     public void scheduledDataReading() {
         if (connectionManager.isConnected()) {
             String id = readAndStoreSensorData(connectionManager.getClient(), connectionManager.getNamespaceIndex());
-            if (id != null) {
-                System.out.println("[OPC UA] Scheduled reading completed. Data ID: " + id);
-            }
+
+            logger.info("[OPC UA] Scheduled reading completed. Data ID: {}", id);
+
         } else {
-            System.out.println("[OPC UA] Scheduled reading skipped - not connected");
+            logger.info("[OPC UA] Scheduled reading skipped - not connected");
         }
     }
     
@@ -100,7 +105,7 @@ public class OpcuaSensorDataService {
      */
     public void clearSensorData() {
         sensorDataMap.clear();
-        System.out.println("[OPC UA] Cleared all sensor data");
+        logger.info("[OPC UA] Cleared all sensor data");
     }
     
     /**
@@ -114,7 +119,7 @@ public class OpcuaSensorDataService {
         
         Object value = variant.getValue();
         if (value instanceof Number) {
-            return ((Number) value).doubleValue();
+            return (double) value;
         } else {
             throw new IllegalArgumentException("Value is not a number: " + value);
         }

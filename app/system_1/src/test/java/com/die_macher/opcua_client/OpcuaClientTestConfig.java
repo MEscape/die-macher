@@ -1,8 +1,5 @@
 package com.die_macher.opcua_client;
 
-import com.die_macher.opcua_client.OpcuaConnectionManager;
-import com.die_macher.opcua_client.OpcuaSecurityUtils;
-import com.die_macher.opcua_client.OpcuaSensorDataService;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;

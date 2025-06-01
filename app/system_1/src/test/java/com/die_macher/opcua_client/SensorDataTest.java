@@ -1,6 +1,5 @@
 package com.die_macher.opcua_client;
 
-import com.die_macher.opcua_client.SensorData;
 import org.junit.jupiter.api.Test;
 import java.time.LocalDateTime;
 

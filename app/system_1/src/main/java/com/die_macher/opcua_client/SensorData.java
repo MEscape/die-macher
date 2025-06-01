@@ -1,10 +1,13 @@
 package com.die_macher.opcua_client;
 
+import lombok.Getter;
+
 import java.time.LocalDateTime;
 
 /**
  * Model class to hold sensor data with temperature and humidity values.
  */
+@Getter
 public class SensorData {
     private final String id;
     private final double temperature;
@@ -17,23 +20,7 @@ public class SensorData {
         this.humidity = humidity;
         this.timestamp = LocalDateTime.now();
     }
-    
-    public String getId() {
-        return id;
-    }
-    
-    public double getTemperature() {
-        return temperature;
-    }
-    
-    public double getHumidity() {
-        return humidity;
-    }
-    
-    public LocalDateTime getTimestamp() {
-        return timestamp;
-    }
-    
+
     @Override
     public String toString() {
         return "SensorData{" +

@@ -13,6 +13,8 @@ import org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.UInteger;
 import org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.UShort;
 import org.eclipse.milo.opcua.stack.core.types.enumerated.MessageSecurityMode;
 import org.eclipse.milo.opcua.stack.core.types.structured.EndpointDescription;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -28,7 +30,9 @@ import java.util.concurrent.CompletableFuture;
  */
 @Component
 public class OpcuaConnectionManager {
-    
+
+    private static final Logger logger = LoggerFactory.getLogger(OpcuaConnectionManager.class);
+
     @Value("${opcua.endpoint.url}")
     private String endpointUrl;
     
@@ -72,11 +76,11 @@ public class OpcuaConnectionManager {
      */
     public boolean connectToServer() {
         try {
-            System.out.println("[OPC UA] Searching for endpoints at: " + endpointUrl);
+            logger.info("[OPC UA] Searching for endpoints at: {} ", endpointUrl);
             List<EndpointDescription> endpoints = DiscoveryClient.getEndpoints(endpointUrl).get();
             
             if (endpoints.isEmpty()) {
-                System.err.println("[OPC UA] No endpoints found at " + endpointUrl);
+                logger.error("[OPC UA] No endpoints found at: {}", endpointUrl);
                 return false;
             }
             
@@ -103,18 +107,21 @@ public class OpcuaConnectionManager {
             // Get namespace index
             UShort idx = client.getNamespaceTable().getIndex(namespace);
             if (idx == null) {
-                throw new Exception("Namespace '" + namespace + "' not found!");
+                throw new OpcuaSecurityException("Namespace '" + namespace + "' not found!");
             }
             
             namespaceIndex = idx.intValue();
             connected = true;
             
-            System.out.println("[OPC UA] Connected successfully to server. Namespace index: " + namespaceIndex);
+            logger.info("[OPC UA] Connected successfully to server. Namespace index: {}", namespaceIndex);
             return true;
-            
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            logger.error("[OPC UA] Connection interrupted: {}", e.getMessage());
+            connected = false;
+            return false;
         } catch (Exception e) {
-            System.err.println("[OPC UA] Connection failed: " + e.getMessage());
-            e.printStackTrace();
+            logger.error("[OPC UA] Connection failed: {}", e.getMessage());
             connected = false;
             return false;
         }
@@ -127,10 +134,13 @@ public class OpcuaConnectionManager {
         if (client != null) {
             try {
                 client.disconnect().get();
-                System.out.println("[OPC UA] Client disconnected");
+                logger.info("[OPC UA] Client disconnected");
                 connected = false;
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                logger.error("[OPC UA] Disconnect interrupted: {}", e.getMessage());
             } catch (Exception e) {
-                System.err.println("[OPC UA] Error disconnecting client: " + e.getMessage());
+                logger.error("[OPC UA] Error disconnecting client: {}", e.getMessage());
             } finally {
                 connected = false;
             }
@@ -146,13 +156,13 @@ public class OpcuaConnectionManager {
     }
     
     private void logEndpoints(List<EndpointDescription> endpoints) {
-        System.out.println("=== Available endpoints ===");
+        logger.info("=== Available endpoints ===");
         for (EndpointDescription ed : endpoints) {
-            System.out.println("URL: " + ed.getEndpointUrl());
-            System.out.println("Security Policy: " + ed.getSecurityPolicyUri());
-            System.out.println("Security Mode: " + ed.getSecurityMode());
-            System.out.println("Transport Profile: " + ed.getTransportProfileUri());
-            System.out.println("------------------------------");
+            logger.info("URL: {}", ed.getEndpointUrl());
+            logger.info("Security Policy: {}", ed.getSecurityPolicyUri());
+            logger.info("Security Mode: {}", ed.getSecurityMode());
+            logger.info("Transport Profile: {}", ed.getTransportProfileUri());
+            logger.info("------------------------------");
         }
     }
     
@@ -174,11 +184,11 @@ public class OpcuaConnectionManager {
                 .setKeyPair(new KeyPair(certificate.getPublicKey(), privateKey))
                 .setEndpoint(endpoint)
                 .setIdentityProvider(new AnonymousProvider())
-                .setRequestTimeout(uint(5000))
+                .setRequestTimeout(uint())
                 .build();
     }
     
-    private static UInteger uint(int value) {
-        return org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.UInteger.valueOf(value);
+    private static UInteger uint() {
+        return org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.UInteger.valueOf(5000);
     }
 }

@@ -54,7 +54,7 @@ public class OpcuaClientApplication {
                                                            connectionManager.getNamespaceIndex());
         }
         
-        return null;
+        return "";
     }
     
     /**
