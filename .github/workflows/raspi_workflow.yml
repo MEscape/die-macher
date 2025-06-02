@@ -1,0 +1,162 @@
+name: Raspi Module Workflow
+
+on:
+  workflow_call:
+    outputs:
+      quality_gate_status:
+        description: "Quality gate status"
+        value: ${{ jobs.raspi.outputs.quality_gate_status }}
+      quality_gate_details:
+        description: "Quality gate failure details"
+        value: ${{ jobs.raspi.outputs.quality_gate_details }}
+
+jobs:
+  raspi:
+    name: Analyze Raspi
+    runs-on: ubuntu-latest
+
+    services:
+      sonarqube:
+        image: sonarqube:lts
+        ports:
+          - 9000:9000
+        env:
+          SONAR_ES_BOOTSTRAP_CHECKS_DISABLE: "true"
+          SONAR_JAVA_OPTS: "-Xmx512m -Xms128m"
+        options: >-
+          --health-cmd="wget --no-verbose --tries=1 --spider http://localhost:9000 || exit 1"
+          --health-interval=30s
+          --health-timeout=10s
+          --health-retries=15
+          --health-start-period=60s
+          --memory=1g
+
+    defaults:
+      run:
+        working-directory: app/raspi
+
+    env:
+      SONAR_HOST_URL: http://localhost:9000
+
+    outputs:
+      quality_gate_status: ${{ steps.quality-gate.outputs.quality-gate-status }}
+      quality_gate_details: ${{ steps.get-failure-details.outputs.failure_details }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4.2.2
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5.6.0
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Setup Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: 1.5.1
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Load cached Poetry venv
+        id: cached-poetry-dependencies
+        uses: actions/cache@v4.2.3
+        with:
+          path: app/raspi/.venv
+          key: venv-${{ runner.os }}-py3.11-${{ hashFiles('app/raspi/poetry.lock') }}
+
+      - name: Cache Poetry & pip download cache
+        uses: actions/cache@v4.2.3
+        with:
+          path: |
+            ~/.cache/pypoetry
+            ~/.cache/pip
+          key: poetry-cache-${{ runner.os }}-${{ hashFiles('app/raspi/poetry.lock') }}
+
+      - name: Install dependencies
+        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+        run: poetry install --no-interaction
+
+      - name: Code quality checks
+        run: |
+          poetry run pylint modules --output-format=parseable --reports=no --exit-zero > pylint-report.txt
+          poetry run mypy . --junit-xml=mypy-report.xml
+
+      - name: Build package
+        run: poetry build
+
+      - name: Run tests with coverage
+        run: |
+          poetry run pytest
+
+      - name: Generate SonarQube token
+        id: sonar-token
+        run: |
+          TOKEN_RESPONSE=$(curl -u admin:admin -X POST "http://localhost:9000/api/user_tokens/generate" \
+            -d "name=github-actions-${{ github.run_id }}")
+          TOKEN=$(echo $TOKEN_RESPONSE | jq -r '.token')
+          echo "::add-mask::$TOKEN"
+          echo "token=$TOKEN" >> "$GITHUB_OUTPUT"
+
+      - name: SonarQube analysis
+        uses: SonarSource/sonarqube-scan-action@master
+        with:
+          projectBaseDir: app/raspi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ steps.sonar-token.outputs.token }}
+          SONAR_HOST_URL: ${{ env.SONAR_HOST_URL }}
+
+      - name: Quality Gate check
+        id: quality-gate
+        uses: sonarsource/sonarqube-quality-gate-action@master
+        with:
+          scanMetadataReportFile: app/raspi/.scannerwork/report-task.txt
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ steps.sonar-token.outputs.token }}
+          SONAR_HOST_URL: ${{ env.SONAR_HOST_URL }}
+
+      - name: Get Quality Gate failure details
+        id: get-failure-details
+        run: |
+          if [[ "${{ steps.quality-gate.outputs.quality-gate-status }}" != "PASSED" ]]; then
+            echo "Fetching detailed Quality Gate failure reason..."
+            CE_TASK_ID=$(grep 'ceTaskId' app/raspi/.scannerwork/report-task.txt | cut -d= -f2)
+            curl -s -u admin:admin "http://localhost:9000/api/ce/task?id=$CE_TASK_ID" > ce-task.json
+            ANALYSIS_ID=$(jq -r '.task.analysisId' ce-task.json)
+            curl -s -u admin:admin "http://localhost:9000/api/qualitygates/project_status?analysisId=$ANALYSIS_ID" > gate.json
+          
+            # Extract failure details in a compact format
+            FAILURE_DETAILS=$(jq -r '.projectStatus.conditions[] | select(.status != "OK") | "• \(.metricKey): \(.actualValue) (threshold: \(.errorThreshold // .warningThreshold))"' gate.json | tr '\n' ' ')
+          
+            if [[ -z "$FAILURE_DETAILS" ]]; then
+              FAILURE_DETAILS="Quality gate failed but no specific condition details available"
+            fi
+          
+            echo "failure_details=$FAILURE_DETAILS" >> "$GITHUB_OUTPUT"
+            echo "----- Quality Gate Report -----"
+            jq . gate.json
+          else
+            echo "failure_details=" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Revoke SonarQube token
+        if: always()
+        run: |
+          curl -u admin:admin -X POST "http://localhost:9000/api/user_tokens/revoke" \
+            -d "name=github-actions-${{ github.run_id }}"
+
+      - name: Upload results
+        uses: actions/upload-artifact@v4.6.2
+        if: always()
+        with:
+          name: raspi-results
+          path: |
+            app/raspi/test-results.xml
+            app/raspi/coverage.xml
+            app/raspi/pylint-report.txt
+            app/raspi/mypy-report.xml

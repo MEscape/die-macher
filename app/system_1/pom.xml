@@ -29,6 +29,7 @@
 	<properties>
 		<java.version>21</java.version>
 		<spring-modulith.version>1.3.4</spring-modulith.version>
+		<skipCodeQuality>false</skipCodeQuality>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -110,6 +111,109 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>com.github.spotbugs</groupId>
+				<artifactId>spotbugs-maven-plugin</artifactId>
+				<version>4.9.3.0</version>
+				<configuration>
+					<plugins>
+						<plugin>
+							<groupId>com.h3xstream.findsecbugs</groupId>
+							<artifactId>findsecbugs-plugin</artifactId>
+							<version>1.12.0</version>
+						</plugin>
+					</plugins>
+					<xmlOutput>true</xmlOutput>
+					<htmlOutput>true</htmlOutput>
+					<failOnError>true</failOnError>
+				</configuration>
+				<executions>
+					<execution>
+						<id>spotbugs-validation</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>check</goal>
+							<goal>spotbugs</goal>
+						</goals>
+						<configuration>
+							<skip>${skipCodeQuality}</skip>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<version>3.6.0</version>
+				<configuration>
+					<configLocation>google_checks.xml</configLocation>
+					<includeTestSourceDirectory>false</includeTestSourceDirectory>
+					<failOnViolation>true</failOnViolation>
+					<failsOnError>true</failsOnError>
+					<consoleOutput>true</consoleOutput>
+					<linkXRef>false</linkXRef>
+				</configuration>
+				<dependencies>
+					<dependency>
+						<groupId>com.puppycrawl.tools</groupId>
+						<artifactId>checkstyle</artifactId>
+						<version>10.23.0</version>
+					</dependency>
+					<dependency>
+						<groupId>com.github.sevntu-checkstyle</groupId>
+						<artifactId>sevntu-checks</artifactId>
+						<version>1.44.1</version>
+					</dependency>
+				</dependencies>
+				<executions>
+					<execution>
+						<id>checkstyle-validation</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>check</goal>
+							<goal>checkstyle</goal>
+						</goals>
+						<configuration>
+							<skip>${skipCodeQuality}</skip>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>3.5.3</version>
+				<configuration>
+					<includes>
+						<include>**/*Test.java</include>
+					</includes>
+					<testFailureIgnore>false</testFailureIgnore>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.8.13</version>
+				<configuration>
+					<rules>
+						<rule implementation="org.jacoco.maven.RuleConfiguration"/>
+					</rules>
+				</configuration>
+				<executions>
+					<execution>
+						<id>default-prepare-agent</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>report</id>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>

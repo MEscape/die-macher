@@ -64,7 +64,7 @@ class InboundEndpointTest {
         assertNotNull(capturedEvent.getImage());
         assertEquals(100, capturedEvent.getImage().getWidth());
         assertEquals(100, capturedEvent.getImage().getHeight());
-        assertEquals(1, capturedEvent.getCubeId()); // First cube ID should be 1
+        assertEquals(1, capturedEvent.getEventId()); // First cube ID should be 1
     }
 
     @Test
