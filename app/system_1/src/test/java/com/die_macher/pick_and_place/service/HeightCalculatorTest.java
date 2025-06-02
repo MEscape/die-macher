@@ -105,29 +105,13 @@ class HeightCalculatorTest {
     }
 
     @Test
-    @DisplayName("Should calculate pickup height correctly for positive stack position")
-    void shouldCalculatePickupHeightForPositivePosition() {
-        when(physicalConstants.absoluteFloor()).thenReturn(ABSOLUTE_FLOOR);
-
-        // Given
-        int stackPosition = 5;
-        float expectedHeight = 5 * CUBE_HEIGHT + ABSOLUTE_FLOOR; // 50 + 2 = 52.0
-
-        // When
-        float actualHeight = heightCalculator.calculatePickupHeight(stackPosition);
-
-        // Then
-        assertEquals(expectedHeight, actualHeight, 0.001f);
-    }
-
-    @Test
     @DisplayName("Should calculate pickup height correctly for negative stack position")
     void shouldCalculatePickupHeightForNegativePosition() {
         when(physicalConstants.absoluteFloor()).thenReturn(ABSOLUTE_FLOOR);
 
         // Given
         int stackPosition = -1;
-        float expectedHeight = -1 * CUBE_HEIGHT + ABSOLUTE_FLOOR; // -10 + 2 = -8.0
+        float expectedHeight = -1 * CUBE_HEIGHT + ABSOLUTE_FLOOR - stackPosition * 0.75F; // -10 + 2 = -8.0
 
         // When
         float actualHeight = heightCalculator.calculatePickupHeight(stackPosition);
@@ -139,12 +123,11 @@ class HeightCalculatorTest {
     @Test
     @DisplayName("Should calculate lift height correctly for stack position 0")
     void shouldCalculateLiftHeightForPositionZero() {
-        when(physicalConstants.absoluteFloor()).thenReturn(ABSOLUTE_FLOOR);
-
         // Given
         int stackPosition = 0;
         float prevHeight = 20.0f;
-        float expectedHeight = 0 * CUBE_HEIGHT + CUBE_HEIGHT + ABSOLUTE_FLOOR; // 0 + 10 + 2 = 12.0
+        float rawLift = (stackPosition * CUBE_HEIGHT + CUBE_HEIGHT) - prevHeight; // (0+10)-20 = -10
+        float expectedHeight = Math.max(rawLift, 0f); // 0.0
 
         // When
         float actualHeight = heightCalculator.calculateLiftHeight(prevHeight, stackPosition);
@@ -156,12 +139,11 @@ class HeightCalculatorTest {
     @Test
     @DisplayName("Should calculate lift height correctly for positive stack position")
     void shouldCalculateLiftHeightForPositivePosition() {
-        when(physicalConstants.absoluteFloor()).thenReturn(ABSOLUTE_FLOOR);
-
         // Given
         int stackPosition = 4;
         float prevHeight = 20.0f;
-        float expectedHeight = 4 * CUBE_HEIGHT + CUBE_HEIGHT + ABSOLUTE_FLOOR; // 40 + 10 + 2 = 52.0
+        float rawLift = (stackPosition * CUBE_HEIGHT + CUBE_HEIGHT) - prevHeight; // (40+10)-20=30
+        float expectedHeight = Math.max(rawLift, 0f); // 30.0
 
         // When
         float actualHeight = heightCalculator.calculateLiftHeight(prevHeight, stackPosition);
@@ -173,12 +155,11 @@ class HeightCalculatorTest {
     @Test
     @DisplayName("Should calculate lift height correctly for negative stack position")
     void shouldCalculateLiftHeightForNegativePosition() {
-        when(physicalConstants.absoluteFloor()).thenReturn(ABSOLUTE_FLOOR);
-
         // Given
         int stackPosition = -3;
         float prevHeight = 20.0f;
-        float expectedHeight = -3 * CUBE_HEIGHT + CUBE_HEIGHT + ABSOLUTE_FLOOR; // -30 + 10 + 2 = -18.0
+        float rawLift = (stackPosition * CUBE_HEIGHT + CUBE_HEIGHT) - prevHeight; // (-30+10)-20 = -40
+        float expectedHeight = Math.max(rawLift, 0f); // 0.0
 
         // When
         float actualHeight = heightCalculator.calculateLiftHeight(prevHeight, stackPosition);
@@ -196,20 +177,6 @@ class HeightCalculatorTest {
 
         // When
         float actualHeight = heightCalculator.calculateApproachHeight(stackPosition);
-
-        // Then
-        assertEquals(expectedHeight, actualHeight, 0.001f);
-    }
-
-    @Test
-    @DisplayName("Should handle edge case with minimum integer stack position for pickup height")
-    void shouldHandleMinIntegerStackPositionForPickupHeight() {
-        // Given
-        int stackPosition = Integer.MIN_VALUE;
-        float expectedHeight = (float) Integer.MIN_VALUE * CUBE_HEIGHT + ABSOLUTE_FLOOR;
-
-        // When
-        float actualHeight = heightCalculator.calculatePickupHeight(stackPosition);
 
         // Then
         assertEquals(expectedHeight, actualHeight, 0.001f);

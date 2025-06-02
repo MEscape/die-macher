@@ -39,7 +39,7 @@ class ImageReceivedEventTest {
         assertNotNull(event);
         assertSame(testSource, event.getSource());
         assertSame(testImage, event.getImage());
-        assertEquals(cubeId, event.getCubeId());
+        assertEquals(cubeId, event.getEventId());
     }
 
     @Test
@@ -53,9 +53,9 @@ class ImageReceivedEventTest {
         ImageReceivedEvent event2 = new ImageReceivedEvent(testSource, testImage, cubeId2);
         ImageReceivedEvent event3 = new ImageReceivedEvent(testSource, testImage, cubeId3);
 
-        assertEquals(cubeId1, event1.getCubeId());
-        assertEquals(cubeId2, event2.getCubeId());
-        assertEquals(cubeId3, event3.getCubeId());
+        assertEquals(cubeId1, event1.getEventId());
+        assertEquals(cubeId2, event2.getEventId());
+        assertEquals(cubeId3, event3.getEventId());
     }
 
     @Test
@@ -68,7 +68,7 @@ class ImageReceivedEventTest {
         assertNotNull(event);
         assertSame(testSource, event.getSource());
         assertNull(event.getImage());
-        assertEquals(cubeId, event.getCubeId());
+        assertEquals(cubeId, event.getEventId());
     }
 
     @Test
@@ -131,6 +131,6 @@ class ImageReceivedEventTest {
     void shouldHandleZeroCubeId() {
         ImageReceivedEvent event = new ImageReceivedEvent(testSource, testImage, 0);
 
-        assertEquals(0, event.getCubeId());
+        assertEquals(0, event.getEventId());
     }
 }

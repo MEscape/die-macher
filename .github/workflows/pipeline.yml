@@ -1,0 +1,61 @@
+name: Pipeline
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  raspi:
+    name: Raspi Module
+    uses: ./.github/workflows/raspi_workflow.yml
+
+  system1:
+    name: System 1 Module
+    uses: ./.github/workflows/system_1_workflow.yml
+
+  quality-gate-summary:
+    name: Evaluate Quality Gates
+    runs-on: ubuntu-latest
+    needs: [raspi, system1]
+    if: always()
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4.2.2
+
+      - name: Evaluate Quality Gates
+        id: evaluate
+        run: |
+          echo "🔍 Quality Gate Results Summary:"
+          echo "---------------------------------"
+          echo "🔹 Raspi Module     : ${{ needs.raspi.outputs.quality_gate_status }}"
+          echo "🔹 System 1 Module  : ${{ needs.system1.outputs.quality_gate_status }}"
+          echo ""
+
+          failed=false
+
+          if [[ "${{ needs.raspi.outputs.quality_gate_status }}" != "PASSED" ]]; then
+            echo "::error::❌ Raspi quality gate failed"
+            if [[ -n "${{ needs.raspi.outputs.quality_gate_details }}" ]]; then
+              echo "   📋 Failure details: ${{ needs.raspi.outputs.quality_gate_details }}"
+              echo "::error::Raspi failure details: ${{ needs.raspi.outputs.quality_gate_details }}"
+            fi
+            failed=true
+          fi
+
+          if [[ "${{ needs.system1.outputs.quality_gate_status }}" != "PASSED" ]]; then
+            echo "::error::❌ System 1 quality gate failed"
+            if [[ -n "${{ needs.system1.outputs.quality_gate_details }}" ]]; then
+              echo "   📋 Failure details: ${{ needs.system1.outputs.quality_gate_details }}"
+              echo "::error::System 1 failure details: ${{ needs.system1.outputs.quality_gate_details }}"
+            fi
+            failed=true
+          fi
+
+          if [[ "$failed" == "true" ]]; then
+            echo ""
+            echo "❗ One or more quality gates failed"
+            echo "Review the details above and check the individual workflow logs for more information."
+            exit 1
+          fi
+
+          echo "✅ All quality gates passed"

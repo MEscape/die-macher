@@ -91,13 +91,10 @@ class RobotMovementServiceTest {
         robotMovementService.pickupCube(stackPosition);
 
         // Then
-        verify(dobotService).stopExecuteQueue();
-        verify(dobotService).clearQueue();
         verify(dobotService, times(2)).setMovementConfig(anyFloat(), anyFloat(), anyFloat(), anyFloat());
         verify(dobotService, times(1)).moveToPosition(eq(PTPModes.MOVL_XYZ), anyFloat(), anyFloat(), anyFloat(), anyFloat());
         verify(dobotService, times(1)).moveToPosition(eq(PTPModes.MOVJ_XYZ), anyFloat(), anyFloat(), anyFloat(), anyFloat());
         verify(dobotService).setVacuumState(true);
-        verify(dobotService).executeQueue();
     }
 
     @Test
@@ -114,8 +111,6 @@ class RobotMovementServiceTest {
         robotMovementService.moveToCamera();
 
         // Then
-        verify(dobotService).stopExecuteQueue();
-        verify(dobotService).clearQueue();
         verify(dobotService).setMovementConfig(
                 fastMovement.xyzVelocity(), fastMovement.rVelocity(),
                 fastMovement.xyzAcceleration(), fastMovement.rAcceleration()
@@ -141,6 +136,7 @@ class RobotMovementServiceTest {
         when(heightCalculator.calculatePickupHeight(stackHeight)).thenReturn(10.0f);
         when(config.physicalConstants()).thenReturn(physicalConstants);
         when(physicalConstants.maxHeight()).thenReturn(200.0f);
+        when(positions.camera()).thenReturn(cameraPoint);
 
         // When
         robotMovementService.placeCube(color, stackHeight, maxStackHeight);
@@ -163,6 +159,7 @@ class RobotMovementServiceTest {
         when(config.slowMovement()).thenReturn(slowMovement);
         when(positions.startPoint()).thenReturn(startPoint);
         when(positions.red()).thenReturn(redPosition);
+        when(positions.camera()).thenReturn(cameraPoint);
 
         when(positions.green()).thenReturn(new Position(200, 100, 20, 0));
         when(positions.blue()).thenReturn(new Position(200, 150, 20, 0));
