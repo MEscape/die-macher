@@ -30,6 +30,7 @@ import logging
 import sys
 
 from modules.tcp_ip import WebcamServer
+from modules.opc_ua import OpcuaServer
 
 logging.basicConfig(
     level=logging.INFO,
@@ -62,6 +63,30 @@ async def run_tcp_server() -> None:
             logger.info("Shutting down TCP/IP server...")
             server.stop()
 
+async def run_opcua_server() -> None:
+    """Run the TCP/IP camera streaming server.
+
+    This function initializes and starts the WebcamServer in a separate thread
+    using asyncio.to_thread to prevent blocking the main event loop.
+    """
+    server = None
+    try:
+        # Initialize and run the TCP server
+        logger.info("Starting OPC UA server...")
+        server = OpcuaServer(OpcuaServer("/home/pi/opcua_certs/server-cert.pem", "/home/pi/opcua_certs/server-key.pem"))
+        await asyncio.to_thread(server.setup_server)
+        await asyncio.to_thread(server.start)
+    except RuntimeError as e:
+        logger.error(f"RuntimeError error in OPC UA server: {e}")
+    except Exception as e:
+        logger.error(f"Unexpected error in OPC UA server: {e}", exc_info=True)
+    finally:
+        # Ensure resources are properly released if server was initialized
+        if server is not None:
+            logger.info("Shutting down OPC UA server...")
+            server.stop()
+
+
 
 async def main() -> None:
     """Run all server modules concurrently.
@@ -72,11 +97,11 @@ async def main() -> None:
     try:
         # Create tasks for both servers
         tcp_task = asyncio.create_task(run_tcp_server())
-        #opc_task = asyncio.create_task(run_opc_server())
+        opcua_task = asyncio.create_task(run_opcua_server())
 
         # Wait for both tasks to complete
-        # await asyncio.gather(tcp_task, opc_task)
-        await asyncio.gather(tcp_task)
+
+        await asyncio.gather(tcp_task, opcua_task)
     except asyncio.CancelledError:
         logger.info("Main task cancelled, shutting down gracefully...")
     except KeyboardInterrupt:

@@ -2,123 +2,105 @@ import asyncio
 import board
 import time
 from datetime import datetime
-from cryptography import x509
-from cryptography.hazmat.primitives import serialization
-
-
-import netifaces as ni #used for getting the ip address
-
-# Sensor-Library vom Hersteller Adafruit
+import netifaces as ni
 import adafruit_dht
-
-#GPIOs konfigurieren
 import RPi.GPIO as GPIO
 
 from asyncua import Server, ua
 from asyncua.ua import ObjectIds
 
-# Definition der GPIOs
-sensorPIN = 4
+class OpcuaServer:
+    def __init__(self, cert_path, key_path, interface='wlan0'):
+        self.cert_path = cert_path
+        self.key_path = key_path
+        self.interface = interface
+        self.server = Server()
+        self.dht_device = adafruit_dht.DHT22(board.D4, use_pulseio=False)
+        self.temp_node = None
+        self.hum_node = None
+        self.time_node = None
 
-# Zählweise der Pins festlegen
-GPIO.setmode(GPIO.BCM)
-GPIO.setwarnings(False)
-#GPIO Eingänge festlegen
-GPIO.setup(sensorPIN, GPIO.IN)
+        # GPIO setup
+        sensor_pin = 4
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setwarnings(False)
+        GPIO.setup(sensor_pin, GPIO.IN)
 
+    async def setup_server(self):
+        await self.server.load_certificate(self.cert_path)
+        await self.server.load_private_key(self.key_path)
+        await self.server.init()
 
-# Device für Sensor
-# Initial the dht device, with data pin connected to:
-dhtDevice = adafruit_dht.DHT22(board.D4, use_pulseio=False)
+        ipv4_address = ni.ifaddresses(self.interface)[ni.AF_INET][0]['addr']
+        endpoint_url = f"opc.tcp://{ipv4_address}:4840"
+        self.server.set_endpoint(endpoint_url)
 
-SERVER_CERT_PATH = "/home/pi/opcua_certs/server-cert.pem"
-SERVER_KEY_PATH = "/home/pi/opcua_certs/server-key.pem"
+        self.server.set_security_policy([
+            ua.SecurityPolicyType.Basic256Sha256_SignAndEncrypt,
+            ua.SecurityPolicyType.Basic256Sha256_Sign,
+            ua.SecurityPolicyType.NoSecurity
+        ])
 
-async def main():
-    server=Server()
+        namespace = await self.server.register_namespace("Die-Macher")
+        dev_type = await self.server.nodes.base_object_type.add_object_type(namespace, "FBS-Platine")
+        temp_var = await (await dev_type.add_variable(namespace, "temperature", 1.0)).set_modelling_rule(True)
+        hum_var = await (await dev_type.add_variable(namespace, "humidity", 1.0)).set_modelling_rule(True)
+        time_var = await (await dev_type.add_variable(namespace, "time", datetime.utcnow())).set_modelling_rule(True)
 
-    await server.load_certificate(SERVER_CERT_PATH)
-    await server.load_private_key(SERVER_KEY_PATH)
-    
+        folder = await self.server.nodes.objects.add_folder(namespace, "Raspi")
+        device = await folder.add_object(namespace, "FBS-Platine", dev_type)
 
-    await server.init()
-    #Get the ip address
-    IPV4_Address = ni.ifaddresses('wlan0')[ni.AF_INET][0]['addr']
-    url="opc.tcp://"+IPV4_Address+":4840"
-    server.set_endpoint(url)
-    
-    # Securityeinstellung für Clients angeben
-    server.set_security_policy([
-        ua.SecurityPolicyType.Basic256Sha256_SignAndEncrypt,
-        ua.SecurityPolicyType.Basic256Sha256_Sign,
-        ua.SecurityPolicyType.NoSecurity 
-    ])
+        self.temp_node = await device.get_child({f"{namespace}:temperature"})
+        self.hum_node = await device.get_child({f"{namespace}:humidity"})
+        self.time_node = await device.get_child({f"{namespace}:time"})
 
-    # set up our own namespace, not really necessary but should as spec
-    name="Die-Macher"
-    addspace=await server.register_namespace(name)
+        print("Server endpoint set at:", endpoint_url)
 
-    # populating our address space
-    # server.nodes, contains links to very common nodes like objects and root
-    dev = await server.nodes.base_object_type.add_object_type(addspace, "FBS-Platine")
-    mytemp = await (await dev.add_variable(addspace, "temperature", 1.0)).set_modelling_rule(True)
-    myhum = await (await dev.add_variable(addspace, "humidity", 1.0)).set_modelling_rule(True)
-    mytime = await (await dev.add_variable(addspace, "time", datetime.utcnow())).set_modelling_rule(True)
-    
-    #Folder to organize nodes 
-    myfolder = await server.nodes.objects.add_folder(addspace, "Raspi")
-    #instanciate one instance of our device
-    mydevice = await myfolder.add_object(addspace, "FBS-Platine", dev)
-    
-    
-    #get proxy to child-elements
-    temp = await mydevice.get_child({f"{addspace}:temperature"})
-    hum = await mydevice.get_child({f"{addspace}:humidity"})
-    time_node = await mydevice.get_child({f"{addspace}:time"})
+    async def start(self):
+        async with self.server:
+            print("OPC UA Server running...")
+            while True:
+                try:
+                    temperature_c = self.dht_device.temperature
+                    humidity = self.dht_device.humidity
+                    current_time = datetime.now()
 
-    
-    print("Starting server at " + url)
-    
-    async with server:
-        print("Server startet auf {}".format(url))
+                    print(f"Temp: {temperature_c:.1f} C    Humidity: {humidity}%  Zeit: {current_time:%d-%b-%Y (%H:%M:%S.%f)}")
 
-        temperature_c = 0
-        humidity = 0
-        
-        while True:
-            #Zeit ermitteln
-            TIME = datetime.now()
+                    await self.temp_node.write_value(temperature_c)
+                    await self.hum_node.write_value(humidity)
+                    await self.time_node.write_value(current_time)
 
-            # Temperatur messen
-            try:
-                # Print the values to Console
-                temperature_c = dhtDevice.temperature
-                humidity = dhtDevice.humidity
-                
-                print(
-                    "Temp: {:.1f} C    Humidity: {}%  Zeit:{:s}".format(
-                         temperature_c, humidity, TIME.strftime("%d-%b-%Y (%H:%M:%S.%f)")
-                    )
-                )
-                
-                await temp.write_value(temperature_c)
-                await hum.write_value(humidity)
-                await time_node.write_value(TIME)
-                
-            except RuntimeError as error:
-                print(error.args[0])
+                except RuntimeError as error:
+                    print("Sensor Error:", error.args[0])
+                    await asyncio.sleep(2)
+                    continue
+                except Exception as error:
+                    self.dht_device.exit()
+                    raise error
+
                 await asyncio.sleep(2)
-                continue
-            except Exception as error:
-                dhtDevice.exit()
-                raise error        
-            
-            await asyncio.sleep(2)
-            
 
-                        
 
-if __name__ == "__main__":
-    asyncio.run(main())
+    async def stop(self):
+        print("Stopping OPC UA Server...")
+        try:
+            await self.server.stop()
+            print("OPC UA Server stopped.")
+        except Exception as e:
+            print(f"Error while stopping server: {e}")
+        finally:
+            self.dht_device.exit()
+            GPIO.cleanup()
+            print("GPIO cleaned up and DHT sensor released.")
+
+
+# Usage:
+# if __name__ == "__main__":
+#     server = OpcuaServer("/home/pi/opcua_certs/server-cert.pem", "/home/pi/opcua_certs/server-key.pem")
+#     asyncio.run(server.setup_server())
+#     asyncio.run(server.start())
+
+
 
 
