@@ -35,7 +35,7 @@ exclude = "^tests/"
 
 [tool.pytest.ini_options]
 minversion = "8.0"
-addopts = "-ra -q --cov=modules --cov=main --cov-report=term-missing"
+addopts = "-ra -q --cov=modules --cov-report=term-missing -v"
 testpaths = ["tests"]
 python_files = ["test_*.py"]
 pythonpath = ["."]

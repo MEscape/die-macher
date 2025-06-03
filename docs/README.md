@@ -13,7 +13,7 @@ Willkommen zur technischen Dokumentation für das Industrie 4.0-Messestandprojek
     
 *   [03\_Datenfluss\_und\_Kommunikation.md](03\_Datenfluss\_und\_Kommunikation.md)
     
-*   [04\_Softwarekomponenten\_System1.md](04\_Softwarekomponenten\_System1.md)
+*   [04\_Komponenten\_System1.md](04\_Komponenten\_System1.md)
     
 *   [05\_System2\_Architektur\_und\_Setup.md](05\_System2\_Architektur\_und\_Setup.md)
     
