@@ -1,55 +1,197 @@
-# Awattar Marktdaten API – Stündliche Preisliste
+# Awattar Marktdaten Integration
 
-Die Awattar Market Data API liefert Strompreisdaten von jetzt bis zu 24 Stunden in die Zukunft.
+## Einleitung
 
-**API-Endpunkt:**  
+Diese Dokumentation beschreibt die Integration der Awattar Market Data API für die Strompreisoptimierung im Projekt "Die Macher". Die API liefert stündliche Strompreisdaten für die nächsten 24 Stunden und ermöglicht eine energiekostenoptimierte Produktionsplanung.
 
-Wir nutzen die öffentliche API von [aWATTar Österreich](https://www.awattar.at/) für stündliche Strompreisdaten.
+## Externe API-Spezifikation
 
-`https://api.awattar.at/v1/marketdata?start=<timestamp>`
+### Basis-Information
+- **Anbieter**: [aWATTar Österreich](https://www.awattar.at/)
+- **API-Version**: v1
+- **Datenformat**: JSON
+- **Authentifizierung**: Nicht erforderlich
 
-- `start` ist ein Zeitstempel in Millisekunden seit dem 01.01.1970 (UTC).
-- Rückgabe: Strompreise stundenweise für die nächsten 24 Stunden.
-
-**Beispielaufruf:**
-```bash
-curl "https://api.awattar.at/v1/marketdata?start=1561932000000"
+### Endpunkt
+```http
+GET https://api.awattar.at/v1/marketdata
 ```
 
-## Antwortstruktur
+### Parameter
+| Parameter | Typ | Beschreibung | Format |
+|-----------|-----|--------------|--------|
+| start | number | Startzeitpunkt | Unix-Timestamp (ms) |
 
-**Beispiel:**
+### Beispielanfrage
+
+```bash
+# Abfrage der Preisdaten ab einem bestimmten Zeitpunkt
+curl "https://api.awattar.at/v1/marketdata?start=1561932000000"
+
+# Abfrage der aktuellen Preisdaten
+curl "https://api.awattar.at/v1/marketdata?start=$(date +%s)000"
+```
+
+### Antwortformat
+
 ```json
 {
-"object": "list",
-"data": [
-{
-"start_timestamp": 1561932000000,
-"end_timestamp": 1561935600000,
-"marketprice": 28.98,
-"unit": "Eur/MWh"
-},
-{
-"start_timestamp": 1561935600000,
-"end_timestamp": 1561939200000,
-"marketprice": 26.23,
-"unit": "Eur/MWh"
+  "object": "list",
+  "data": [
+    {
+      "start_timestamp": 1561932000000,
+      "end_timestamp": 1561935600000,
+      "marketprice": 28.98,
+      "unit": "Eur/MWh"
+    },
+    {
+      "start_timestamp": 1561935600000,
+      "end_timestamp": 1561939200000,
+      "marketprice": 26.23,
+      "unit": "Eur/MWh"
+    }
+  ]
 }
 ```
 
- Die Antwort besteht aus einer Liste von Objekten mit folgenden Feldern:
+### Datenstruktur
 
-- **start_timestamp** : Startzeitpunkt der Stunde (Millisekunden seit dem 01.01.1970, UTC)
-- **end_timestamp** : Endzeitpunkt der Stunde (Millisekunden seit dem 01.01.1970, UTC)
-- **marketprice** : Strommarktpreis für die jeweilige Stunde, angegeben in „Eur/MWh“
+| Feld | Typ | Beschreibung | Format |
+|------|-----|--------------|--------|
+| start_timestamp | number | Startzeitpunkt | Unix-Timestamp (ms) |
+| end_timestamp | number | Endzeitpunkt | Unix-Timestamp (ms) |
+| marketprice | number | Strompreis | EUR/MWh |
+| unit | string | Preiseinheit | Immer "Eur/MWh" |
+
+### Eigenschaften
+
+#### Zeitliche Auflösung
+- Stündliche Preisdaten
+- 24-Stunden-Vorhersage
+- UTC-Zeitstempel
+
+#### Preisberechnung
+- Basis: EUR/MWh
+- Umrechnung in EUR/kWh: Wert × 0,001
+- Beispiel: 28,98 EUR/MWh = 0,02898 EUR/kWh
+
+#### Datenanalyse
+- Trendanalyse über 24 Stunden
+- Identifikation von Niedrigpreisphasen
+- Berechnung von Durchschnittspreisen“
 - **unit** : Einheit des Marktpreises (immer „Eur/MWh“)
- 
-#### Eigenschaften:
 
-- **Stündliche Auflösung der Preise** ermöglicht detaillierte Analyse von Preistrends im Tagesverlauf.
-- **Zeitbasierte Filterung** durch Vergleich der Zeitstempel, z.B. für heutige oder morgige Preise.
-- **Automatisierte Auswertung möglich**, z.B. zur Bestimmung des niedrigsten, höchsten oder durchschnittlichen Preises für einen bestimmten Zeitraum.
-- **Umrechnung in „Cent/kWh“** durch Multiplikation des Wertes mit 0,1.
+## Produktionsoptimierung
+
+### Energieverbrauchsmodell
+
+```yaml
+Bauteil:
+  Energiebedarf: 0,2 kWh/Stück
+  Produktionsrate: 5 Stück/Stunde
+
+Produktionsauftrag:
+  Menge: 15 Stück
+  Dauer: 3 Stunden
+  Gesamtenergie: 3 kWh
+```
+
+### Optimierungsziele
+- Minimierung der Energiekosten
+- Nutzung von Niedrigpreisphasen
+- Kontinuierliche Produktion (3 zusammenhängende Stunden)
+
+## Interne REST-API
+
+### Basis-URL
+```http
+BASE_URL: /api/awattar
+```
+
+### 1. Morgige Strompreise
+```http
+GET /api/awattar/tomorrow-prices
+```
+
+#### Antwort (200 OK)
+```json
+{
+  "object": "list",
+  "data": [{
+    "startTimestamp": 1747778400000,
+    "endTimestamp": 1747782000000,
+    "marketprice": 107.93,
+    "unit": "Eur/MWh",
+    "priceInEurPerKwh": 0.10793,
+    "startTimeFormatted": "21.05.2025 00:00",
+    "endTimeFormatted": "21.05.2025 01:00"
+  }]
+}
+```
+
+### 2. Aktueller Strompreis
+```http
+GET /api/awattar/current-price
+```
+
+#### Antwort (200 OK)
+```json
+{
+  "startTimestamp": 1747749600000,
+  "endTimestamp": 1747753200000,
+  "marketprice": 70.05,
+  "unit": "Eur/MWh",
+  "priceInEurPerKwh": 0.07005,
+  "startTimeFormatted": "20.05.2025 16:00",
+  "endTimeFormatted": "20.05.2025 17:00"
+}
+```
+
+### 3. Optimales Produktionsfenster
+```http
+GET /api/awattar/optimal-window
+```
+
+#### Antwort (200 OK)
+```json
+{
+  "startTimestamp": 1747821600000,
+  "endTimestamp": 1747832400000,
+  "prices": [
+    {
+      "startTimestamp": 1747821600000,
+      "endTimestamp": 1747825200000,
+      "marketprice": -0.1,
+      "unit": "Eur/MWh",
+      "priceInEurPerKwh": -0.0001,
+      "startTimeFormatted": "21.05.2025 12:00",
+      "endTimeFormatted": "21.05.2025 13:00"
+    }
+  ],
+  "totalCost": -0.00383,
+  "startTimeFormatted": "21.05.2025 12:00",
+  "endTimeFormatted": "21.05.2025 15:00"
+}
+```
+
+## Datenmodelle
+
+### MarketData
+| Feld | Typ | Beschreibung |
+|------|-----|-------------|
+| object | string | Immer "list" |
+| data | array | Liste von MarketPrice-Objekten |
+
+### MarketPrice
+| Feld | Typ | Beschreibung |
+|------|-----|-------------|
+| startTimestamp | number | Startzeitpunkt (ms) |
+| endTimestamp | number | Endzeitpunkt (ms) |
+| marketprice | number | Preis in EUR/MWh |
+| unit | string | Preiseinheit |
+| priceInEurPerKwh | number | Umgerechneter Preis |
+| startTimeFormatted | string | Lesbare Startzeit |
+| endTimeFormatted | string | Lesbare Endzeit |“** durch Multiplikation des Wertes mit 0,1.
 
 #### Anwendungsfälle:
 

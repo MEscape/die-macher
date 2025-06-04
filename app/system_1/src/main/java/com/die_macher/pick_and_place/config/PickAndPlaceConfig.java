@@ -5,5 +5,4 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @EnableConfigurationProperties(RobotConfiguration.class)
-public class PickAndPlaceConfig {
-}
+public class PickAndPlaceConfig {}

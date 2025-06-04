@@ -6,23 +6,25 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class HeightCalculator {
-    private final RobotConfiguration.PhysicalConstants constants;
+  private final RobotConfiguration.PhysicalConstants constants;
 
-    @Autowired
-    public HeightCalculator(RobotConfiguration config) {
-        this.constants = config.physicalConstants();
-    }
+  @Autowired
+  public HeightCalculator(RobotConfiguration config) {
+    this.constants = config.physicalConstants();
+  }
 
-    public float calculateApproachHeight(int stackPosition) {
-        return stackPosition * constants.cubeHeight() + constants.offset() + constants.absoluteFloor();
-    }
+  public float calculateApproachHeight(int stackPosition) {
+    return stackPosition * constants.cubeHeight() + constants.offset() + constants.absoluteFloor();
+  }
 
-    public float calculatePickupHeight(int stackPosition) {
-        return stackPosition * constants.cubeHeight() + constants.absoluteFloor() - stackPosition * 0.75F;
-    }
+  public float calculatePickupHeight(int stackPosition) {
+    return stackPosition * constants.cubeHeight()
+        + constants.absoluteFloor()
+        - stackPosition * 0.75F;
+  }
 
-    public float calculateLiftHeight(float prevHeight, int stackPosition) {
-        float rawLift = (stackPosition * constants.cubeHeight() + constants.cubeHeight()) - prevHeight;
-        return Math.max(rawLift, 0f);
-    }
+  public float calculateLiftHeight(float prevHeight, int stackPosition) {
+    float rawLift = (stackPosition * constants.cubeHeight() + constants.cubeHeight()) - prevHeight;
+    return Math.max(rawLift, 0f);
+  }
 }

@@ -1,3 +1,2 @@
-- bugfix yellow
-- prevent from hitting obstacles
 - improved time management -> camera image
+- docs extended system 2 and 3

@@ -5,10 +5,10 @@ import org.springframework.modulith.core.ApplicationModules;
 
 class ModularityTest {
 
-	ApplicationModules modules = ApplicationModules.of(System1Application.class);
+  ApplicationModules modules = ApplicationModules.of(System1Application.class);
 
-	@Test
-	void verifiesModularStructure() {
-		modules.verify();
-	}
+  @Test
+  void verifiesModularStructure() {
+    modules.verify();
+  }
 }

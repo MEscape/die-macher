@@ -5,14 +5,14 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class PickAndPlaceServiceImpl implements PickAndPlaceService {
-    private final PickAndPlaceOrchestrator orchestrator;
+  private final PickAndPlaceOrchestrator orchestrator;
 
-    public PickAndPlaceServiceImpl(PickAndPlaceOrchestrator orchestrator) {
-        this.orchestrator = orchestrator;
-    }
+  public PickAndPlaceServiceImpl(PickAndPlaceOrchestrator orchestrator) {
+    this.orchestrator = orchestrator;
+  }
 
-    @Override
-    public void startPickAndPlace(int cubeStackCount) {
-        orchestrator.startPickAndPlace(cubeStackCount);
-    }
+  @Override
+  public void startPickAndPlace(int cubeStackCount) {
+    orchestrator.startPickAndPlace(cubeStackCount);
+  }
 }

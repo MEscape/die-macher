@@ -1,111 +1,133 @@
-📄 01\_Projektübersicht.md
-==========================
+# Die Macher - Projektübersicht
 
-🧠 Projektname: Die Macher
-----------------------------------------------------------------------
+## Einleitung
 
-🎯 Projektziel
---------------
+Dieses Dokument bietet einen umfassenden Überblick über das Projekt "Die Macher", ein cyber-physisches System zur Demonstration moderner Industrie 4.0-Technologien. Es dient als Einstiegspunkt für alle Projektbeteiligten und interessierte Stakeholder.
 
-Ziel des Projekts ist die Entwicklung eines cyber-physischen Systems zur Präsentation vor Herr Stolz und Herr Vey. Das System zeigt exemplarisch die Komponenten moderner Industrie 4.0-Architekturen: Sensordatenerfassung, intelligente Steuerung, Datenhaltung, Analyse und mobile Visualisierung. Besucher sollen den vollständigen Kommunikationsfluss live nachvollziehen können.
+## Projektziel
 
-👥 Projektteam
---------------
+Unser Ziel ist die Entwicklung eines cyber-physischen Systems, das die wesentlichen Komponenten moderner Industrie 4.0-Architekturen demonstriert:
 
-**Rollenbeschreibung**
+- Sensordatenerfassung und -verarbeitung
+- Intelligente Robotersteuerung
+- Zentrale Datenhaltung und -analyse
+- Echtzeit-Visualisierung auf mobilen Endgeräten
 
-**Fachinformatiker AE (2x)** Zuständig für Softwareentwicklung, App-Design, Backend/API
+Das System wird vor den Prüfern (Herr Stolz und Herr Vey) präsentiert und ermöglicht Besuchern, den vollständigen Kommunikationsfluss live nachzuvollziehen.
 
-**Fachinformatiker SI (1x)** Zuständig für Netzwerkinfrastruktur, Server-Setup, MQTT
+## Projektteam und Organisation
 
-**Organisationsstruktur:**
+### Rollen und Verantwortlichkeiten
 
-*   **Projektmanagement:** SCRUM (3-Wochen-Sprints, Sprint-Planning & Review)
-    
-*   **Werkzeuge:** GitHub (Codeverwaltung), Notion (Dokumentation, Backlog)
-    
+| Rolle | Anzahl | Hauptverantwortlichkeiten |
+|-------|--------|---------------------------|
+| Fachinformatiker AE | 2 | - Softwareentwicklung<br>- App-Design<br>- Backend/API-Entwicklung |
+| Fachinformatiker SI | 1 | - Netzwerkinfrastruktur<br>- Server-Setup<br>- MQTT-Konfiguration |
 
-🏗️ Projektstruktur
--------------------
+### Organisationsstruktur
 
-Das System besteht aus fünf verbundenen Hauptkomponenten:
+- **Projektmanagement:** SCRUM mit 3-Wochen-Sprints
+- **Werkzeuge:**
+  - GitHub: Codeverwaltung und Versionierung
+  - Notion: Dokumentation und Backlog-Verwaltung
 
-**Raspberry Pi** Sensordatenerfassung, Bildverarbeitung, Python
+## Systemarchitektur
 
-**Dobot Magician** Robotersteuerung, Pick-and-Place
+### Hauptkomponenten
 
-**System 1** Zentrale Steuerung und Datenverarbeitung, Roboteranbindung, TCP/IP, Java Spring Boot
+1. **Raspberry Pi**
+   - Sensordatenerfassung
+   - Bildverarbeitung (Python)
 
-**System 2** Datenbank- und MQTT-Server, PostgreSQL, EMQX, Ubuntu-VM
+2. **Dobot Magician**
+   - Robotersteuerung
+   - Pick-and-Place-Operationen
 
-**System 3** Mobile Visualisierung der Daten React Native (Expo), MQTT Client
+3. **System 1**
+   - Zentrale Steuerung
+   - Datenverarbeitung
+   - Roboteranbindung (Java Spring Boot)
 
-🔧 Eingesetzte Technologien
----------------------------
+4. **System 2**
+   - Datenbank-Server (PostgreSQL)
+   - MQTT-Broker (EMQX)
+   - Ubuntu-VM als Hostingsystem
 
-*   **Java (Spring Boot):** Backend-Services, Energiekosten-Ermittlung
-    
-*   **Python:** Sensorsteuerung, Bildverarbeitung
-    
-*   **JavaScript (React Native):** Mobile Visualisierung
-    
-*   **InfluxDB:** Datenhaltung mit Sharding-Strategie
-    
-*   **MQTT (EMQX):** Echtzeit-Datenverteilung
-    
-*   **OPC UA / TCP/IP / REST:** Industrielle Schnittstellen
-    
+5. **System 3**
+   - Visualisierung
+   - NextJS mit Shadcn UI
+   - MQTT-Client-Integration
 
-📚 Fachlicher Kontext
----------------------
+## Technologie-Stack
 
-**Lernfeld 7 & 8:**
+### Backend und Verarbeitung
+- Java Spring Boot: Backend-Services, Energiekosten-Berechnung
+- Python: Sensorsteuerung, Bildverarbeitung
+- InfluxDB: Zeitreihendatenbank mit Sharding
 
-*   Vernetzung cyber-physischer Systeme
-    
-*   Systemübergreifende Datenbereitstellung
-    
+### Kommunikation
+- MQTT (EMQX): Echtzeit-Datenverteilung
+- OPC UA: Industrielle Kommunikation
+- REST: API-Schnittstellen
+- TCP/IP: Netzwerkkommunikation
 
-🧾 User-Stories (Auszug)
-------------------------
+### Frontend
+- NextJS: Frontend-Framework
+- Shadcn UI: UI-Komponentenbibliothek
 
-1.  **Demonstration industrieller Kommunikationsschnittstellen**
-    
-2.  **Präsentation Pick-and-Place-System mit Farberkennung**
-    
-3.  **Live-Auswertung und Visualisierung von Sensordaten**
-    
-4.  **Echtzeit-Anzeige von Energieverbrauch und Stromkosten**
-    
+## Fachlicher Kontext
 
-🔎 Erwartete Systemfunktionen
------------------------------
+### Lernfelder
+- **LF 7:** Vernetzung cyber-physischer Systeme
+- **LF 8:** Systemübergreifende Datenbereitstellung
 
-*   Pick-and-Place-Steuerung durch Dobot-Roboter
-    
-*   Echtzeit-Messung von Temperatur, Feuchtigkeit und Farbe
-    
-*   Speicherung und Abfrage von Produktionsdaten (zeitlich & farblich)
-    
-*   Berechnung und Anzeige von Energiekosten pro Bauteil & Tag
-    
-*   Mobile App zur Visualisierung und Analyse
-    
+## Kernfunktionen
 
-📅 Zeitplan (agil)
-------------------
+### User Stories
+1. Demonstration industrieller Kommunikationsschnittstellen
+2. Pick-and-Place-System mit Farberkennung
+3. Live-Auswertung von Sensordaten
+4. Echtzeit-Energiekostenberechnung
 
-1.  Setup, erste Schnittstellen, Grundfunktionalität
+### Systemfunktionen im Detail
+- Robotergesteuerte Pick-and-Place-Operationen
+- Echtzeit-Sensorik (Temperatur, Feuchtigkeit, Farbe)
+- Datenbankbasierte Produktionsdatenerfassung
+- Energiekostenberechnung pro Bauteil und Tag
+- Mobile Visualisierung und Analyse
 
-2.  Integration Sensorik, erste Auswertungen
+## Projektplanung
 
-3.  Mobile Visualisierung, Abschluss, Review
+### Agiler Zeitplan
+1. **Sprint 1:** Setup und Grundfunktionalität
+   - Systemaufbau
+   - Erste Schnittstellen
 
-📎 Verknüpfte Kapitel
----------------------
+2. **Sprint 2:** Integration und Auswertung
+   - Sensorikintegration
+   - Erste Datenauswertungen
 
-*   [02\_Systemarchitektur.md](02\_Systemarchitektur.md)
-    
-*   [12\_Backlog\_und\_Tasks.md](12\_Backlog\_und\_Tasks.md)
-    
-*   [13\_Sprint\_Review\_Checkliste.md](13\_Sprint\_Review\_Checkliste.md)
+3. **Sprint 3:** Finalisierung
+   - Mobile Visualisierung
+   - Systemintegration
+   - Abschlussreview
+
+## Weiterführende Dokumentation
+
+- [Systemarchitektur](02_Systemarchitektur.md)
+- [Backlog und Tasks](12_Backlog_und_Tasks.md)
+- [Sprint Review Checkliste](13_Sprint_Review_Checkliste.md)
+
+## FAQ
+
+**F: Wie wird die Datensicherheit gewährleistet?**
+A: Durch verschlüsselte Kommunikation und Authentifizierung bei MQTT und OPC UA.
+
+**F: Welche Skalierungsmöglichkeiten bietet das System?**
+A: InfluxDB unterstützt Sharding, die Microservice-Architektur ermöglicht horizontale Skalierung.
+
+## Änderungshistorie
+
+| Datum | Version | Änderungen | Autor |
+|-------|----------|------------|--------|
+| 2025-06 | 1.0 | Initiale Version | Team |

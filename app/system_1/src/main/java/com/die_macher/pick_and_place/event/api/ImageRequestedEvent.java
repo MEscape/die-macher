@@ -5,10 +5,10 @@ import org.springframework.context.ApplicationEvent;
 
 @Getter
 public class ImageRequestedEvent extends ApplicationEvent {
-    private final int cubeId;
+  private final int cubeId;
 
-    public ImageRequestedEvent(Object source, int cubeId) {
-        super(source);
-        this.cubeId = cubeId;
-    }
+  public ImageRequestedEvent(Object source, int cubeId) {
+    super(source);
+    this.cubeId = cubeId;
+  }
 }

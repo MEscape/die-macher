@@ -1,27 +1,24 @@
-📄 00\_Regeln\_und\_Inbetriebnahme.md
-=====================================
+# Regeln und Inbetriebnahme
 
-Regeln & Inbetriebnahme
---------------------------------------
+## Einleitung
 
-Dieses Kapitel beschreibt die grundlegenden **Projektregeln**, Konventionen und erste Schritte zur **Inbetriebnahme des Projekts** auf einem lokalen Rechner. Es dient als verbindliche Richtlinie für das gesamte Projektteam und soll die Zusammenarbeit effizient, einheitlich und nachvollziehbar gestalten.
+Dieses Kapitel beschreibt die grundlegenden Projektregeln, Konventionen und erste Schritte zur Inbetriebnahme des Projekts auf einem lokalen Rechner. Es dient als verbindliche Richtlinie für das gesamte Projektteam und soll die Zusammenarbeit effizient, einheitlich und nachvollziehbar gestalten.
 
-✅ Projektregeln & Konventionen
-------------------------------
+## Projektregeln & Konventionen
 
-### 🗣️ Sprache
+### Sprache
 
-* **Dokumentation** Deutsch
+| Bereich | Sprache |
+|---------|----------|
+| Dokumentation | Deutsch |
+| Code-Kommentare | Englisch |
+| Git-Commits | Englisch |
+| User Interfaces | Deutsch, Englisch |
 
-* **Code-Kommentare** Englisch
-
-* **Git-Commits** Englisch
-
-* **User Interfaces** Deutsch, Englisch
-
-### 📂 Verzeichnisstruktur
+### Verzeichnisstruktur
 
 ```bash
+/  ├── ci/                # Continues Integration
 /  ├── app/
 /       ├── raspi/          # Raspberry Pi Code
 /           ├── opc_ua/         # OPC UA Server
@@ -32,107 +29,160 @@ Dieses Kapitel beschreibt die grundlegenden **Projektregeln**, Konventionen und 
 /  ├── docs/               # Project Documentation
 ```
 
-### 💡 Best Practices (Coding & Architektur)
+### Best Practices
 
-#### 🔧 Architektur
+#### Architektur
 
-*   **Modularität:** Trennung von Zuständigkeiten pro Subsystem
-    
-*   **Schnittstellenorientiert:** Kommunikation ausschließlich über definierte Schnittstellen (REST, MQTT, OPC UA)
-    
-*   **Fehlertoleranz:** Robuste Fehlerbehandlung, insbesondere bei Netzwerk- und Hardware-Kommunikation
-    
-*   **Testbarkeit:** Unit-Tests und Integrationstests (Mock für Roboter/Sensoren)
-    
+- **Modularität**
+  - Trennung von Zuständigkeiten pro Subsystem
+  - Klare Schnittstellendefinitionen
 
-#### 💻 Programmierung
+- **Schnittstellen**
+  - Kommunikation ausschließlich über definierte APIs
+  - Unterstützte Protokolle: REST, MQTT, OPC UA
 
-*   **Code Cleanliness:** 
+- **Fehlertoleranz**
+  - Robuste Fehlerbehandlung
+  - Besonderer Fokus auf Netzwerk- und Hardware-Kommunikation
 
-    *   **Ordner**: snake_case
+- **Testbarkeit**
+  - Implementierung von Unit-Tests
+  - Integrationstests mit Mock-Objekten für Hardware
 
-    *   **Docs-Datein**: snake_case
-    
-    *   **Code**: camelCase, PascalCase
-    
-    *   **DB**: snake_case
-    
-*   **Typensicherheit:** z.B. TypeScript (JS), MyPy (Python)
+#### Programmierung
 
-*   **Code Formatierung:** z.B. Prettier (JS), Black (Python), Spotless (Java)
+##### Namenskonventionen
 
-*   **Linter verwenden:** z.B. ESLint (JS), Checkstyle (Java), PyLint (Python)
-    
-*   **Logging:** Structured Logging mit Levels (INFO, DEBUG, ERROR) – mit SLF4J
-    
-*   **Security:** Besonders bei OPC-UA und MQTT auf Authentifizierung & Verschlüsselung achten
-    
+| Bereich | Konvention | Beispiel |
+|---------|------------|----------|
+| Ordner | snake_case | `data_processing/` |
+| Docs-Dateien | snake_case | `system_architecture.md` |
+| Code | camelCase, PascalCase | `processData()`, `DataProcessor` |
+| Datenbank | snake_case | `sensor_data` |
 
-#### 📦 Git-Konventionen
+##### Code-Qualität
 
-*   Branch-Namen: feature/, bugfix/, hotfix/, refactor/
+- **Typisierung**
+  - TypeScript für JavaScript
+  - MyPy für Python
+  - Strikte Typenprüfung
 
-*   Git-Commits: 
+- **Formatierung**
+  - JavaScript: Prettier
+  - Python: Black
+  - Java: Spotless
 
-    *   **Type**: feature, fix, docs, style, refactor, test, chore
-    
-    *   **Scope**: Userstory ID
+- **Linting**
+  - JavaScript: ESLint
+  - Java: Checkstyle
+  - Python: PyLint
 
-    *   **Subject**: Kurze Beschreibung des Commits
+- **Logging**
+  - Structured Logging mit SLF4J
+  - Log-Level: INFO, DEBUG, ERROR
+  - Kontextbezogene Logging-Informationen
 
-        *   **Struktur**: "Type(Scope): Subject"
+- **Security**
+  - Verschlüsselte Kommunikation
+  - Authentifizierung für OPC-UA und MQTT
+  - Sichere Speicherung von Credentials
 
-        *   **Beispiel**: "fix(US1234): temperature sensor"
-    
-*   Pull-Requests mit Reviewpflicht
-    
-🛠️ Inbetriebnahme (lokale Einrichtung)
----------------------------------------
+#### Git-Workflow
 
-### 📥 Repository klonen
+##### Branch-Namenskonventionen
 
-Um das Projekt lokal zu nutzen, muss das GitHub-Repository geklont werden:
+- `feature/` - Neue Funktionalitäten
+- `bugfix/` - Fehlerbehebungen
+- `hotfix/` - Kritische Fixes
+- `refactor/` - Code-Verbesserungen
+
+##### Commit-Konventionen
+
+**Format:** `type(scope): subject`
+
+- **Type:**
+  - `feature`: Neue Funktionalität
+  - `fix`: Fehlerbehebung
+  - `docs`: Dokumentation
+  - `style`: Formatierung
+  - `refactor`: Code-Verbesserung
+  - `test`: Tests
+  - `chore`: Maintenance
+
+- **Scope:** Userstory-ID (z.B. US1234)
+- **Subject:** Kurze Beschreibung
+
+**Beispiel:** `fix(US1234): temperature sensor calibration`
+
+##### Pull Requests
+- Verpflichtende Code-Reviews
+- Automatisierte Tests müssen bestanden sein
+- Dokumentation muss aktuell sein
+
+## Inbetriebnahme
+
+### Repository Setup
 
 ```bash
+# Repository klonen
 git clone https://github.com/MEscape/die-macher.git
+
+# Push-Konfiguration
 git config --global push.autosetupremote true
 
+# In Projektverzeichnis wechseln
 cd die-macher
-```  
+```
 
-### 📦 Abhängigkeiten installieren
+### Entwicklungsumgebung
 
-Nachdem das Repository geklont wurde, müssen die Abhängigkeiten installiert werden:
+#### 1. Pre-Commit Setup
+```bash
+# Installation
+pip install pre-commit commitizen
 
-### 1. VSCode Extensions
+# Hooks aktivieren
+pre-commit install --hook-type pre-commit --hook-type commit-msg
+```
 
-*   **Language Support for Java(TM) by Red Hat**
+#### 2. VSCode Extensions
+- Language Support for Java(TM) by Red Hat
+- Markdown Preview Mermaid Support
+- BasedPyright
+- Python
+- Docker
 
-*   **Markdown Preview Mermaid Support**
+#### 3. Runtime-Umgebungen
 
-*   **BasedPyright**
+##### Java
+- JDK21
+- Maven
 
-*   **Python**
+##### Python
+- Python 3.11 oder höher
+- Virtuelle Umgebung empfohlen
 
-*   **Docker**
+#### 4. Hardware-Treiber
 
-### 2. Java
+##### Dobot Magician
+- [CP210x VCP Windows Treiber](https://www.silabs.com/developer-tools/usb-to-uart-bridge-vcp-drivers?tab=downloads)
 
-*   **JDK21**
+## FAQ
 
-*   **Maven**
+**F: Wie wird die Code-Qualität sichergestellt?**
+A: Durch automatisierte Tests, Linting, Code-Reviews und CI/CD-Pipeline.
 
-### 3. Python
+**F: Welche IDE wird empfohlen?**
+A: VSCode mit den angegebenen Extensions für optimale Entwicklungsunterstützung.
 
-*   **Python 3.11+**
+## Weiterführende Dokumentation
 
-### 4. Dobot Magician
+- [Projektübersicht](01_Projektübersicht.md)
+- [DevOps und Betrieb](11_DevOps_und_Betrieb.md)
 
-*   **CP210x VCP Windows**: https://www.silabs.com/developer-tools/usb-to-uart-bridge-vcp-drivers?tab=downloads
+## Änderungshistorie
 
-📎 Verknüpfte Kapitel
----------------------
-
-*   [01\_Projektübersicht.md](01\_Projektübersicht.md)
-    
-*   [11\_DevOps\_und\_Betrieb.md](11\_DevOps\_und\_Betrieb.md)
+| Datum | Version | Änderungen | Autor |
+|-------|----------|------------|--------|
+| 2024-04 | 1.0 | Initiale Version | Team |
+| 2024-05 | 1.1 | Ergänzung Git-Workflow | Team |
