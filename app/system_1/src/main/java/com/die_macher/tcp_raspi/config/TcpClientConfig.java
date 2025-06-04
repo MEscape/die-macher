@@ -14,54 +14,54 @@ import org.springframework.messaging.MessageChannel;
 
 @Configuration
 class TcpClientConfig {
-    private static final Logger LOGGER = LoggerFactory.getLogger(TcpClientConfig.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(TcpClientConfig.class);
 
-    private final TcpProperties tcpProperties;
+  private final TcpProperties tcpProperties;
 
-    public TcpClientConfig(final TcpProperties tcpPropertiesLocal) {
-        this.tcpProperties = tcpPropertiesLocal;
-    }
+  public TcpClientConfig(final TcpProperties tcpPropertiesLocal) {
+    this.tcpProperties = tcpPropertiesLocal;
+  }
 
-    @Bean
-    public AbstractClientConnectionFactory clientConnectionFactory() {
-        TcpNetClientConnectionFactory factory = new TcpNetClientConnectionFactory(
-                tcpProperties.getHost(),
-                tcpProperties.getPort()
-        );
+  @Bean
+  public AbstractClientConnectionFactory clientConnectionFactory() {
+    TcpNetClientConnectionFactory factory =
+        new TcpNetClientConnectionFactory(tcpProperties.getHost(), tcpProperties.getPort());
 
-        factory.setSingleUse(false);
+    factory.setSingleUse(false);
 
-        final ByteArrayLengthHeaderSerializer serializer = new ByteArrayLengthHeaderSerializer(
-                tcpProperties.getHeaderSize()
-        );
-        serializer.setMaxMessageSize(tcpProperties.getMaxMessageSize());
+    final ByteArrayLengthHeaderSerializer serializer =
+        new ByteArrayLengthHeaderSerializer(tcpProperties.getHeaderSize());
+    serializer.setMaxMessageSize(tcpProperties.getMaxMessageSize());
 
-        factory.setDeserializer(serializer);
-        factory.setSerializer(serializer);
+    factory.setDeserializer(serializer);
+    factory.setSerializer(serializer);
 
-        LOGGER.info("Creating connection factory to {}:{}", tcpProperties.getHost(), tcpProperties.getPort());
+    LOGGER.info(
+        "Creating connection factory to {}:{}", tcpProperties.getHost(), tcpProperties.getPort());
 
-        return factory;
-    }
+    return factory;
+  }
 
-    @Bean
-    public TcpReceivingChannelAdapter inboundAdapter(AbstractClientConnectionFactory connectionFactory) {
-        TcpReceivingChannelAdapter adapter = new TcpReceivingChannelAdapter();
-        adapter.setConnectionFactory(connectionFactory);
-        adapter.setClientMode(true);
-        adapter.setOutputChannel(tcpChannel());
-        return adapter;
-    }
+  @Bean
+  public TcpReceivingChannelAdapter inboundAdapter(
+      AbstractClientConnectionFactory connectionFactory) {
+    TcpReceivingChannelAdapter adapter = new TcpReceivingChannelAdapter();
+    adapter.setConnectionFactory(connectionFactory);
+    adapter.setClientMode(true);
+    adapter.setOutputChannel(tcpChannel());
+    return adapter;
+  }
 
-    @Bean
-    public MessageChannel tcpChannel() {
-        return new DirectChannel();
-    }
-    
-    @Bean
-    public TcpSendingMessageHandler tcpSendingMessageHandler(AbstractClientConnectionFactory connectionFactory) {
-        TcpSendingMessageHandler messageHandler = new TcpSendingMessageHandler();
-        messageHandler.setConnectionFactory(connectionFactory);
-        return messageHandler;
-    }
+  @Bean
+  public MessageChannel tcpChannel() {
+    return new DirectChannel();
+  }
+
+  @Bean
+  public TcpSendingMessageHandler tcpSendingMessageHandler(
+      AbstractClientConnectionFactory connectionFactory) {
+    TcpSendingMessageHandler messageHandler = new TcpSendingMessageHandler();
+    messageHandler.setConnectionFactory(connectionFactory);
+    return messageHandler;
+  }
 }

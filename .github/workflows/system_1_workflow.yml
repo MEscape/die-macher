@@ -116,14 +116,14 @@ jobs:
             curl -s -u admin:admin "http://localhost:9000/api/ce/task?id=$CE_TASK_ID" > ce-task.json
             ANALYSIS_ID=$(jq -r '.task.analysisId' ce-task.json)
             curl -s -u admin:admin "http://localhost:9000/api/qualitygates/project_status?analysisId=$ANALYSIS_ID" > gate.json
-          
+
             # Extract failure details in a compact format
             FAILURE_DETAILS=$(jq -r '.projectStatus.conditions[] | select(.status != "OK") | "• \(.metricKey): \(.actualValue) (threshold: \(.errorThreshold // .warningThreshold))"' gate.json | tr '\n' ' ')
-          
+
             if [[ -z "$FAILURE_DETAILS" ]]; then
               FAILURE_DETAILS="Quality gate failed but no specific condition details available"
             fi
-          
+
             echo "failure_details=$FAILURE_DETAILS" >> "$GITHUB_OUTPUT"
             echo "----- Quality Gate Report -----"
             jq . gate.json

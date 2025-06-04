@@ -82,21 +82,21 @@ In Sprint 1 liegt der Fokus auf der **Einrichtung der Basisinfrastruktur**, der 
 ---------------------
 
 *   [13\_Sprint\_Review\_Checkliste.md](13\_Sprint\_Review\_Checkliste.md)
-    
+
 *   [04\_Softwarekomponenten\_System1.md](04\_Softwarekomponenten\_System1.md)
-    
+
 *   [05\_System2\_Architektur\_und\_Setup.md](05\_System2\_Architektur\_und\_Setup.md)
-    
+
 
 ⚠️ Abhängigkeiten & Risiken
 ---------------------------
 
 *   Zugriff auf Dobot-Bibliothek muss frühzeitig geprüft werden
-    
+
 *   TCP/IP-Kommunikation im Schulnetzwerk evtl. eingeschränkt → Test im privaten Netzwerk vorbereiten
-    
+
 *   OPC UA benötigt Zertifikate – rechtzeitig generieren & konfigurieren
-    
+
 
 🏁 Sprintbeginn: \[29.04.2025\]
 -------------------------------

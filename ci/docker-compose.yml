@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   sonarqube:
-    image: sonarqube:lts
+    image: sonarqube:latest
     container_name: die-macher-sonarqube
     ports:
       - "9000:9000"

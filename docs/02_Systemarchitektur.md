@@ -1,13 +1,10 @@
-📄 02_Systemarchitektur.md
-==========================
+# Systemarchitektur
 
-🏗️ Systemarchitektur
-----------------------------------------------------------------------
+## Einleitung
 
-Dieses Kapitel beschreibt die **Systemarchitektur** des Projekts "Die Macher". Es zeigt die Komponenten, deren Zusammenspiel und die Datenflüsse zwischen den verschiedenen Systemen. Die Architektur ist modular aufgebaut und folgt dem Prinzip der Trennung von Zuständigkeiten.
+Dieses Kapitel beschreibt die Systemarchitektur des Projekts "Die Macher". Es zeigt die Komponenten, deren Zusammenspiel und die Datenflüsse zwischen den verschiedenen Systemen. Die Architektur ist modular aufgebaut und folgt dem Prinzip der Trennung von Zuständigkeiten.
 
-🧩 Gesamtübersicht
------------------
+## Gesamtübersicht
 
 ```mermaid
 flowchart TD
@@ -70,36 +67,35 @@ flowchart TD
     %% Verbindungen mit besserem Kontrast
     linkStyle 0,1,2,3,4 stroke:#1A535C,stroke-width:2px
     linkStyle 5,6,7,8,9 stroke:#FF6B6B,stroke-width:3px,stroke-dasharray: 5 5
-    
+
     class RPI raspberry
     class SB springboot
     class EXT external
     class MF flow
 ```
 
-📊 Datenflüsse
---------------
+## Datenflüsse
 
 ```mermaid
 flowchart LR
     %% Klarere Struktur mit Betonung auf Datenflüssen
-    
+
     %% Datenquellen als dedizierte Gruppe
     subgraph INPUT["Datenquellen"]
         SENS["Temperatur & Luftfeuchtigkeit"]:::source
         CAM["Kamera"]:::source
         AWAPI["awattar API"]:::source
     end
-    
+
     %% Raspberry Pi Komponenten
     subgraph RPI["Raspberry Pi"]
         RPI_OPC["OPC UA Server (verschlüsselt)"]:::rpi
         RPI_TCP["TCP Server (Custom Protocol)"]:::rpi
-        
+
         SENS --> RPI_OPC
         CAM --> RPI_TCP
     end
-    
+
     %% Spring Boot Komponenten
     subgraph SB["Spring Boot"]
         %% Unterteilung in logische Module
@@ -107,40 +103,40 @@ flowchart LR
             SB_OPC["OPC UA Client"]:::sb_comm
             SB_TCP["TCP Client"]:::sb_comm
         end
-        
+
         subgraph PROC["Verarbeitung"]
             SB_IMG["Bildanalyse Farbservice"]:::sb_proc
             SB_COST["Stromkostenmodul"]:::sb_proc
         end
-        
+
         subgraph CTRL["Steuerung"]
             SB_ROB["Dobot Controller"]:::sb_ctrl
         end
-        
+
         subgraph DATA["Datenmanagement"]
             SB_FWD["Datenverarbeitung"]:::sb_data
         end
-        
+
         %% Interne Verbindungen
         SB_TCP --> SB_IMG
         SB_IMG --> SB_ROB
         SB_IMG --> SB_FWD
         SB_OPC --> SB_FWD
         SB_COST --> SB_FWD
-        
+
         %% awattar Verbindung
         AWAPI --> SB_COST
     end
-    
+
     %% Externe Systeme
     DOBOT["Dobot Roboter"]:::external
-    
+
     %% Hauptdatenflüsse zwischen Systemen
     RPI_OPC -->|"Sensorwerte"| SB_OPC
     RPI_TCP -->|"Bilddaten"| SB_TCP
     SB_TCP -->|"Anfrage"| RPI_TCP
     SB_ROB <-->|"Steuerung"| DOBOT
-    
+
     %% Verbesserte Farbcodierung
     classDef source fill:#F8F9FA,stroke:#212529,stroke-width:2px,color:#212529
     classDef rpi fill:#FF6B6B,stroke:#212529,stroke-width:2px,color:white
@@ -149,69 +145,78 @@ flowchart LR
     classDef sb_ctrl fill:#3F37C9,stroke:#212529,stroke-width:2px,color:white
     classDef sb_data fill:#3A0CA3,stroke:#212529,stroke-width:2px,color:white
     classDef external fill:#F72585,stroke:#212529,stroke-width:2px,color:white
-    
+
     %% Linkstile für verschiedene Verbindungstypen
     linkStyle default stroke:#212529,stroke-width:1.5px
 ```
 
-📱 Komponenten im Detail
------------------------
+## Komponenten im Detail
 
-### 🔴 Raspberry Pi (Python)
+### Raspberry Pi (Python)
 
-* **GPIO-Platine**
-  * Sensoren für Temperatur und Luftfeuchtigkeit
-  * Datenübermittlung über OPC UA Server
-  * Verschlüsselte Kommunikation mit Zertifikaten
+#### GPIO-Platine
+- Sensoren für Temperatur und Luftfeuchtigkeit
+- Datenübermittlung über OPC UA Server
+- Verschlüsselte Kommunikation mit Zertifikaten
 
-* **Kamera**
-  * Erkennung farbiger Würfel
-  * Zugeschnittene Bilder des Würfels (zentraler Bildausschnitt)
-  * Reagiert auf TCP-Anfragen von System 1
-  * Sendet Byte-Array (Bilddaten) im Custom Protocol Format
-  * Agiert als TCP-Server
+#### Kamera
+- Erkennung farbiger Würfel
+- Reagiert auf TCP-Anfragen von System 1
+- Sendet Byte-Array (Bilddaten) im Custom Protocol Format
+- Agiert als TCP-Server
 
-### 🔵 System 1 (Spring Boot, PC)
+### System 1 (Spring Boot, PC)
 
-* **TCP-Client (Inbound + Outbound)**
-  * Empfängt Nachrichten vom Raspberry Pi
-  * Stellt gezielte Bildanfragen an den Raspberry Pi
-  * Verarbeitet Byte-Response mit Custom Header
+#### TCP-Client (Inbound + Outbound)
+- Empfängt Nachrichten vom Raspberry Pi
+- Stellt gezielte Bildanfragen an den Raspberry Pi
+- Verarbeitet Byte-Response mit Custom Header
 
-* **Kamera-Analyse / Farbservice**
-  * Wandelt Byte-Response in Bild um
-  * Extrahiert dominante Farbe (Rot, Grün, Gelb, Blau)
-  * Übergibt Farbinformation an die Sortierlogik
+#### Kamera-Analyse / Farbservice
+- Wandelt Byte-Response in Bild um
+- Extrahiert dominante Farbe (Rot, Grün, Gelb, Blau)
+- Übergibt Farbinformation an die Sortierlogik
 
-* **Dobot Steuerung (USB)**
-  * Pick-and-Place Prozess:
-    * Greift Würfel an fester Position
-    * Platziert ihn vor Kamera
-    * Sortiert nach Farbklassifikation
-    * Kehrt zur Ausgangsposition zurück
+#### Dobot Steuerung (USB)
+**Pick-and-Place Prozess:**
+- Greift Würfel an fester Position
+- Platziert ihn vor Kamera
+- Sortiert nach Farbklassifikation
+- Kehrt zur Ausgangsposition zurück
 
-* **OPC UA Client**
-  * Verbindung zum OPC UA Server auf dem Raspberry Pi
-  * Zertifikats-basierte Authentifizierung
-  * Empfängt Temperatur- & Feuchtigkeitsdaten
+#### OPC UA Client
+- Verbindung zum OPC UA Server auf dem Raspberry Pi
+- Zertifikats-basierte Authentifizierung
+- Empfängt Temperatur- & Feuchtigkeitsdaten
 
-* **Stromkostenmodul / awattar**
-  * Abruf von Strompreisdaten über REST API
-  * Berechnung der Stromkosten
-  * Weiterleitung der Ergebnisse an System 2
+#### Stromkostenmodul / awattar
+- Abruf von Strompreisdaten über REST API
+- Berechnung der Stromkosten pro Bauteil
+- Integration in Gesamtauswertung
 
-* **Datenweiterleitung**
-  * Übermittlung aller relevanten Daten an System 2 via TCP
+## Sicherheitsaspekte
 
-### 🟢 Externe Systeme
+### Verschlüsselung
+- OPC UA mit Zertifikats-basierter Authentifizierung
+- Sichere Übertragung der Sensordaten
+- Verschlüsselte REST-Kommunikation (HTTPS)
 
-* **awattar API (REST)**
-  * Liefert aktuelle Strompreise
-  * Basis für Stromkostenberechnung
+### Zugriffskontrolle
+- Rollenbasierte Zugriffsrechte
+- Authentifizierung für kritische Operationen
+- Logging von Systemzugriffen
 
-📎 Verknüpfte Kapitel
----------------------
+## FAQ
 
-* [01_Projektübersicht.md](01_Projektübersicht.md)
-* [03_Datenfluss_und_Kommunikation.md](03_Datenfluss_und_Kommunikation.md)
-* [04_Komponenten_System1.md](04_Komponenten_System1.md)
+**F: Wie wird die Ausfallsicherheit gewährleistet?**
+A: Durch redundante Datenspeicherung und automatische Wiederverbindungsversuche bei Netzwerkunterbrechungen.
+
+**F: Welche Skalierungsmöglichkeiten existieren?**
+A: Die modulare Architektur ermöglicht die einfache Integration weiterer Sensoren und Aktoren.
+
+## Änderungshistorie
+
+| Datum | Version | Änderungen | Autor |
+|-------|----------|------------|--------|
+| 2024-05 | 1.0 | Initiale Dokumentation der Systemarchitektur | Team |
+| 2024-06 | 1.1 | Ergänzung Sicherheitsaspekte | Team |

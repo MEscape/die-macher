@@ -14,10 +14,9 @@ import org.springframework.validation.annotation.Validated;
 @Data
 public class DobotProperties {
 
-    @NotBlank
-    private String portName;
+  @NotBlank private String portName;
 
-    @Min(value = 1000)
-    @Max(value = 10000)
-    private int timeoutMillis;
+  @Min(value = 1000)
+  @Max(value = 10000)
+  private int timeoutMillis;
 }

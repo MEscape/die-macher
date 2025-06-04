@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  emqx:
+    image: emqx/emqx:5.3.0
+    container_name: system2-emqx
+    ports:
+      - "1883:1883"   # MQTT port
+      - "8083:8083"   # MQTT/WebSocket port
+      - "8084:8084"   # MQTT/SSL port
+      - "8883:8883"   # MQTT/SSL port
+      - "18083:18083" # Dashboard port
+    volumes:
+      - emqx-data:/opt/emqx/data
+      - emqx-log:/opt/emqx/log
+    environment:
+      EMQX_NAME: system2-mqtt
+      EMQX_HOST: localhost
+      EMQX_DASHBOARD__DEFAULT_USERNAME: admin
+      EMQX_DASHBOARD__DEFAULT_PASSWORD: public
+    healthcheck:
+      test: ["CMD", "/opt/emqx/bin/emqx", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - system2-net
+    restart: unless-stopped
+
+  influxdb:
+    image: influxdb:2.7
+    container_name: system2-influxdb
+    ports:
+      - "8086:8086"
+    volumes:
+      - influxdb-data:/var/lib/influxdb2
+      - influxdb-config:/etc/influxdb2
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: admin
+      DOCKER_INFLUXDB_INIT_PASSWORD: adminpassword123
+      DOCKER_INFLUXDB_INIT_ORG: system2
+      DOCKER_INFLUXDB_INIT_BUCKET: system2-data
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: your-super-secret-admin-token
+    healthcheck:
+      test: ["CMD", "influx", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      - system2-net
+    restart: unless-stopped
+
+networks:
+  system2-net:
+    name: system2-network
+    driver: bridge
+
+volumes:
+  emqx-data:
+    name: system2-emqx-data
+  emqx-log:
+    name: system2-emqx-log
+  influxdb-data:
+    name: system2-influxdb-data
+  influxdb-config:
+    name: system2-influxdb-config
