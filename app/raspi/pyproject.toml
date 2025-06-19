@@ -5,7 +5,8 @@ description = "TCP/IP Camera Streaming and OPC UA Temperature & Humidity Monitor
 authors = ["Marvin Eschenbach <marvin.eschenbach@edag.com>"]
 readme = "README.md"
 packages = [
-    { include = "tcp_ip", from = "modules" }
+    { include = "tcp_ip", from = "modules" },
+    { include = "opc_ua", from = "modules" }
 ]
 
 [tool.poetry.dependencies]
