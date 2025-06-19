@@ -26,6 +26,12 @@ public class StackTracker {
     return new StackInfo(color, newHeight);
   }
 
+  public StackInfo removeCube(Color color) {
+    int newHeight = colorStacks.merge(color, -1, Integer::sum);
+    new StackInfo(color, newHeight);
+    return new StackInfo(color, newHeight);
+  }
+
   public void reset() {
     colorStacks.replaceAll((k, v) -> 0);
   }

@@ -1,5 +1,6 @@
 package com.die_macher.pick_and_place.service;
 
+import com.die_macher.awattar.service.AwattarService;
 import com.die_macher.pick_and_place.event.api.ImageReceivedEvent;
 import com.die_macher.pick_and_place.event.api.ImageRequestedEvent;
 import com.die_macher.pick_and_place.model.StackInfo;
@@ -28,6 +29,7 @@ public class PickAndPlaceOrchestrator {
   private final ApplicationEventPublisher eventPublisher;
   private final ColorDetectionService colorDetectionService;
   private final AtomicInteger eventIdCounter = new AtomicInteger(1);
+  private final AwattarService awattarService;
 
   // Track pending color detections
   private final ConcurrentHashMap<Integer, CompletableFuture<Color>> pendingDetections =
@@ -35,14 +37,15 @@ public class PickAndPlaceOrchestrator {
 
   @Autowired
   public PickAndPlaceOrchestrator(
-      RobotMovementService robotMovementService,
-      StackTracker stackTracker,
-      ColorDetectionService colorDetectionService,
-      ApplicationEventPublisher eventPublisher) {
+          RobotMovementService robotMovementService,
+          StackTracker stackTracker,
+          ColorDetectionService colorDetectionService,
+          ApplicationEventPublisher eventPublisher, AwattarService awattarService) {
     this.robotMovementService = robotMovementService;
     this.stackTracker = stackTracker;
     this.eventPublisher = eventPublisher;
     this.colorDetectionService = colorDetectionService;
+    this.awattarService = awattarService;
   }
 
   public void startPickAndPlace(int cubeStackCount) {
@@ -79,6 +82,8 @@ public class PickAndPlaceOrchestrator {
 
       // Request color detection
       Color detectedColor = requestColorDetection();
+
+      //double price = awattarService.getCurrentPartCost();
 
       // Update stack and place cube
       StackInfo stackInfo = stackTracker.addCube(detectedColor);
@@ -121,4 +126,6 @@ public class PickAndPlaceOrchestrator {
       future.complete(detectedColor);
     }
   }
+
+
 }
