@@ -1,6 +1,14 @@
-version: '3.8'
-
 services:
+  node-red:
+    image: nodered/node-red:latest
+    environment:
+      - TZ=Europe/Berlin
+      - FLOWS=flows/flows.json
+    ports:
+      - "1880:1880"
+    volumes:
+      - node-red-data:/data
+      - ./docker/node-red/data/flows:/data/flows
   emqx:
     image: emqx/emqx:5.3.0
     container_name: system2-emqx
@@ -16,8 +24,8 @@ services:
     environment:
       EMQX_NAME: system2-mqtt
       EMQX_HOST: localhost
-      EMQX_DASHBOARD__DEFAULT_USERNAME: admin
-      EMQX_DASHBOARD__DEFAULT_PASSWORD: public
+      EMQX_DASHBOARD__DEFAULT_USERNAME: ${MQTT_USERNAME}
+      EMQX_DASHBOARD__DEFAULT_PASSWORD: ${MQTT_PASSWORD}
     healthcheck:
       test: ["CMD", "/opt/emqx/bin/emqx", "ping"]
       interval: 30s
@@ -38,11 +46,11 @@ services:
       - influxdb-config:/etc/influxdb2
     environment:
       DOCKER_INFLUXDB_INIT_MODE: setup
-      DOCKER_INFLUXDB_INIT_USERNAME: admin
-      DOCKER_INFLUXDB_INIT_PASSWORD: adminpassword123
-      DOCKER_INFLUXDB_INIT_ORG: system2
-      DOCKER_INFLUXDB_INIT_BUCKET: system2-data
-      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: your-super-secret-admin-token
+      DOCKER_INFLUXDB_INIT_USERNAME: ${INFLUXDB_USERNAME}
+      DOCKER_INFLUXDB_INIT_PASSWORD: ${INFLUXDB_PASSWORD}
+      DOCKER_INFLUXDB_INIT_ORG: ${INFLUXDB_ORG}
+      DOCKER_INFLUXDB_INIT_BUCKET: ${INFLUXDB_BUCKET}
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: ${INFLUXDB_TOKEN}
     healthcheck:
       test: ["CMD", "influx", "ping"]
       interval: 30s
@@ -67,3 +75,5 @@ volumes:
     name: system2-influxdb-data
   influxdb-config:
     name: system2-influxdb-config
+  node-red-data:
+    name: system2-node-red-data
