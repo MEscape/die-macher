@@ -27,24 +27,9 @@ public class SensorDataService implements SensorDataProcessor {
     }
 
     @Override
-    public CompletableFuture<Void> processSensorData(SensorData sensorData) {
-        try {
-            validateSensorData(sensorData);
-
-            CompletableFuture<Void> storeFuture = storeSensorData(sensorData);
-            CompletableFuture<Void> publishFuture = publishToMqtt(sensorData);
-
-            return CompletableFuture.allOf(storeFuture, publishFuture)
-                    .thenRun(() -> LOGGER.debug("Successfully processed sensor data: {}", sensorData.sensorId()));
-
-        } catch (Exception e) {
-            LOGGER.error("Failed to process sensor data: {}", sensorData.sensorId(), e);
-            throw new DataProcessingException("Processing failed for sensor: " + sensorData.sensorId(), e);
-        }
-    }
-
-    @Override
     public CompletableFuture<Void> storeSensorData(SensorData sensorData) {
+        validateSensorData(sensorData);
+
         return sensorDataRepository.save(sensorData)
                 .exceptionally(throwable -> {
                     LOGGER.error("Failed to store sensor data: {}", sensorData.sensorId(), throwable);
@@ -54,6 +39,8 @@ public class SensorDataService implements SensorDataProcessor {
 
     @Override
     public CompletableFuture<Void> publishToMqtt(SensorData sensorData) {
+        validateSensorData(sensorData);
+
         return messagePublisher.publish(sensorData)
                 .exceptionally(throwable -> {
                     LOGGER.error("Failed to publish sensor data to MQTT: {}", sensorData.sensorId(), throwable);

@@ -20,6 +20,7 @@ public class MessageRouter {
     private static final String TCP_INPUT_CHANNEL = "tcpInputChannel";
     private static final String SENSOR_FLOW_INPUT = "sensorFlowInput";
     private static final String UNMAPPED_FLOW_CHANNEL = "unmappedFlowChannel";
+    private static final String PRICE_FLOW_INPUT = "priceFlowInput";
 
     private final CustomHeaderDeserializer customHeaderDeserializer;
 
@@ -35,6 +36,7 @@ public class MessageRouter {
                 .route(Message.class, this::resolveFlowType,
                         mapping -> mapping
                                 .channelMapping('S', SENSOR_FLOW_INPUT)
+                                .channelMapping('P', PRICE_FLOW_INPUT)
                                 .defaultOutputChannel(UNMAPPED_FLOW_CHANNEL))
                 .get();
     }

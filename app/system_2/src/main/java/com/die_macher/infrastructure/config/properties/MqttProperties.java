@@ -33,7 +33,7 @@ public class MqttProperties {
         private String password;
 
         @NotNull
-        private String topic = "sensors/data";
+        private String topic = "system2/data";
 
         private int qos = 1;
     }

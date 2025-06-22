@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public interface SensorDataProcessor {
-    CompletableFuture<Void> processSensorData(SensorData sensorData);
     CompletableFuture<Void> storeSensorData(SensorData sensorData);
     CompletableFuture<Void> publishToMqtt(SensorData sensorData);
     CompletableFuture<Void> processBatch(List<SensorData> sensorDataList);
