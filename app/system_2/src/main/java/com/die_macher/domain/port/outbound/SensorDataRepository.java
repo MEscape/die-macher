@@ -1,6 +1,7 @@
 package com.die_macher.domain.port.outbound;
 
 import com.die_macher.domain.model.SensorData;
+import com.die_macher.domain.model.SensorType;
 
 import java.time.Instant;
 import java.util.List;
@@ -13,5 +14,5 @@ public interface SensorDataRepository {
     CompletableFuture<List<SensorData>> findByTimeRange(Instant start, Instant end);
     CompletableFuture<Void> saveBatch(List<SensorData> sensorDataList);
     CompletableFuture<SensorData> aggregateSensorData(
-            String sensorId, Instant start, Instant end, String interval);
+            String sensorId, SensorType sensorType, Instant start, Instant end, String interval);
 }

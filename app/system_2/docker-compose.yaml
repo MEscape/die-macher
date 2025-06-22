@@ -9,6 +9,7 @@ services:
     volumes:
       - node-red-data:/data
       - ./docker/node-red/data/flows:/data/flows
+
   emqx:
     image: emqx/emqx:5.3.0
     container_name: system2-emqx
@@ -23,7 +24,6 @@ services:
       - emqx-log:/opt/emqx/log
     environment:
       EMQX_NAME: system2-mqtt
-      EMQX_HOST: localhost
       EMQX_DASHBOARD__DEFAULT_USERNAME: ${MQTT_USERNAME}
       EMQX_DASHBOARD__DEFAULT_PASSWORD: ${MQTT_PASSWORD}
     healthcheck:
@@ -32,8 +32,7 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
-    networks:
-      - system2-net
+    networks: host
     restart: unless-stopped
 
   influxdb:

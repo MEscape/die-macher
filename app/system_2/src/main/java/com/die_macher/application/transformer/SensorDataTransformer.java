@@ -48,6 +48,6 @@ public class SensorDataTransformer {
         // Implementation for batch processing
         return StreamSupport.stream(node.path("sensors").spliterator(), false)
                 .map(this::parseSingleMessage)
-                .collect(Collectors.toList());
+                .toList();
     }
 }

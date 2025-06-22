@@ -36,11 +36,6 @@ public class SensorDataFlow {
                 .publishSubscribeChannel(c -> c
                         .subscribe(f -> f
                                 .<SensorData>handle((payload, headers) -> {
-                                    sensorDataService.processSensorData(payload);
-                                    return null;
-                                }))
-                        .subscribe(f -> f
-                                .<SensorData>handle((payload, headers) -> {
                                     sensorDataService.storeSensorData(payload);
                                     return null;
                                 }))

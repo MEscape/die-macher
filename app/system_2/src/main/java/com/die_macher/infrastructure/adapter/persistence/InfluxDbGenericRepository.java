@@ -2,6 +2,7 @@ package com.die_macher.infrastructure.adapter.persistence;
 
 import com.die_macher.domain.exception.DataPersistenceException;
 import com.die_macher.domain.exception.DataQueryException;
+import com.die_macher.infrastructure.adapter.web.exception.DataNotFoundException;
 import com.die_macher.infrastructure.config.properties.InfluxDbProperties;
 import com.influxdb.client.InfluxDBClient;
 import com.influxdb.client.QueryApi;
@@ -75,14 +76,14 @@ public class InfluxDbGenericRepository<T> {
     public <T> CompletableFuture<T> querySingle(String fluxQuery, Function<FluxRecord, T> recordMapper) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                System.out.println(fluxQuery);
-
                 QueryApi queryApi = influxDBClient.getQueryApi();
                 return queryApi.query(fluxQuery, organization).stream()
                         .flatMap(table -> table.getRecords().stream())
                         .findFirst()
                         .map(recordMapper)
-                        .orElseThrow(() -> new DataQueryException("No result found for single query"));
+                        .orElseThrow(() -> new DataNotFoundException("No result found for single query"));
+            } catch (DataNotFoundException e) {
+                throw e;
             } catch (Exception e) {
                 throw new DataQueryException("Single query execution failed", e);
             }

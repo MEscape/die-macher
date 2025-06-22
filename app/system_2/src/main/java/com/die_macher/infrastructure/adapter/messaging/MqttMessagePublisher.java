@@ -1,7 +1,6 @@
 package com.die_macher.infrastructure.adapter.messaging;
 
 import com.die_macher.infrastructure.config.properties.MqttProperties;
-import com.die_macher.domain.model.SensorData;
 import com.die_macher.domain.port.outbound.MessagePublisher;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -28,11 +27,11 @@ public class MqttMessagePublisher implements MessagePublisher {
     }
 
     @Override
-    public CompletableFuture<Void> publish(SensorData sensorData) {
+    public CompletableFuture<Void> publish(Object payload) {
         return CompletableFuture.runAsync(() -> {
             try {
-                String jsonPayload = objectMapper.writeValueAsString(sensorData);
-                String topic = buildTopicName(sensorData);
+                String jsonPayload = objectMapper.writeValueAsString(payload);
+                String topic = buildDynamicTopicName(payload);
 
                 var message = MessageBuilder.withPayload(jsonPayload)
                         .setHeader("mqtt_topic", topic)
@@ -48,16 +47,16 @@ public class MqttMessagePublisher implements MessagePublisher {
                 LOGGER.debug("Published sensor data to MQTT topic: {}", topic);
 
             } catch (Exception e) {
-                LOGGER.error("Failed to publish MQTT message for sensor: {}", sensorData.sensorId(), e);
+                LOGGER.error("Failed to publish MQTT message for payload: {}", payload, e);
                 throw new RuntimeException("MQTT publish failed", e);
             }
         });
     }
 
-    private String buildTopicName(SensorData sensorData) {
-        return String.format("%s/%s/%s",
-                mqttProperties.getBroker().getTopic(),
-                sensorData.type().name().toLowerCase(),
-                sensorData.sensorId());
+    private String buildDynamicTopicName(Object payload) {
+        String baseTopic = mqttProperties.getBroker().getTopic();
+        String typeSegment = payload.getClass().getSimpleName().toLowerCase();
+
+        return String.format("%s/%s", baseTopic, typeSegment);
     }
 }

@@ -24,18 +24,18 @@ public class SensorDataMapper {
                 .addField("unit", sensorData.unit())
                 .time(sensorData.timestamp().toEpochMilli(), WritePrecision.MS);
 
-        sensorData.metadata().forEach(point::addTag); // include metadata as tags
+        sensorData.metadata().forEach(point::addTag);
 
         return point;
     }
 
     public SensorData fromFluxRecord(FluxRecord record) {
-        String sensorId = (String) record.getValueByKey("sensor_id");
-        String typeStr = (String) record.getValueByKey("type");
+        String sensorId = getStringValue(record, "sensor_id");
+        String typeStr = getStringValue(record, "type");
         SensorType type = SensorType.valueOf(typeStr);
 
         Double value = getDoubleValue(record, "value");
-        String unit = (String) record.getValueByKey("unit");
+        String unit = getStringValue(record, "unit");
         Instant timestamp = record.getTime();
 
         Map<String, String> metadata = new HashMap<>();
@@ -61,5 +61,10 @@ public class SensorDataMapper {
             return number.doubleValue();
         }
         return null;
+    }
+
+    private String getStringValue(FluxRecord record, String key) {
+        Object value = record.getValueByKey(key);
+        return value != null ? value.toString() : "";
     }
 }

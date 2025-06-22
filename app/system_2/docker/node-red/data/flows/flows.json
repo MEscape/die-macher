@@ -78,9 +78,10 @@
         "id": "format_tcp_message",
         "type": "function",
         "z": "main_flow_tab",
-        "name": "Format TCP Message",
+        "name": "Format TCP Sensor Message",
         "func": "// Convert payload to JSON string\nconst jsonPayload = JSON.stringify(msg.payload);\nconst jsonBuffer = Buffer.from(jsonPayload, 'utf8');\n\n// Create header with flow type and length\nconst flowType = msg.flowType || 0x53;\nconst messageLength = jsonBuffer.length;\n\n// Create the complete message buffer\n// Flow type (1 byte) + Length (4 bytes, big endian) + JSON payload\nconst headerBuffer = Buffer.allocUnsafe(5);\nheaderBuffer.writeUInt8(flowType, 0);           // Flow type\nheaderBuffer.writeUInt32BE(messageLength, 1);   // Message length\n\n// Combine header and payload\nconst completeMessage = Buffer.concat([headerBuffer, jsonBuffer]);\n\nmsg.payload = completeMessage;\nmsg.topic = 'sensor-data';\n\n// Add debug info\nmsg.debug = {\n    flowType: flowType,\n    messageLength: messageLength,\n    totalLength: completeMessage.length,\n    originalPayload: JSON.parse(jsonPayload)\n};\n\nreturn msg;",
         "outputs": 1,
+        "timeout": "",
         "noerr": 0,
         "initialize": "",
         "finalize": "",
@@ -201,5 +202,68 @@
         "x": 380,
         "y": 400,
         "wires": []
+    },
+    {
+        "id": "inject_price_data",
+        "type": "inject",
+        "z": "main_flow_tab",
+        "name": "Price Data Inject",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "15",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 130,
+        "y": 260,
+        "wires": [
+            [
+                "generate_price_data"
+            ]
+        ]
+    },
+    {
+        "id": "generate_price_data",
+        "type": "function",
+        "z": "main_flow_tab",
+        "name": "Generate Price Data",
+        "func": "const now = new Date();\nconst startTimestamp = new Date(now.getTime() - 15 * 60 * 1000); // 15 minutes ago\nconst endTimestamp = now;\n\nconst totalCost = Math.round(Math.random() * 100 * 100) / 100; // 0-100 EUR\nconst priceInEurPerKwh = Math.round(Math.random() * 0.5 * 1000) / 1000; // 0-0.5 EUR/kWh\n\nconst priceData = {\n    startTimestamp: startTimestamp.toISOString(),\n    endTimestamp: endTimestamp.toISOString(),\n    totalCost: totalCost,\n    priceInEurPerKwh: priceInEurPerKwh,\n    startTimeFormatted: startTimestamp.toISOString().slice(11, 16), // HH:mm\n    endTimeFormatted: endTimestamp.toISOString().slice(11, 16), // HH:mm\n    metadata: {\n        source: \"node-red\",\n        unit: \"EUR/kWh\"\n    }\n};\n\nmsg.payload = priceData;\nmsg.flowType = 0x50; // 'P' for price flow\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 360,
+        "y": 260,
+        "wires": [
+            [
+                "format_tcp_price_message"
+            ]
+        ]
+    },
+    {
+        "id": "format_tcp_price_message",
+        "type": "function",
+        "z": "main_flow_tab",
+        "name": "Format TCP Price Message",
+        "func": "// Convert payload to JSON string\nconst jsonPayload = JSON.stringify(msg.payload);\nconst jsonBuffer = Buffer.from(jsonPayload, 'utf8');\n\n// Create header with flow type and length\nconst flowType = msg.flowType || 0x50; // default to 'P'\nconst messageLength = jsonBuffer.length;\n\n// Flow type (1 byte) + Length (4 bytes, big endian) + JSON payload\nconst headerBuffer = Buffer.allocUnsafe(5);\nheaderBuffer.writeUInt8(flowType, 0);\nheaderBuffer.writeUInt32BE(messageLength, 1);\n\n// Combine header and payload\nconst completeMessage = Buffer.concat([headerBuffer, jsonBuffer]);\n\nmsg.payload = completeMessage;\nmsg.topic = 'price-data';\n\nmsg.debug = {\n    flowType: flowType,\n    messageLength: messageLength,\n    totalLength: completeMessage.length,\n    originalPayload: JSON.parse(jsonPayload)\n};\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 600,
+        "y": 260,
+        "wires": [
+            [
+                "tcp_out"
+            ]
+        ]
     }
 ]
