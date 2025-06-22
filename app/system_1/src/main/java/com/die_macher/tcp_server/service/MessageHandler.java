@@ -1,6 +1,7 @@
 
 package com.die_macher.tcp_server.service;
 
+import com.die_macher.pick_and_place.model.PickAndPlaceResult;
 import com.die_macher.pick_and_place.model.StackInfo;
 import com.die_macher.pick_and_place.service.StackTracker;
 import com.die_macher.tcp_server.events.MessageReceived;
@@ -11,6 +12,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import java.awt.*;
+import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -19,13 +21,13 @@ import java.util.Optional;
 public class MessageHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(MessageHandler.class);
 
-    private final AwattarDataSender awattarDataSender;
+    private final TcpDataDispatcher tcpDataDispatcher;
     private final PickAndPlaceOrchestrator pickAndPlaceOrchestrator;
     private final StackTracker stackTracker;
 
-    public MessageHandler(AwattarDataSender awattarDataSender,
+    public MessageHandler(TcpDataDispatcher tcpDataDispatcher,
                           PickAndPlaceOrchestrator pickAndPlaceOrchestrator, StackTracker stackTracker) {
-        this.awattarDataSender = awattarDataSender;
+        this.tcpDataDispatcher = tcpDataDispatcher;
         this.pickAndPlaceOrchestrator = pickAndPlaceOrchestrator;
         this.stackTracker = stackTracker;
     }
@@ -54,8 +56,8 @@ public class MessageHandler {
     private void handleAwattarRequest(Map<String, Object> data) {
         String which = (String) data.get("which");
         switch (which) {
-            case "optimal_window" -> awattarDataSender.sendOptimalProductionWindow();
-            case "tomorrow_prices" -> awattarDataSender.sendTomorrowMarketData();
+            case "optimal_window" -> tcpDataDispatcher.sendOptimalProductionWindow();
+            case "tomorrow_prices" -> tcpDataDispatcher.sendTomorrowMarketData();
             default -> LOGGER.warn("Unknown awattar data request type: {}", which);
         }
     }
@@ -69,11 +71,10 @@ public class MessageHandler {
             return;
         }
 
-        //Integer orderId = (Integer) data.get("order_id");
-
         try {
-            pickAndPlaceOrchestrator.startPickAndPlace(count);
-            LOGGER.info("Pick and place operation initiated successfully for {} pieces", count);
+            List<PickAndPlaceResult> results = pickAndPlaceOrchestrator.startPickAndPlace(count);
+            tcpDataDispatcher.sendResult(results);
+            LOGGER.info("Pick and place operation completed and results sent.");
         } catch (Exception e) {
             LOGGER.error("Failed to start pick and place operation for {} pieces", count, e);
         }
@@ -85,6 +86,7 @@ public class MessageHandler {
         StackInfo stackInfo = stackTracker.removeCube(color);
         LOGGER.info("Stack Info: {}", stackInfo);
     }
+
 
     @SuppressWarnings("unchecked")
     private static Map<String, Object> extractMap(Map<String, Object> message) {

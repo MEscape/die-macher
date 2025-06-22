@@ -1,13 +1,12 @@
-package com.die_macher.tcp_server.model;
+package com.die_macher.pick_and_place.model;
 import lombok.Getter;
 import lombok.Setter;
-
 import java.time.LocalDateTime;
 
 
 @Setter
 @Getter
-public class PickAndPlaceResult {
+public class PickAndPlaceResult{
 
     private LocalDateTime timestamp;
 
@@ -20,5 +19,8 @@ public class PickAndPlaceResult {
     private double energyCost;
 
     private boolean result;
+
+    public PickAndPlaceResult(String color, double temperature, double humidity, double energyCost, boolean result) {
+    }
 
 }

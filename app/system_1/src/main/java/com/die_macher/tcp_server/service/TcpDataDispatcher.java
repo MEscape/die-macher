@@ -3,21 +3,23 @@ package com.die_macher.tcp_server.service;
 import com.die_macher.awattar.model.MarketData;
 import com.die_macher.awattar.model.OptimalProductionWindow;
 import com.die_macher.awattar.service.AwattarService;
+import com.die_macher.pick_and_place.model.PickAndPlaceResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
-public class AwattarDataSender {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AwattarDataSender.class);
+public class TcpDataDispatcher {
+    private static final Logger LOGGER = LoggerFactory.getLogger(TcpDataDispatcher.class);
 
     private final AwattarService awattarService;
     private final TcpSender tcpSender;
 
-    public AwattarDataSender(AwattarService awattarService, TcpSender tcpSender) {
+    public TcpDataDispatcher(AwattarService awattarService, TcpSender tcpSender) {
         this.awattarService = awattarService;
         this.tcpSender = tcpSender;
     }
@@ -73,6 +75,12 @@ public class AwattarDataSender {
             LOGGER.error("Failed to send data not available message to {}",  e.getMessage(), e);
         }
     }
+    public void sendResult(List<PickAndPlaceResult> results) {
+        Map<String, Object> message = new HashMap<>();
+        message.put("type", "pick_and_place_result");
+        message.put("data", results);
 
+        tcpSender.send(message);
+    }
 
 }
