@@ -9,19 +9,18 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class InfluxDbConfig {
 
-    private final InfluxDbProperties properties;
+  private final InfluxDbProperties properties;
 
-    public InfluxDbConfig(InfluxDbProperties properties) {
-        this.properties = properties;
-    }
+  public InfluxDbConfig(InfluxDbProperties properties) {
+    this.properties = properties;
+  }
 
-    @Bean
-    public InfluxDBClient influxDBClient() {
-        return InfluxDBClientFactory.create(
-                properties.getUrl(),
-                properties.getToken().toCharArray(),
-                properties.getOrganization(),
-                properties.getBucket()
-        );
-    }
+  @Bean
+  public InfluxDBClient influxDBClient() {
+    return InfluxDBClientFactory.create(
+        properties.getUrl(),
+        properties.getToken().toCharArray(),
+        properties.getOrganization(),
+        properties.getBucket());
+  }
 }

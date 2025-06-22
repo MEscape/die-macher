@@ -16,25 +16,19 @@ import org.springframework.context.annotation.Configuration;
 @Data
 public class MqttProperties {
 
-    @Valid
-    @NotNull
-    @NestedConfigurationProperty
-    private Broker broker = new Broker();
+  @Valid @NotNull @NestedConfigurationProperty private Broker broker = new Broker();
 
-    @Data
-    public static class Broker {
-        @NotNull
-        private String url = "tcp://localhost:1883";
+  @Data
+  public static class Broker {
+    @NotNull private String url = "tcp://localhost:1883";
 
-        @NotNull
-        private String clientId = "system2-processor";
+    @NotNull private String clientId = "system2-processor";
 
-        private String username;
-        private String password;
+    private String username;
+    private String password;
 
-        @NotNull
-        private String topic = "system2/data";
+    @NotNull private String topic = "system2/data";
 
-        private int qos = 1;
-    }
+    private int qos = 1;
+  }
 }

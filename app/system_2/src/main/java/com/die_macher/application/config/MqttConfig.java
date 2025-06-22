@@ -15,45 +15,44 @@ import org.springframework.messaging.MessageHandler;
 @Configuration
 public class MqttConfig {
 
-    private final MqttProperties mqttProperties;
+  private final MqttProperties mqttProperties;
 
-    public MqttConfig(MqttProperties mqttProperties) {
-        this.mqttProperties = mqttProperties;
-    }
+  public MqttConfig(MqttProperties mqttProperties) {
+    this.mqttProperties = mqttProperties;
+  }
 
-    @Bean
-    public MqttPahoClientFactory mqttClientFactory() {
-        DefaultMqttPahoClientFactory factory = new DefaultMqttPahoClientFactory();
-        MqttConnectOptions options = new MqttConnectOptions();
+  @Bean
+  public MqttPahoClientFactory mqttClientFactory() {
+    DefaultMqttPahoClientFactory factory = new DefaultMqttPahoClientFactory();
+    MqttConnectOptions options = new MqttConnectOptions();
 
-        options.setServerURIs(new String[]{mqttProperties.getBroker().getUrl()});
-        options.setUserName(mqttProperties.getBroker().getUsername());
-        options.setPassword(mqttProperties.getBroker().getPassword().toCharArray());
-        options.setCleanSession(true);
-        options.setConnectionTimeout(30);
-        options.setKeepAliveInterval(60);
-        options.setAutomaticReconnect(true);
+    options.setServerURIs(new String[] {mqttProperties.getBroker().getUrl()});
+    options.setUserName(mqttProperties.getBroker().getUsername());
+    options.setPassword(mqttProperties.getBroker().getPassword().toCharArray());
+    options.setCleanSession(true);
+    options.setConnectionTimeout(30);
+    options.setKeepAliveInterval(60);
+    options.setAutomaticReconnect(true);
 
-        factory.setConnectionOptions(options);
-        return factory;
-    }
+    factory.setConnectionOptions(options);
+    return factory;
+  }
 
-    @Bean
-    public MessageChannel mqttOutboundChannel() {
-        return new DirectChannel();
-    }
+  @Bean
+  public MessageChannel mqttOutboundChannel() {
+    return new DirectChannel();
+  }
 
-    @Bean
-    @ServiceActivator(inputChannel = "mqttOutboundChannel")
-    public MessageHandler mqttOutbound() {
-        MqttPahoMessageHandler messageHandler = new MqttPahoMessageHandler(
-                mqttProperties.getBroker().getClientId(),
-                mqttClientFactory());
+  @Bean
+  @ServiceActivator(inputChannel = "mqttOutboundChannel")
+  public MessageHandler mqttOutbound() {
+    MqttPahoMessageHandler messageHandler =
+        new MqttPahoMessageHandler(mqttProperties.getBroker().getClientId(), mqttClientFactory());
 
-        messageHandler.setAsync(true);
-        messageHandler.setDefaultTopic(mqttProperties.getBroker().getTopic());
-        messageHandler.setDefaultQos(mqttProperties.getBroker().getQos());
+    messageHandler.setAsync(true);
+    messageHandler.setDefaultTopic(mqttProperties.getBroker().getTopic());
+    messageHandler.setDefaultQos(mqttProperties.getBroker().getQos());
 
-        return messageHandler;
-    }
+    return messageHandler;
+  }
 }

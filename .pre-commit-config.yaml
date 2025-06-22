@@ -32,3 +32,13 @@ repos:
         language: system
         files: ^app/system_1/.*\.(java|xml)$
         pass_filenames: false
+
+  # Java formatting for System 2 module
+  - repo: local
+    hooks:
+      - id: system2-format
+        name: Format System 2 Java code
+        entry: bash -c 'cd app/system_2 && ./mvnw spotless:apply'
+        language: system
+        files: ^app/system_2/.*\.(java|xml)$
+        pass_filenames: false
