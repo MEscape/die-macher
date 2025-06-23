@@ -4,13 +4,13 @@ Main Entry Point for Running Webcam Streaming and OPC UA Servers.
 
 This script uses asyncio to run both TCP/IP webcam streaming and OPC UA servers concurrently.
 - The TCP/IP server streams webcam images upon request using the `WebcamServer` class.
-- The OPC UA server (currently commented out) is intended to handle temperature and humidity monitoring.
+- The OPC UA server handles temperature and humidity monitoring.
 
 Features:
 - Asynchronous execution of both servers using asyncio
 - Real-time image capture and streaming over TCP/IP
 - Improved exception handling and modularity
-- Scalable structure for future integration of OPC UA server
+- Scalable structure for future integration
 
 Dependencies:
 - Python 3.x
@@ -20,10 +20,7 @@ Dependencies:
 
 Modules:
 - WebcamServer (from modules.tcp_ip)
-
-To Do:
-- Integrate OPC UA server logic
-- Improve error handling for async operations
+- OpcuaServer (from modules.opc_ua)
 """
 import asyncio
 import logging
@@ -63,29 +60,37 @@ async def run_tcp_server() -> None:
             logger.info("Shutting down TCP/IP server...")
             server.stop()
 
-async def run_opcua_server() -> None:
-    """Run the TCP/IP camera streaming server.
 
-    This function initializes and starts the WebcamServer in a separate thread
-    using asyncio.to_thread to prevent blocking the main event loop.
+async def run_opcua_server() -> None:
+    """Run the OPC UA server for sensor data.
+
+    This function initializes and starts the OpcuaServer with proper
+    certificate and key paths.
     """
     server = None
     try:
-        # Initialize and run the TCP server
+        # Initialize the OPC UA server with correct parameters
         logger.info("Starting OPC UA server...")
-        server = OpcuaServer(OpcuaServer("/home/pi/opcua_certs/server-cert.pem", "/home/pi/opcua_certs/server-key.pem"))
-        await asyncio.to_thread(server.setup_server)
-        await asyncio.to_thread(server.start)
+        server = OpcuaServer(
+            cert_path="/home/pi/opcua_certs/server-cert.pem",
+            key_path="/home/pi/opcua_certs/server-key.pem"
+        )
+
+        # Set up the server configuration
+        await server.setup_server()
+
+        # Start the server (this will run indefinitely)
+        await server.start()
+
     except RuntimeError as e:
-        logger.error(f"RuntimeError error in OPC UA server: {e}")
+        logger.error(f"RuntimeError in OPC UA server: {e}")
     except Exception as e:
         logger.error(f"Unexpected error in OPC UA server: {e}", exc_info=True)
     finally:
         # Ensure resources are properly released if server was initialized
         if server is not None:
             logger.info("Shutting down OPC UA server...")
-            server.stop()
-
+            await server.stop()
 
 
 async def main() -> None:
@@ -94,14 +99,17 @@ async def main() -> None:
     This function creates and manages tasks for all server modules, handling
     proper shutdown and cleanup when interrupted.
     """
+    tcp_task = None
+    opcua_task = None
+
     try:
         # Create tasks for both servers
         tcp_task = asyncio.create_task(run_tcp_server())
         opcua_task = asyncio.create_task(run_opcua_server())
 
         # Wait for both tasks to complete
-
         await asyncio.gather(tcp_task, opcua_task)
+
     except asyncio.CancelledError:
         logger.info("Main task cancelled, shutting down gracefully...")
     except KeyboardInterrupt:
@@ -109,6 +117,21 @@ async def main() -> None:
     except Exception as e:
         logger.error(f"Unexpected error in main function: {e}", exc_info=True)
     finally:
+        # Cancel running tasks if they exist
+        if tcp_task and not tcp_task.done():
+            tcp_task.cancel()
+            try:
+                await tcp_task
+            except asyncio.CancelledError:
+                pass
+
+        if opcua_task and not opcua_task.done():
+            opcua_task.cancel()
+            try:
+                await opcua_task
+            except asyncio.CancelledError:
+                pass
+
         logger.info("Application shutdown complete")
 
 
