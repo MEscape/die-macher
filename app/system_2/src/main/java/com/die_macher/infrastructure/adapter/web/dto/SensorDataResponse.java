@@ -1,6 +1,6 @@
 package com.die_macher.infrastructure.adapter.web.dto;
 
-import com.die_macher.domain.model.SensorData;
+import com.die_macher.domain.model.sensor.SensorData;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.Instant;

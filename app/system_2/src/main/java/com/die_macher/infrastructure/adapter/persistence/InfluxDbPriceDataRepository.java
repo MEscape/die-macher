@@ -1,6 +1,6 @@
 package com.die_macher.infrastructure.adapter.persistence;
 
-import com.die_macher.domain.model.PriceData;
+import com.die_macher.domain.model.price.PriceData;
 import com.die_macher.domain.port.outbound.PriceDataRepository;
 import com.die_macher.infrastructure.adapter.persistence.mapper.PriceDataMapper;
 import java.time.Instant;

@@ -1,7 +1,7 @@
 package com.die_macher.application.service;
 
-import com.die_macher.domain.model.SensorData;
-import com.die_macher.domain.model.SensorType;
+import com.die_macher.domain.model.sensor.SensorData;
+import com.die_macher.domain.model.sensor.SensorType;
 import com.die_macher.domain.port.inbound.HistoricalSensorDataProvider;
 import com.die_macher.domain.port.outbound.SensorDataRepository;
 import java.time.Duration;

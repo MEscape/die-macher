@@ -1,7 +1,7 @@
 package com.die_macher.infrastructure.adapter.persistence.mapper;
 
-import com.die_macher.domain.model.SensorData;
-import com.die_macher.domain.model.SensorType;
+import com.die_macher.domain.model.sensor.SensorData;
+import com.die_macher.domain.model.sensor.SensorType;
 import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
 import com.influxdb.query.FluxRecord;

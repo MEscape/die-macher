@@ -2,7 +2,7 @@ package com.die_macher.application.flow;
 
 import com.die_macher.application.service.PriceDataService;
 import com.die_macher.application.transformer.PriceDataTransformer;
-import com.die_macher.domain.model.PriceData;
+import com.die_macher.domain.model.price.PriceData;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.channel.DirectChannel;

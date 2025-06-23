@@ -1,7 +1,7 @@
 package com.die_macher.application.service;
 
 import com.die_macher.domain.exception.DataProcessingException;
-import com.die_macher.domain.model.PriceData;
+import com.die_macher.domain.model.price.PriceData;
 import com.die_macher.domain.port.inbound.PriceDataProcessor;
 import com.die_macher.domain.port.outbound.MessagePublisher;
 import com.die_macher.domain.port.outbound.PriceDataRepository;

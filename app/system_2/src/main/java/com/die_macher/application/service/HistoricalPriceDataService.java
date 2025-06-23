@@ -1,6 +1,6 @@
 package com.die_macher.application.service;
 
-import com.die_macher.domain.model.PriceData;
+import com.die_macher.domain.model.price.PriceData;
 import com.die_macher.domain.port.inbound.HistoricalPriceDataProvider;
 import com.die_macher.domain.port.outbound.PriceDataRepository;
 import java.time.Duration;

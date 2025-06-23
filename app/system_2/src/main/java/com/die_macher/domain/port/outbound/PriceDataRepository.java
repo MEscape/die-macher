@@ -1,6 +1,6 @@
 package com.die_macher.domain.port.outbound;
 
-import com.die_macher.domain.model.PriceData;
+import com.die_macher.domain.model.price.PriceData;
 import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;

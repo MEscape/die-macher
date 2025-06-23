@@ -1,4 +1,4 @@
-package com.die_macher.domain.model;
+package com.die_macher.domain.model.price;
 
 import java.time.Instant;
 import java.util.Map;

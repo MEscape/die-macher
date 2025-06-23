@@ -265,5 +265,68 @@
                 "tcp_out"
             ]
         ]
+    },
+    {
+        "id": "inject_robot_data",
+        "type": "inject",
+        "z": "main_flow_tab",
+        "name": "Robot Data Inject",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "20",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 130,
+        "y": 340,
+        "wires": [
+            [
+                "generate_robot_data"
+            ]
+        ]
+    },
+    {
+        "id": "generate_robot_data",
+        "type": "function",
+        "z": "main_flow_tab",
+        "name": "Generate Robot Data",
+        "func": "const RobotTask = ['IDLE', 'PICK', 'PLACE', 'MOVE', 'ERROR'];\nconst Colors = ['red', 'green', 'blue', 'yellow'];\nconst RobotStatus = ['OK', 'ERROR', 'BUSY', 'OFFLINE'];\n\nfunction randomFromArray(arr) {\n    return arr[Math.floor(Math.random() * arr.length)];\n}\n\nconst robotData = {\n    robotTask: randomFromArray(RobotTask),\n    color: randomFromArray(Colors),\n    robotStatus: randomFromArray(RobotStatus),\n    timestamp: new Date().toISOString(),\n    metadata: {\n        source: 'node-red',\n        version: '1.0'\n    }\n};\n\nmsg.payload = robotData;\nmsg.flowType = 0x52; // ASCII 'R'\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 360,
+        "y": 340,
+        "wires": [
+            [
+                "format_tcp_robot_message"
+            ]
+        ]
+    },
+    {
+        "id": "format_tcp_robot_message",
+        "type": "function",
+        "z": "main_flow_tab",
+        "name": "Format TCP Robot Message",
+        "func": "// Convert payload to JSON string\nconst jsonPayload = JSON.stringify(msg.payload);\nconst jsonBuffer = Buffer.from(jsonPayload, 'utf8');\n\nconst flowType = msg.flowType || 0x52; // default 'R'\nconst messageLength = jsonBuffer.length;\n\n// Flow type (1 byte) + Length (4 bytes big endian) + JSON payload\nconst headerBuffer = Buffer.allocUnsafe(5);\nheaderBuffer.writeUInt8(flowType, 0);\nheaderBuffer.writeUInt32BE(messageLength, 1);\n\nconst completeMessage = Buffer.concat([headerBuffer, jsonBuffer]);\n\nmsg.payload = completeMessage;\nmsg.topic = 'robot-data';\n\nmsg.debug = {\n    flowType,\n    messageLength,\n    totalLength: completeMessage.length,\n    originalPayload: JSON.parse(jsonPayload)\n};\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 600,
+        "y": 340,
+        "wires": [
+            [
+                "tcp_out"
+            ]
+        ]
     }
 ]

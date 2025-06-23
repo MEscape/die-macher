@@ -1,6 +1,7 @@
 package com.die_macher.application.config;
 
 import com.die_macher.infrastructure.adapter.serializer.CustomHeaderDeserializer;
+import com.die_macher.infrastructure.adapter.serializer.CustomHeaderSerializer;
 import com.die_macher.infrastructure.config.properties.TcpServerProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,11 +29,12 @@ public class TcpServerConfig {
 
   @Bean
   public AbstractServerConnectionFactory tcpServerConnectionFactory(
-      CustomHeaderDeserializer deserializer) {
+      CustomHeaderDeserializer deserializer, CustomHeaderSerializer serializer) {
     TcpNioServerConnectionFactory factory =
         new TcpNioServerConnectionFactory(tcpServerProperties.getPort());
 
     factory.setDeserializer(deserializer);
+    factory.setSerializer(serializer);
 
     // Connection settings
     factory.setBacklog(tcpServerProperties.getBacklog());
@@ -59,6 +61,12 @@ public class TcpServerConfig {
   @Bean
   public CustomHeaderDeserializer customHeaderDeserializer() {
     return new CustomHeaderDeserializer(
+        tcpServerProperties.getHeaderSize(), tcpServerProperties.getMaxMessageSize());
+  }
+
+  @Bean
+  public CustomHeaderSerializer customHeaderSerializer() {
+    return new CustomHeaderSerializer(
         tcpServerProperties.getHeaderSize(), tcpServerProperties.getMaxMessageSize());
   }
 

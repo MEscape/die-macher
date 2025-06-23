@@ -1,6 +1,6 @@
 package com.die_macher.infrastructure.adapter.web.controller;
 
-import com.die_macher.application.service.HistoricalPriceDataService;
+import com.die_macher.domain.port.inbound.HistoricalPriceDataProvider;
 import com.die_macher.infrastructure.adapter.web.dto.PriceDataResponse;
 import java.time.Instant;
 import java.util.List;
@@ -18,10 +18,10 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 public class PriceDataController {
 
-  private final HistoricalPriceDataService historicalPriceDataService;
+  private final HistoricalPriceDataProvider historicalPriceDataProvider;
 
-  public PriceDataController(HistoricalPriceDataService historicalPriceDataService) {
-    this.historicalPriceDataService = historicalPriceDataService;
+  public PriceDataController(HistoricalPriceDataProvider historicalPriceDataProvider) {
+    this.historicalPriceDataProvider = historicalPriceDataProvider;
   }
 
   @GetMapping
@@ -29,7 +29,7 @@ public class PriceDataController {
       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant start,
       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant end) {
 
-    return historicalPriceDataService
+    return historicalPriceDataProvider
         .getHistoricalData(start, end)
         .thenApply(data -> ResponseEntity.ok(data.stream().map(PriceDataResponse::from).toList()));
   }
@@ -41,7 +41,7 @@ public class PriceDataController {
       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant end,
       @RequestParam(defaultValue = "1h") String interval) {
 
-    return historicalPriceDataService
+    return historicalPriceDataProvider
         .getAggregatedData(field, start, end, interval)
         .thenApply(data -> ResponseEntity.ok(PriceDataResponse.from(data)));
   }

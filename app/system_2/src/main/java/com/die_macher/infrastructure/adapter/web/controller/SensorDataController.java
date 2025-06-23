@@ -1,7 +1,7 @@
 package com.die_macher.infrastructure.adapter.web.controller;
 
-import com.die_macher.application.service.HistoricalSensorDataService;
-import com.die_macher.domain.model.SensorType;
+import com.die_macher.domain.model.sensor.SensorType;
+import com.die_macher.domain.port.inbound.HistoricalSensorDataProvider;
 import com.die_macher.infrastructure.adapter.web.dto.SensorDataResponse;
 import java.time.Instant;
 import java.util.List;
@@ -16,10 +16,10 @@ import org.springframework.web.bind.annotation.*;
 @Validated
 public class SensorDataController {
 
-  private final HistoricalSensorDataService historicalSensorDataService;
+  private final HistoricalSensorDataProvider historicalSensorDataProvider;
 
-  public SensorDataController(HistoricalSensorDataService historicalSensorDataService) {
-    this.historicalSensorDataService = historicalSensorDataService;
+  public SensorDataController(HistoricalSensorDataProvider historicalSensorDataProvider) {
+    this.historicalSensorDataProvider = historicalSensorDataProvider;
   }
 
   @GetMapping
@@ -27,7 +27,7 @@ public class SensorDataController {
       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant start,
       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant end) {
 
-    return historicalSensorDataService
+    return historicalSensorDataProvider
         .getHistoricalData(null, start, end)
         .thenApply(data -> ResponseEntity.ok(data.stream().map(SensorDataResponse::from).toList()));
   }
@@ -38,7 +38,7 @@ public class SensorDataController {
       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant start,
       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant end) {
 
-    return historicalSensorDataService
+    return historicalSensorDataProvider
         .getHistoricalData(sensorId, start, end)
         .thenApply(data -> ResponseEntity.ok(data.stream().map(SensorDataResponse::from).toList()));
   }
@@ -51,7 +51,7 @@ public class SensorDataController {
       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant end,
       @RequestParam(defaultValue = "1h") String interval) {
 
-    return historicalSensorDataService
+    return historicalSensorDataProvider
         .getAggregatedData(sensorId, sensorType, start, end, interval)
         .thenApply(data -> ResponseEntity.ok(SensorDataResponse.from(data)));
   }

@@ -20,6 +20,7 @@ public class MessageRouter {
   private static final String SENSOR_FLOW_INPUT = "sensorFlowInput";
   private static final String UNMAPPED_FLOW_CHANNEL = "unmappedFlowChannel";
   private static final String PRICE_FLOW_INPUT = "priceFlowInput";
+  private static final String ROBOT_FLOW_INPUT = "robotFlowInput";
 
   private final CustomHeaderDeserializer customHeaderDeserializer;
 
@@ -38,6 +39,7 @@ public class MessageRouter {
                 mapping
                     .channelMapping('S', SENSOR_FLOW_INPUT)
                     .channelMapping('P', PRICE_FLOW_INPUT)
+                    .channelMapping('R', ROBOT_FLOW_INPUT)
                     .defaultOutputChannel(UNMAPPED_FLOW_CHANNEL))
         .get();
   }
@@ -62,11 +64,7 @@ public class MessageRouter {
   @Bean
   public IntegrationFlow unmappedFlowHandler() {
     return IntegrationFlow.from(UNMAPPED_FLOW_CHANNEL)
-        .handle(
-            message -> {
-              // log or handle unexpected flow type
-              LOGGER.error("Received unmapped flow: " + message);
-            })
+        .handle(message -> LOGGER.error("Received unmapped flow: {}", message))
         .get();
   }
 }
