@@ -2,7 +2,7 @@ package com.die_macher.application.flow;
 
 import com.die_macher.application.service.SensorDataService;
 import com.die_macher.application.transformer.SensorDataTransformer;
-import com.die_macher.domain.model.SensorData;
+import com.die_macher.domain.model.sensor.SensorData;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.channel.DirectChannel;

@@ -1,8 +1,8 @@
 package com.die_macher.application.transformer;
 
 import com.die_macher.domain.exception.DataProcessingException;
-import com.die_macher.domain.model.SensorData;
-import com.die_macher.domain.model.SensorType;
+import com.die_macher.domain.model.sensor.SensorData;
+import com.die_macher.domain.model.sensor.SensorType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Instant;

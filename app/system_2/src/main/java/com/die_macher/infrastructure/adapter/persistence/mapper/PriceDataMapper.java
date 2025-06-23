@@ -1,6 +1,6 @@
 package com.die_macher.infrastructure.adapter.persistence.mapper;
 
-import com.die_macher.domain.model.PriceData;
+import com.die_macher.domain.model.price.PriceData;
 import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
 import com.influxdb.query.FluxRecord;

@@ -1,6 +1,6 @@
 package com.die_macher.domain.exception;
 
-public class DataProcessingException extends SensorDataException {
+public class DataProcessingException extends RuntimeException {
 
   public DataProcessingException(String message) {
     super(message);

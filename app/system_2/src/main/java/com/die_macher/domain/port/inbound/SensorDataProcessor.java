@@ -1,6 +1,6 @@
 package com.die_macher.domain.port.inbound;
 
-import com.die_macher.domain.model.SensorData;
+import com.die_macher.domain.model.sensor.SensorData;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 

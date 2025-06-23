@@ -1,7 +1,7 @@
 package com.die_macher.application.transformer;
 
 import com.die_macher.domain.exception.DataProcessingException;
-import com.die_macher.domain.model.PriceData;
+import com.die_macher.domain.model.price.PriceData;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Instant;
