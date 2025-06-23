@@ -15,10 +15,14 @@ jobs:
     name: System 1 Module
     uses: ./.github/workflows/system_1_workflow.yml
 
+  system2:
+    name: System 2 Module
+    uses: ./.github/workflows/system_2_workflow.yml
+
   quality-gate-summary:
     name: Evaluate Quality Gates
     runs-on: ubuntu-latest
-    needs: [raspi, system1]
+    needs: [raspi, system1, system2]
     if: always()
     steps:
       - name: Checkout code
@@ -31,6 +35,7 @@ jobs:
           echo "---------------------------------"
           echo "🔹 Raspi Module     : ${{ needs.raspi.outputs.quality_gate_status }}"
           echo "🔹 System 1 Module  : ${{ needs.system1.outputs.quality_gate_status }}"
+          echo "🔹 System 2 Module  : ${{ needs.system2.outputs.quality_gate_status }}"
           echo ""
 
           failed=false
@@ -49,6 +54,15 @@ jobs:
             if [[ -n "${{ needs.system1.outputs.quality_gate_details }}" ]]; then
               echo "   📋 Failure details: ${{ needs.system1.outputs.quality_gate_details }}"
               echo "::error::System 1 failure details: ${{ needs.system1.outputs.quality_gate_details }}"
+            fi
+            failed=true
+          fi
+
+          if [[ "${{ needs.system2.outputs.quality_gate_status }}" != "PASSED" ]]; then
+            echo "::error::❌ System 2 quality gate failed"
+            if [[ -n "${{ needs.system2.outputs.quality_gate_details }}" ]]; then
+              echo "   📋 Failure details: ${{ needs.system2.outputs.quality_gate_details }}"
+              echo "::error::System 2 failure details: ${{ needs.system2.outputs.quality_gate_details }}"
             fi
             failed=true
           fi
