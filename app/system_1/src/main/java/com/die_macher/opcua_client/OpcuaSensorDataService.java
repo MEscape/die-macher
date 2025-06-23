@@ -80,7 +80,7 @@ public class OpcuaSensorDataService {
     /**
      * Scheduled task to read sensor data periodically (every 30 seconds)
      */
-    @Scheduled(fixedRate = 50000)
+    @Scheduled(fixedRate = 500)
     public void scheduledDataReading() {
         if (connectionManager.isConnected()) {
             String id = readAndStoreSensorData(connectionManager.getClient(), connectionManager.getNamespaceIndex());
