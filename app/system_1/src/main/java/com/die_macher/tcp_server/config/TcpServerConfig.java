@@ -2,8 +2,6 @@ package com.die_macher.tcp_server.config;
 
 import com.die_macher.tcp_server.serializer.CustomHeaderSerializer;
 import com.die_macher.tcp_server.serializer.JsonSerializer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
@@ -17,7 +15,6 @@ import org.springframework.messaging.MessageChannel;
 
 @Configuration
 public class TcpServerConfig {
-    private static final Logger LOGGER = LoggerFactory.getLogger(TcpServerConfig.class);
 
     private final TcpServerProperties tcpProperties;
     private final ApplicationEventPublisher applicationEventPublisher;
@@ -44,8 +41,6 @@ public class TcpServerConfig {
 
         factory.setSerializer(new CustomHeaderSerializer(5, Integer.MAX_VALUE));
         factory.setDeserializer(jsonSerializer);
-
-        LOGGER.info("Creating server connection factory on {}:{}", tcpProperties.getHost(), tcpProperties.getPort());
 
         return factory;
     }

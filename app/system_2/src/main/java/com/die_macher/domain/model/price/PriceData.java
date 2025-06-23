@@ -4,23 +4,25 @@ import java.time.Instant;
 import java.util.Map;
 
 public record PriceData(
-    Instant startTimestamp,
-    Instant endTimestamp,
-    double totalCost,
-    double priceInEurPerKwh,
-    String startTimeFormatted,
-    String endTimeFormatted,
-    Map<String, String> metadata // optional, falls du Meta-Daten möchtest
-    ) {
+        Instant startTimestamp,
+        Instant endTimestamp,
+        double marketprice,
+        double priceInEurPerKwh,
+        String unit,
+        String startTimeFormatted,
+        String endTimeFormatted,
+        Map<String, String> metadata // optional, falls du Meta-Daten möchtest
+) {
 
   public PriceData(
-      Instant startTimestamp,
-      Instant endTimestamp,
-      double totalCost,
-      double priceInEurPerKwh,
-      String startTimeFormatted,
-      String endTimeFormatted,
-      Map<String, String> metadata) {
+          Instant startTimestamp,
+          Instant endTimestamp,
+          double marketprice,
+          double priceInEurPerKwh,
+          String unit,
+          String startTimeFormatted,
+          String endTimeFormatted,
+          Map<String, String> metadata) {
     this.startTimestamp = validateTimestamp(startTimestamp, "startTimestamp");
     this.endTimestamp = validateTimestamp(endTimestamp, "endTimestamp");
     this.startTimeFormatted = startTimeFormatted;
@@ -28,10 +30,33 @@ public record PriceData(
     if (endTimestamp.isBefore(startTimestamp)) {
       throw new IllegalArgumentException("endTimestamp must be after startTimestamp");
     }
-    this.totalCost = totalCost;
+    this.marketprice = marketprice;
     this.priceInEurPerKwh = priceInEurPerKwh;
+    this.unit = unit != null ? unit : "Eur/MWh";
 
     this.metadata = metadata != null ? Map.copyOf(metadata) : Map.of();
+  }
+
+  // Konstruktor koji prima timestamp u milisekundama (kao što dolazi iz JSON-a)
+  public PriceData(
+          long startTimestampMillis,
+          long endTimestampMillis,
+          double marketprice,
+          double priceInEurPerKwh,
+          String unit,
+          String startTimeFormatted,
+          String endTimeFormatted,
+          Map<String, String> metadata) {
+    this(
+            Instant.ofEpochMilli(startTimestampMillis),
+            Instant.ofEpochMilli(endTimestampMillis),
+            marketprice,
+            priceInEurPerKwh,
+            unit,
+            startTimeFormatted,
+            endTimeFormatted,
+            metadata
+    );
   }
 
   private static Instant validateTimestamp(Instant timestamp, String fieldName) {
@@ -50,8 +75,9 @@ public record PriceData(
     private Instant endTimestamp;
     private String startTimeFormatted;
     private String endTimeFormatted;
-    private double totalCost;
+    private double marketprice;
     private double priceInEurPerKwh;
+    private String unit = "Eur/MWh";
     private Map<String, String> metadata;
 
     public Builder startTimestamp(Instant startTimestamp) {
@@ -59,8 +85,18 @@ public record PriceData(
       return this;
     }
 
+    public Builder startTimestamp(long startTimestampMillis) {
+      this.startTimestamp = Instant.ofEpochMilli(startTimestampMillis);
+      return this;
+    }
+
     public Builder endTimestamp(Instant endTimestamp) {
       this.endTimestamp = endTimestamp;
+      return this;
+    }
+
+    public Builder endTimestamp(long endTimestampMillis) {
+      this.endTimestamp = Instant.ofEpochMilli(endTimestampMillis);
       return this;
     }
 
@@ -74,13 +110,18 @@ public record PriceData(
       return this;
     }
 
-    public Builder totalCost(double totalCost) {
-      this.totalCost = totalCost;
+    public Builder marketprice(double marketprice) {
+      this.marketprice = marketprice;
       return this;
     }
 
     public Builder priceInEurPerKwh(double priceInEurPerKwh) {
       this.priceInEurPerKwh = priceInEurPerKwh;
+      return this;
+    }
+
+    public Builder unit(String unit) {
+      this.unit = unit;
       return this;
     }
 
@@ -91,13 +132,14 @@ public record PriceData(
 
     public PriceData build() {
       return new PriceData(
-          startTimestamp,
-          endTimestamp,
-          totalCost,
-          priceInEurPerKwh,
-          startTimeFormatted,
-          endTimeFormatted,
-          metadata);
+              startTimestamp,
+              endTimestamp,
+              marketprice,
+              priceInEurPerKwh,
+              unit,
+              startTimeFormatted,
+              endTimeFormatted,
+              metadata);
     }
   }
 }

@@ -81,12 +81,42 @@ public class MessageHandler {
     }
 
     private void handleSinglePieceProcessing(Map<String, Object> data) {
-        Color color = (Color) data.get("color");
-        LOGGER.info("Request to process single piece with color: {}", color);
-        StackInfo stackInfo = stackTracker.removeCube(color);
+        String colorName = ((String) data.get("color")).toLowerCase();
+        String action = ((String) data.get("action")).toLowerCase();
+        LOGGER.info("Request to process single piece with color: {} and action: {}", colorName, action);
+
+        Color color;
+        switch (colorName) {
+            case "blue":
+                color = Color.BLUE;
+                break;
+            case "red":
+                color = Color.RED;
+                break;
+            case "green":
+                color = Color.GREEN;
+                break;
+            case "yellow":
+                color = Color.YELLOW;
+                break;
+            default:
+                throw new IllegalArgumentException("Unsupported color: " + colorName);
+        }
+
+        StackInfo stackInfo;
+        switch (action) {
+            case "add":
+                stackInfo = stackTracker.addCube(color);
+                break;
+            case "remove":
+                stackInfo = stackTracker.removeCube(color);
+                break;
+            default:
+                throw new IllegalArgumentException("Unsupported action: " + action);
+        }
+
         LOGGER.info("Stack Info: {}", stackInfo);
     }
-
 
     @SuppressWarnings("unchecked")
     private static Map<String, Object> extractMap(Map<String, Object> message) {
