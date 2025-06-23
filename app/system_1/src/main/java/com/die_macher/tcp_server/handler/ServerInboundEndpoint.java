@@ -17,11 +17,11 @@ public class ServerInboundEndpoint {
         this.events = events;
     }
     
-    @ServiceActivator(inputChannel = "serverChannel")
-    public Map<String, Object> handleMessage(Message<Map<String, Object>> message) {
+    @ServiceActivator(inputChannel = "serverChannel", requiresReply = "true")
+    public byte[] handleMessage(Message<Map<String, Object>> message) {
 
         Map<String, Object> payload = message.getPayload();
         events.publishEvent(new MessageReceived(payload));
-        return payload;
-    }
+        return new byte[0];
+        }
 }

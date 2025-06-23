@@ -19,7 +19,7 @@ public class TcpServerProperties {
     private String host;
 
     @Min(1)
-    @Max(4)
+    @Max(10)
     private int headerSize;
 
     @Min(1024)

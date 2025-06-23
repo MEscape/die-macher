@@ -1,5 +1,6 @@
 package com.die_macher.tcp_server.config;
 
+import com.die_macher.tcp_server.serializer.CustomHeaderSerializer;
 import com.die_macher.tcp_server.serializer.JsonSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,14 +37,12 @@ public class TcpServerConfig {
         factory.setSingleUse(false);
         factory.setApplicationEventPublisher(applicationEventPublisher);
 
-        final ByteArrayLengthHeaderSerializer serializer = new ByteArrayLengthHeaderSerializer(
-                tcpProperties.getHeaderSize()
-        );
+        final ByteArrayLengthHeaderSerializer serializer = new ByteArrayLengthHeaderSerializer(4);
         serializer.setMaxMessageSize(tcpProperties.getMaxMessageSize());
 
         JsonSerializer jsonSerializer = new JsonSerializer(tcpProperties.getMaxMessageSize());
 
-        factory.setSerializer(jsonSerializer);
+        factory.setSerializer(new CustomHeaderSerializer(5, Integer.MAX_VALUE));
         factory.setDeserializer(jsonSerializer);
 
         LOGGER.info("Creating server connection factory on {}:{}", tcpProperties.getHost(), tcpProperties.getPort());
