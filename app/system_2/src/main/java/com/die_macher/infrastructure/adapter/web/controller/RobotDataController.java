@@ -16,6 +16,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping("/api/v1/robot-data")
 @Validated
 public class RobotDataController {
@@ -40,7 +41,7 @@ public class RobotDataController {
         .thenApply(data -> ResponseEntity.ok(data.stream().map(RobotDataResponse::from).toList()));
   }
 
-  @PostMapping
+  @PostMapping("/cube")
   public CompletableFuture<ResponseEntity<Void>> postHistoricalRobotData(
       @RequestParam @Min(1) @Max(5) int cubeCount) {
 
@@ -49,7 +50,7 @@ public class RobotDataController {
         .thenApply(voidResult -> ResponseEntity.accepted().build());
   }
 
-  @PostMapping("/cube")
+  @PutMapping("/cube")
   public CompletableFuture<ResponseEntity<Void>> manipulateCube(
       @RequestBody @Valid CubeManipulationRequest request) {
 
