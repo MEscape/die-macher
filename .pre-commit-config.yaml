@@ -42,3 +42,13 @@ repos:
         language: system
         files: ^app/system_2/.*\.(java|xml)$
         pass_filenames: false
+
+  # Next.js formatting for System 3 module
+  - repo: local
+    hooks:
+      - id: system3-format
+        name: Format System 3 Next.js code
+        entry: bash -c 'cd app/system_3 && npm run format'
+        language: system
+        files: ^app/system_3/.*\.(js|jsx|ts|tsx|json|css|scss|md|mdx)$
+        pass_filenames: false
