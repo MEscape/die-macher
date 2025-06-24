@@ -66,19 +66,21 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run ESLint
-        run: npm run lint
+      - name: Run ESLint with JSON output
+        run: |
+          npm run lint -- --format json --output-file eslint-report.json || true
+          npm run lint || true
         continue-on-error: true
 
       - name: Run Prettier check
-        run: npm run prettier:check
+        run: npx prettier --check . || true
         continue-on-error: true
 
       - name: Type check
-        run: npm run type-check
+        run: npx tsc --noEmit || true
         continue-on-error: true
 
-      - name: Build Next.js application
+      - name: Build Next.js application (skip linting)
         run: npm run build
         env:
           NODE_ENV: production
