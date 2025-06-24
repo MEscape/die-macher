@@ -76,7 +76,7 @@ public class TcpClientConfig {
         gateway.setConnectionFactory(clientConnectionFactory());
         gateway.setOutputChannel(tcpClientReplyChannel());
         
-        gateway.setRequestTimeout(3000);
+        gateway.setRequestTimeout(30000);
         gateway.setRequiresReply(true);
 
         return gateway;

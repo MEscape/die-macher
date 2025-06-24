@@ -87,6 +87,14 @@ public class PickAndPlaceOrchestrator {
       // Move to camera for inspection
       robotMovementService.moveToCamera();
 
+      // Get sensor and awattar data
+      Optional<SensorData> optionalData = opcuaClientApplication.getLatestSensorData();
+      double energyCost = awattarService.getCurrentPartCost();
+      if (optionalData.isEmpty()) {
+        throw new RuntimeException("Sensor data not available.");
+      }
+      LOGGER.info("Sensor data available: {}, {}, {}", optionalData.get().getTemperature(), optionalData.get().getHumidity(), energyCost);
+
       // Wait for robot to stabilize
       Thread.sleep(CAMERA_STABILIZATION_TIME_MS);
 
@@ -100,15 +108,9 @@ public class PickAndPlaceOrchestrator {
           stackInfo.currentHeight(),
           Math.max(stackTracker.getMaxStackHeight(), cubePosition));
 
+
       // Wait for robot to go to init position
       Thread.sleep(RETURN_STABILIZATION_TIME_MS);
-      Optional<SensorData> optionalData = opcuaClientApplication.getLatestSensorData();
-
-      double energyCost = awattarService.getCurrentPartCost();
-
-      if (optionalData.isEmpty()) {
-        throw new RuntimeException("Sensor data not available.");
-      }
 
       SensorData data = optionalData.get();
       return new PickAndPlaceResult(
@@ -149,6 +151,4 @@ public class PickAndPlaceOrchestrator {
       future.complete(detectedColor);
     }
   }
-
-
 }
