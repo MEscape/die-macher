@@ -17,11 +17,11 @@ public class PriceDataService implements PriceDataProcessor {
   private final PriceDataRepository priceDataRepository;
   private final MessagePublisher messagePublisher;
 
-  public PriceDataService(
-      PriceDataRepository priceDataRepository, MessagePublisher messagePublisher) {
+    public PriceDataService(
+            PriceDataRepository priceDataRepository, MessagePublisher messagePublisher) {
     this.priceDataRepository = priceDataRepository;
     this.messagePublisher = messagePublisher;
-  }
+    }
 
   @Override
   public CompletableFuture<Void> storePriceData(PriceData priceData) {
