@@ -1,6 +1,8 @@
 package com.die_macher.pick_and_place.service;
 
+import com.die_macher.pick_and_place.model.PickAndPlaceResult;
 import com.die_macher.pick_and_place.service.api.PickAndPlaceService;
+import java.util.List;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -12,7 +14,7 @@ public class PickAndPlaceServiceImpl implements PickAndPlaceService {
   }
 
   @Override
-  public void startPickAndPlace(int cubeStackCount) {
-    orchestrator.startPickAndPlace(cubeStackCount);
+  public List<PickAndPlaceResult> startPickAndPlace(int cubeStackCount) {
+    return orchestrator.startPickAndPlace(cubeStackCount);
   }
 }

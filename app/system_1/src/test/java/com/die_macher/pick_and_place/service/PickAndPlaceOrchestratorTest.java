@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
 
+import com.die_macher.awattar.service.AwattarService;
+import com.die_macher.opcua_client.OpcuaClientApplication;
 import com.die_macher.pick_and_place.event.api.ImageReceivedEvent;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -25,13 +27,22 @@ class PickAndPlaceOrchestratorTest {
 
   @Mock private ApplicationEventPublisher eventPublisher;
 
+  @Mock private AwattarService awattarService;
+
+  @Mock private OpcuaClientApplication opcuaClientApplication;
+
   private PickAndPlaceOrchestrator orchestrator;
 
   @BeforeEach
   void setUp() {
     orchestrator =
         new PickAndPlaceOrchestrator(
-            robotMovementService, stackTracker, colorDetectionService, eventPublisher);
+            robotMovementService,
+            stackTracker,
+            colorDetectionService,
+            eventPublisher,
+            opcuaClientApplication,
+            awattarService);
   }
 
   @Test

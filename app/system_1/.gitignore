@@ -31,3 +31,9 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Ignore certificate and key files
+*.pem
+certs/
+client-cert.pem
+client-key.pem
