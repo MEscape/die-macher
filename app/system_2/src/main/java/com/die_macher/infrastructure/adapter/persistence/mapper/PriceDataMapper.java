@@ -28,12 +28,12 @@ public class PriceDataMapper {
 
   public Point toPoint(PriceData priceData) {
     Point point =
-            Point.measurement("price_data")
-                    .addField(FIELD_MARKETPRICE, priceData.marketprice())
-                    .addField(FIELD_PRICE_PER_KWH, priceData.priceInEurPerKwh())
-                    .addField(FIELD_START_TIME_FORMATTED, priceData.startTimeFormatted())
-                    .addField(FIELD_END_TIME_FORMATTED, priceData.endTimeFormatted())
-                    .time(priceData.startTimestamp().toEpochMilli(), WritePrecision.MS);
+        Point.measurement("price_data")
+            .addField(FIELD_MARKETPRICE, priceData.marketprice())
+            .addField(FIELD_PRICE_PER_KWH, priceData.priceInEurPerKwh())
+            .addField(FIELD_START_TIME_FORMATTED, priceData.startTimeFormatted())
+            .addField(FIELD_END_TIME_FORMATTED, priceData.endTimeFormatted())
+            .time(priceData.startTimestamp().toEpochMilli(), WritePrecision.MS);
 
     priceData.metadata().forEach(point::addTag);
 
@@ -51,31 +51,34 @@ public class PriceDataMapper {
     String endFormatted = getStringValue(fluxRecord, FIELD_END_TIME_FORMATTED);
 
     Map<String, String> metadata = new HashMap<>();
-    fluxRecord.getValues().forEach((key, valueObj) -> {
-      if (!Set.of(
-              FIELD_VALUE,
-              FIELD_FIELD,
-              FIELD_MEASUREMENT,
-              FIELD_TIME,
-              FIELD_MARKETPRICE,
-              FIELD_PRICE_PER_KWH,
-              FIELD_START_TIME_FORMATTED,
-              FIELD_END_TIME_FORMATTED,
-              FIELD_END_TIMESTAMP
-      ).contains(key)) {
-        metadata.put(key, valueObj != null ? valueObj.toString() : "");
-      }
-    });
+    fluxRecord
+        .getValues()
+        .forEach(
+            (key, valueObj) -> {
+              if (!Set.of(
+                      FIELD_VALUE,
+                      FIELD_FIELD,
+                      FIELD_MEASUREMENT,
+                      FIELD_TIME,
+                      FIELD_MARKETPRICE,
+                      FIELD_PRICE_PER_KWH,
+                      FIELD_START_TIME_FORMATTED,
+                      FIELD_END_TIME_FORMATTED,
+                      FIELD_END_TIMESTAMP)
+                  .contains(key)) {
+                metadata.put(key, valueObj != null ? valueObj.toString() : "");
+              }
+            });
 
     return PriceData.builder()
-            .startTimestamp(startTimestamp)
-            .endTimestamp(endTimestamp != null ? endTimestamp : startTimestamp)
-            .marketprice(marketprice)
-            .priceInEurPerKwh(pricePerKwh)
-            .startTimeFormatted(startFormatted != null ? startFormatted : "")
-            .endTimeFormatted(endFormatted != null ? endFormatted : "")
-            .metadata(metadata)
-            .build();
+        .startTimestamp(startTimestamp)
+        .endTimestamp(endTimestamp != null ? endTimestamp : startTimestamp)
+        .marketprice(marketprice)
+        .priceInEurPerKwh(pricePerKwh)
+        .startTimeFormatted(startFormatted != null ? startFormatted : "")
+        .endTimeFormatted(endFormatted != null ? endFormatted : "")
+        .metadata(metadata)
+        .build();
   }
 
   private Double getDoubleValue(FluxRecord fluxRecord, String key) {

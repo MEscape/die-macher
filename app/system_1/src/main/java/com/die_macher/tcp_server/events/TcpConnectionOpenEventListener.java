@@ -11,21 +11,22 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class TcpConnectionOpenEventListener {
-    private static final Logger logger = LoggerFactory.getLogger(TcpConnectionOpenEventListener.class);
+  private static final Logger logger =
+      LoggerFactory.getLogger(TcpConnectionOpenEventListener.class);
 
-    private final ConnectionRepository connectionManager;
-    public TcpConnectionOpenEventListener(ConnectionRepository connectionManager) {
-        this.connectionManager = connectionManager;
-    }
+  private final ConnectionRepository connectionManager;
 
-    @Bean
-    public ApplicationListener<TcpConnectionOpenEvent> connectionOpenListener(){
-        return event -> {
-            TcpConnection newConnection = (TcpConnection) event.getSource();
-            String connectionId = newConnection.getHostAddress();
-            connectionManager.addConnection(connectionId, newConnection);
-            logger.info("Connection {} has been opened", connectionId);
-        };
-    }
+  public TcpConnectionOpenEventListener(ConnectionRepository connectionManager) {
+    this.connectionManager = connectionManager;
+  }
 
+  @Bean
+  public ApplicationListener<TcpConnectionOpenEvent> connectionOpenListener() {
+    return event -> {
+      TcpConnection newConnection = (TcpConnection) event.getSource();
+      String connectionId = newConnection.getHostAddress();
+      connectionManager.addConnection(connectionId, newConnection);
+      logger.info("Connection {} has been opened", connectionId);
+    };
+  }
 }

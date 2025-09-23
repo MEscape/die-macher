@@ -16,46 +16,47 @@ import org.springframework.messaging.MessageChannel;
 @Configuration
 public class TcpServerConfig {
 
-    private final TcpServerProperties tcpProperties;
-    private final ApplicationEventPublisher applicationEventPublisher;
+  private final TcpServerProperties tcpProperties;
+  private final ApplicationEventPublisher applicationEventPublisher;
 
-    public TcpServerConfig(final TcpServerProperties tcpProperties, ApplicationEventPublisher applicationEventPublisher) {
-        this.tcpProperties = tcpProperties;
-        this.applicationEventPublisher = applicationEventPublisher;
-    }
+  public TcpServerConfig(
+      final TcpServerProperties tcpProperties,
+      ApplicationEventPublisher applicationEventPublisher) {
+    this.tcpProperties = tcpProperties;
+    this.applicationEventPublisher = applicationEventPublisher;
+  }
 
-    @Bean(name = "serverConnectionFactory")
-    public AbstractServerConnectionFactory serverConnectionFactory() {
-        TcpNetServerConnectionFactory factory = new TcpNetServerConnectionFactory(
-                tcpProperties.getPort()
-        );
+  @Bean(name = "serverConnectionFactory")
+  public AbstractServerConnectionFactory serverConnectionFactory() {
+    TcpNetServerConnectionFactory factory =
+        new TcpNetServerConnectionFactory(tcpProperties.getPort());
 
-        factory.setLocalAddress(tcpProperties.getHost());
-        factory.setSingleUse(false);
-        factory.setApplicationEventPublisher(applicationEventPublisher);
+    factory.setLocalAddress(tcpProperties.getHost());
+    factory.setSingleUse(false);
+    factory.setApplicationEventPublisher(applicationEventPublisher);
 
-        final ByteArrayLengthHeaderSerializer serializer = new ByteArrayLengthHeaderSerializer(4);
-        serializer.setMaxMessageSize(tcpProperties.getMaxMessageSize());
+    final ByteArrayLengthHeaderSerializer serializer = new ByteArrayLengthHeaderSerializer(4);
+    serializer.setMaxMessageSize(tcpProperties.getMaxMessageSize());
 
-        JsonSerializer jsonSerializer = new JsonSerializer(tcpProperties.getMaxMessageSize());
+    JsonSerializer jsonSerializer = new JsonSerializer(tcpProperties.getMaxMessageSize());
 
-        factory.setSerializer(new CustomHeaderSerializer(5, Integer.MAX_VALUE));
-        factory.setDeserializer(jsonSerializer);
+    factory.setSerializer(new CustomHeaderSerializer(5, Integer.MAX_VALUE));
+    factory.setDeserializer(jsonSerializer);
 
-        return factory;
-    }
+    return factory;
+  }
 
-    @Bean
-    public TcpInboundGateway tcpInboundGateway(@Qualifier("serverConnectionFactory") AbstractServerConnectionFactory connectionFactory) {
-        TcpInboundGateway gateway = new TcpInboundGateway();
-        gateway.setConnectionFactory(connectionFactory);
-        gateway.setRequestChannel(serverChannel());
-        return gateway;
-    }
+  @Bean
+  public TcpInboundGateway tcpInboundGateway(
+      @Qualifier("serverConnectionFactory") AbstractServerConnectionFactory connectionFactory) {
+    TcpInboundGateway gateway = new TcpInboundGateway();
+    gateway.setConnectionFactory(connectionFactory);
+    gateway.setRequestChannel(serverChannel());
+    return gateway;
+  }
 
-    @Bean
-    public MessageChannel serverChannel() {
-        return new DirectChannel();
-    }
-
+  @Bean
+  public MessageChannel serverChannel() {
+    return new DirectChannel();
+  }
 }

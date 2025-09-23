@@ -9,7 +9,6 @@ import com.die_macher.opcua_client.OpcuaClientApplication;
 import com.die_macher.pick_and_place.event.api.ImageReceivedEvent;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,14 +31,18 @@ class PickAndPlaceOrchestratorTest {
 
   @Mock private OpcuaClientApplication opcuaClientApplication;
 
-
   private PickAndPlaceOrchestrator orchestrator;
 
-    @BeforeEach
+  @BeforeEach
   void setUp() {
     orchestrator =
         new PickAndPlaceOrchestrator(
-            robotMovementService, stackTracker, colorDetectionService, eventPublisher, opcuaClientApplication, awattarService);
+            robotMovementService,
+            stackTracker,
+            colorDetectionService,
+            eventPublisher,
+            opcuaClientApplication,
+            awattarService);
   }
 
   @Test

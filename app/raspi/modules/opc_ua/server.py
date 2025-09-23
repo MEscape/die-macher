@@ -8,14 +8,14 @@ import adafruit_dht
 import board
 import netifaces as ni
 import RPi.GPIO as GPIO
-from asyncua import Server, Node
+from asyncua import Node, Server
 from asyncua.ua import SecurityPolicyType
 
 
 class OpcuaServer:
     """OPC UA Server for publishing Raspberry Pi sensor data."""
 
-    def __init__(self, cert_path: str, key_path: str, interface: str = 'wlan0') -> None:
+    def __init__(self, cert_path: str, key_path: str, interface: str = "wlan0") -> None:
         """Initialize the OPC UA server.
 
         Args:
@@ -44,15 +44,17 @@ class OpcuaServer:
         await self.server.load_private_key(self.key_path)
         await self.server.init()
 
-        ipv4_address = ni.ifaddresses(self.interface)[ni.AF_INET][0]['addr']
+        ipv4_address = ni.ifaddresses(self.interface)[ni.AF_INET][0]["addr"]
         endpoint_url = f"opc.tcp://{ipv4_address}:4840"
         self.server.set_endpoint(endpoint_url)
 
-        self.server.set_security_policy([
-            SecurityPolicyType.Basic256Sha256_SignAndEncrypt,
-            SecurityPolicyType.Basic256Sha256_Sign,
-            SecurityPolicyType.NoSecurity
-        ])
+        self.server.set_security_policy(
+            [
+                SecurityPolicyType.Basic256Sha256_SignAndEncrypt,
+                SecurityPolicyType.Basic256Sha256_Sign,
+                SecurityPolicyType.NoSecurity,
+            ]
+        )
 
         namespace = await self.server.register_namespace("Die-Macher")
         dev_type = await self.server.nodes.base_object_type.add_object_type(
@@ -60,15 +62,15 @@ class OpcuaServer:
         )
 
         # Create variable templates (these are used as templates, not actual variables)
-        await (await dev_type.add_variable(
-            namespace, "temperature", 1.0
-        )).set_modelling_rule(True)
-        await (await dev_type.add_variable(
-            namespace, "humidity", 1.0
-        )).set_modelling_rule(True)
-        await (await dev_type.add_variable(
-            namespace, "time", datetime.now(timezone.utc)
-        )).set_modelling_rule(True)
+        await (
+            await dev_type.add_variable(namespace, "temperature", 1.0)
+        ).set_modelling_rule(True)
+        await (
+            await dev_type.add_variable(namespace, "humidity", 1.0)
+        ).set_modelling_rule(True)
+        await (
+            await dev_type.add_variable(namespace, "time", datetime.now(timezone.utc))
+        ).set_modelling_rule(True)
 
         folder = await self.server.nodes.objects.add_folder(namespace, "Raspi")
         device = await folder.add_object(namespace, "FBS-Platine", dev_type)
@@ -90,9 +92,11 @@ class OpcuaServer:
                     humidity = self.dht_device.humidity
                     current_time = datetime.now()
 
-                    print(f"Temp: {temperature_c:.1f} C    "
-                          f"Humidity: {humidity}%  "
-                          f"Zeit: {current_time:%d-%b-%Y (%H:%M:%S.%f)}")
+                    print(
+                        f"Temp: {temperature_c:.1f} C    "
+                        f"Humidity: {humidity}%  "
+                        f"Zeit: {current_time:%d-%b-%Y (%H:%M:%S.%f)}"
+                    )
 
                     # Check if nodes are available before writing
                     if self.temp_node is not None:

@@ -20,7 +20,7 @@ public class HeightCalculator {
   public float calculatePickupHeight(int stackPosition) {
     return stackPosition * constants.cubeHeight()
         + constants.absoluteFloor()
-        - stackPosition * 0.75F;
+        - stackPosition * 0.7F;
   }
 
   public float calculateLiftHeight(float prevHeight, int stackPosition) {

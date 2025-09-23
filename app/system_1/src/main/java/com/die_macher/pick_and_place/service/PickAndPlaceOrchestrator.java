@@ -7,16 +7,14 @@ import com.die_macher.pick_and_place.event.api.ImageReceivedEvent;
 import com.die_macher.pick_and_place.event.api.ImageRequestedEvent;
 import com.die_macher.pick_and_place.model.PickAndPlaceResult;
 import com.die_macher.pick_and_place.model.StackInfo;
-
 import java.awt.*;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,17 +35,20 @@ public class PickAndPlaceOrchestrator {
   private final ApplicationEventPublisher eventPublisher;
   private final ColorDetectionService colorDetectionService;
   private final OpcuaClientApplication opcuaClientApplication;
-  private final AwattarService  awattarService;
-  private final AtomicInteger eventIdCounter = new AtomicInteger(1);  // Track pending color detections
+  private final AwattarService awattarService;
+  private final AtomicInteger eventIdCounter =
+      new AtomicInteger(1); // Track pending color detections
   private final ConcurrentHashMap<Integer, CompletableFuture<Color>> pendingDetections =
       new ConcurrentHashMap<>();
 
   @Autowired
   public PickAndPlaceOrchestrator(
-          RobotMovementService robotMovementService,
-          StackTracker stackTracker,
-          ColorDetectionService colorDetectionService,
-          ApplicationEventPublisher eventPublisher, OpcuaClientApplication opcuaClientApplication, AwattarService awattarService) {
+      RobotMovementService robotMovementService,
+      StackTracker stackTracker,
+      ColorDetectionService colorDetectionService,
+      ApplicationEventPublisher eventPublisher,
+      OpcuaClientApplication opcuaClientApplication,
+      AwattarService awattarService) {
     this.robotMovementService = robotMovementService;
     this.stackTracker = stackTracker;
     this.eventPublisher = eventPublisher;
@@ -93,7 +94,11 @@ public class PickAndPlaceOrchestrator {
       if (optionalData.isEmpty()) {
         throw new RuntimeException("Sensor data not available.");
       }
-      LOGGER.info("Sensor data available: {}, {}, {}", optionalData.get().getTemperature(), optionalData.get().getHumidity(), energyCost);
+      LOGGER.info(
+          "Sensor data available: {}, {}, {}",
+          optionalData.get().getTemperature(),
+          optionalData.get().getHumidity(),
+          energyCost);
 
       // Wait for robot to stabilize
       Thread.sleep(CAMERA_STABILIZATION_TIME_MS);
@@ -108,18 +113,12 @@ public class PickAndPlaceOrchestrator {
           stackInfo.currentHeight(),
           Math.max(stackTracker.getMaxStackHeight(), cubePosition));
 
-
       // Wait for robot to go to init position
       Thread.sleep(RETURN_STABILIZATION_TIME_MS);
 
       SensorData data = optionalData.get();
       return new PickAndPlaceResult(
-              detectedColor.toString(),
-              data.getTemperature(),
-              data.getHumidity(),
-              energyCost,
-              true
-      );
+          detectedColor.toString(), data.getTemperature(), data.getHumidity(), energyCost, true);
     } catch (Exception e) {
       throw new RuntimeException("Failed to process cube", e);
     }

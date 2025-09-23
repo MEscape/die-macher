@@ -7,7 +7,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
 import lombok.Data;
 
 @Data
@@ -58,8 +57,6 @@ public class PriceDataResponse {
   }
 
   public static List<PriceDataResponse> fromList(List<PriceData> priceDataList) {
-    return priceDataList.stream()
-            .map(PriceDataResponse::from)
-            .collect(Collectors.toList());
+    return priceDataList.stream().map(PriceDataResponse::from).collect(Collectors.toList());
   }
 }

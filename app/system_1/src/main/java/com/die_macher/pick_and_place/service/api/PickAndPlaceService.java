@@ -1,7 +1,6 @@
 package com.die_macher.pick_and_place.service.api;
 
 import com.die_macher.pick_and_place.model.PickAndPlaceResult;
-
 import java.util.List;
 
 public interface PickAndPlaceService {

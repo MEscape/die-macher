@@ -27,7 +27,8 @@ import logging
 import sys
 
 from modules.tcp_ip import WebcamServer
-from modules.opc_ua import OpcuaServer
+
+# from modules.opc_ua import OpcuaServer
 
 logging.basicConfig(
     level=logging.INFO,
@@ -60,37 +61,36 @@ async def run_tcp_server() -> None:
             logger.info("Shutting down TCP/IP server...")
             server.stop()
 
-
-async def run_opcua_server() -> None:
+    # async def run_opcua_server() -> None:
     """Run the OPC UA server for sensor data.
 
     This function initializes and starts the OpcuaServer with proper
     certificate and key paths.
     """
-    server = None
-    try:
-        # Initialize the OPC UA server with correct parameters
-        logger.info("Starting OPC UA server...")
-        server = OpcuaServer(
-            cert_path="/home/pi/opcua_certs/server-cert.pem",
-            key_path="/home/pi/opcua_certs/server-key.pem"
-        )
+    # server = None
+    # try:
+    # Initialize the OPC UA server with correct parameters
+    # logger.info("Starting OPC UA server...")
+    # server = OpcuaServer(
+    # cert_path="/home/pi/opcua_certs/server-cert.pem",
+    # key_path="/home/pi/opcua_certs/server-key.pem"
+    # )
 
-        # Set up the server configuration
-        await server.setup_server()
+    # Set up the server configuration
+    # await server.setup_server()
 
-        # Start the server (this will run indefinitely)
-        await server.start()
+    # Start the server (this will run indefinitely)
+    # await server.start()
 
-    except RuntimeError as e:
-        logger.error(f"RuntimeError in OPC UA server: {e}")
-    except Exception as e:
-        logger.error(f"Unexpected error in OPC UA server: {e}", exc_info=True)
-    finally:
-        # Ensure resources are properly released if server was initialized
-        if server is not None:
-            logger.info("Shutting down OPC UA server...")
-            await server.stop()
+    # except RuntimeError as e:
+    # logger.error(f"RuntimeError in OPC UA server: {e}")
+    # except Exception as e:
+    # logger.error(f"Unexpected error in OPC UA server: {e}", exc_info=True)
+    # finally:
+    # Ensure resources are properly released if server was initialized
+    # if server is not None:
+    # logger.info("Shutting down OPC UA server...")
+    # await server.stop()
 
 
 async def main() -> None:
@@ -105,10 +105,11 @@ async def main() -> None:
     try:
         # Create tasks for both servers
         tcp_task = asyncio.create_task(run_tcp_server())
-        opcua_task = asyncio.create_task(run_opcua_server())
+        # opcua_task = asyncio.create_task(run_opcua_server())
 
         # Wait for both tasks to complete
-        await asyncio.gather(tcp_task, opcua_task)
+        # await asyncio.gather(tcp_task, opcua_task)
+        await asyncio.gather(tcp_task)
 
     except asyncio.CancelledError:
         logger.info("Main task cancelled, shutting down gracefully...")
@@ -125,12 +126,12 @@ async def main() -> None:
             except asyncio.CancelledError:
                 pass
 
-        if opcua_task and not opcua_task.done():
-            opcua_task.cancel()
-            try:
-                await opcua_task
-            except asyncio.CancelledError:
-                pass
+        # if opcua_task and not opcua_task.done():
+        # opcua_task.cancel()
+        # try:
+        # await opcua_task
+        # except asyncio.CancelledError:
+        # pass
 
         logger.info("Application shutdown complete")
 

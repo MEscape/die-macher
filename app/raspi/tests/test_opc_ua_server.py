@@ -1,14 +1,14 @@
 import asyncio
-import pytest
 import unittest.mock as mock
 from datetime import datetime, timezone
-from unittest.mock import patch, MagicMock, AsyncMock
+from unittest.mock import AsyncMock, MagicMock, patch
 
-from asyncua import Server, Node
-from asyncua.ua import SecurityPolicyType
+import pytest
 
 # Import the module to test
 from app.raspi.modules.opc_ua.server import OpcuaServer
+from asyncua import Node, Server
+from asyncua.ua import SecurityPolicyType
 
 
 class TestOpcUaServer:
@@ -49,24 +49,28 @@ class TestOpcUaServer:
     @pytest.fixture
     def opcua_server(self, mock_dht_device, mock_gpio):
         """Create an OpcuaServer instance with mocked dependencies."""
-        with patch('app.raspi.modules.opc_ua.server.adafruit_dht.DHT22', return_value=mock_dht_device), \
-                patch('app.raspi.modules.opc_ua.server.GPIO', mock_gpio), \
-                patch('app.raspi.modules.opc_ua.server.board'), \
-                patch('app.raspi.modules.opc_ua.server.Server') as mock_server_class:
+        with patch(
+            "app.raspi.modules.opc_ua.server.adafruit_dht.DHT22",
+            return_value=mock_dht_device,
+        ), patch("app.raspi.modules.opc_ua.server.GPIO", mock_gpio), patch(
+            "app.raspi.modules.opc_ua.server.board"
+        ), patch(
+            "app.raspi.modules.opc_ua.server.Server"
+        ) as mock_server_class:
 
             mock_server_instance = MagicMock()
             mock_server_class.return_value = mock_server_instance
 
             server = OpcuaServer(
-                cert_path="/test/cert.pem",
-                key_path="/test/key.pem",
-                interface="wlan0"
+                cert_path="/test/cert.pem", key_path="/test/key.pem", interface="wlan0"
             )
             server.server = AsyncMock(spec=Server)
             return server
 
     @pytest.mark.asyncio
-    async def test_server_initialization(self, opcua_server, mock_dht_device, mock_gpio):
+    async def test_server_initialization(
+        self, opcua_server, mock_dht_device, mock_gpio
+    ):
         """Test server initialization."""
         # Verify server was initialized with correct parameters
         assert opcua_server.cert_path == "/test/cert.pem"
@@ -82,15 +86,17 @@ class TestOpcUaServer:
     @pytest.mark.asyncio
     async def test_setup_server(self, opcua_server):
         """Test server setup and configuration."""
-        with patch('app.raspi.modules.opc_ua.server.ni.ifaddresses') as mock_ifaddresses:
+        with patch(
+            "app.raspi.modules.opc_ua.server.ni.ifaddresses"
+        ) as mock_ifaddresses:
             # Mock network interface
-            mock_ifaddresses.return_value = {
-                2: [{'addr': '192.168.1.100'}]
-            }
+            mock_ifaddresses.return_value = {2: [{"addr": "192.168.1.100"}]}
 
             # Mock server nodes and methods
             mock_namespace = 2
-            opcua_server.server.register_namespace = AsyncMock(return_value=mock_namespace)
+            opcua_server.server.register_namespace = AsyncMock(
+                return_value=mock_namespace
+            )
             opcua_server.server.nodes.base_object_type.add_object_type = AsyncMock()
             opcua_server.server.nodes.objects.add_folder = AsyncMock()
 
@@ -99,7 +105,9 @@ class TestOpcUaServer:
             mock_variable = AsyncMock()
             mock_variable.set_modelling_rule = AsyncMock(return_value=mock_variable)
             mock_dev_type.add_variable = AsyncMock(return_value=mock_variable)
-            opcua_server.server.nodes.base_object_type.add_object_type.return_value = mock_dev_type
+            opcua_server.server.nodes.base_object_type.add_object_type.return_value = (
+                mock_dev_type
+            )
 
             mock_folder = AsyncMock()
             mock_device = AsyncMock()
@@ -110,16 +118,24 @@ class TestOpcUaServer:
             temp_node = AsyncMock()
             hum_node = AsyncMock()
             time_node = AsyncMock()
-            mock_device.get_child = AsyncMock(side_effect=[temp_node, hum_node, time_node])
+            mock_device.get_child = AsyncMock(
+                side_effect=[temp_node, hum_node, time_node]
+            )
 
             # Execute setup
             await opcua_server.setup_server()
 
             # Verify server initialization calls
-            opcua_server.server.load_certificate.assert_called_once_with("/test/cert.pem")
-            opcua_server.server.load_private_key.assert_called_once_with("/test/key.pem")
+            opcua_server.server.load_certificate.assert_called_once_with(
+                "/test/cert.pem"
+            )
+            opcua_server.server.load_private_key.assert_called_once_with(
+                "/test/key.pem"
+            )
             opcua_server.server.init.assert_called_once()
-            opcua_server.server.set_endpoint.assert_called_once_with("opc.tcp://192.168.1.100:4840")
+            opcua_server.server.set_endpoint.assert_called_once_with(
+                "opc.tcp://192.168.1.100:4840"
+            )
 
             # Verify security policy setup
             opcua_server.server.set_security_policy.assert_called_once()
@@ -140,8 +156,12 @@ class TestOpcUaServer:
             assert mock_dev_type.add_variable.call_count == 3
 
             # Verify folder and device creation
-            opcua_server.server.nodes.objects.add_folder.assert_called_once_with(mock_namespace, "Raspi")
-            mock_folder.add_object.assert_called_once_with(mock_namespace, "FBS-Platine", mock_dev_type)
+            opcua_server.server.nodes.objects.add_folder.assert_called_once_with(
+                mock_namespace, "Raspi"
+            )
+            mock_folder.add_object.assert_called_once_with(
+                mock_namespace, "FBS-Platine", mock_dev_type
+            )
 
             # Verify nodes were assigned
             assert opcua_server.temp_node == temp_node
@@ -162,14 +182,16 @@ class TestOpcUaServer:
 
         # Mock asyncio.sleep to exit after one iteration
         call_count = 0
+
         async def mock_sleep(seconds):
             nonlocal call_count
             call_count += 1
             if call_count >= 2:  # Exit after first successful read
                 raise KeyboardInterrupt("Test exit")
 
-        with patch('app.raspi.modules.opc_ua.server.asyncio.sleep', side_effect=mock_sleep), \
-                patch('builtins.print') as mock_print:
+        with patch(
+            "app.raspi.modules.opc_ua.server.asyncio.sleep", side_effect=mock_sleep
+        ), patch("builtins.print") as mock_print:
 
             # Start server (will exit after one iteration)
             with pytest.raises(KeyboardInterrupt):
@@ -184,7 +206,9 @@ class TestOpcUaServer:
             mock_print.assert_called()
 
     @pytest.mark.asyncio
-    async def test_start_server_runtime_error_handling(self, opcua_server, mock_dht_device):
+    async def test_start_server_runtime_error_handling(
+        self, opcua_server, mock_dht_device
+    ):
         """Test handling of RuntimeError from DHT sensor."""
         # Set up mock nodes
         opcua_server.temp_node = AsyncMock()
@@ -198,14 +222,16 @@ class TestOpcUaServer:
 
         # Mock asyncio.sleep to exit after error handling
         call_count = 0
+
         async def mock_sleep(seconds):
             nonlocal call_count
             call_count += 1
             if call_count >= 2:  # Exit after error recovery sleep
                 raise KeyboardInterrupt("Test exit")
 
-        with patch('app.raspi.modules.opc_ua.server.asyncio.sleep', side_effect=mock_sleep), \
-                patch('builtins.print') as mock_print:
+        with patch(
+            "app.raspi.modules.opc_ua.server.asyncio.sleep", side_effect=mock_sleep
+        ), patch("builtins.print") as mock_print:
 
             # Start server (will exit after error handling)
             with pytest.raises(KeyboardInterrupt):
@@ -220,7 +246,9 @@ class TestOpcUaServer:
             opcua_server.time_node.write_value.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test_start_server_general_exception_handling(self, opcua_server, mock_dht_device):
+    async def test_start_server_general_exception_handling(
+        self, opcua_server, mock_dht_device
+    ):
         """Test handling of general exceptions from DHT sensor."""
         # Set up mock nodes
         opcua_server.temp_node = AsyncMock()
@@ -232,7 +260,7 @@ class TestOpcUaServer:
             side_effect=Exception("General sensor error")
         )
 
-        with patch('builtins.print'):
+        with patch("builtins.print"):
             # Start server (should raise the exception after cleanup)
             with pytest.raises(Exception) as excinfo:
                 await opcua_server.start()
@@ -258,7 +286,9 @@ class TestOpcUaServer:
         async def mock_sleep(seconds):
             raise KeyboardInterrupt("Test exit")
 
-        with patch('app.raspi.modules.opc_ua.server.asyncio.sleep', side_effect=mock_sleep):
+        with patch(
+            "app.raspi.modules.opc_ua.server.asyncio.sleep", side_effect=mock_sleep
+        ):
 
             # Start server (will exit after one iteration)
             with pytest.raises(KeyboardInterrupt):
@@ -269,7 +299,7 @@ class TestOpcUaServer:
     @pytest.mark.asyncio
     async def test_stop_server(self, opcua_server, mock_dht_device, mock_gpio):
         """Test server stop and cleanup."""
-        with patch('builtins.print') as mock_print:
+        with patch("builtins.print") as mock_print:
             # Stop the server
             await opcua_server.stop()
 
@@ -286,12 +316,14 @@ class TestOpcUaServer:
             mock_print.assert_any_call("GPIO cleaned up and DHT sensor released.")
 
     @pytest.mark.asyncio
-    async def test_stop_server_with_exception(self, opcua_server, mock_dht_device, mock_gpio):
+    async def test_stop_server_with_exception(
+        self, opcua_server, mock_dht_device, mock_gpio
+    ):
         """Test server stop when server.stop() raises an exception."""
         # Mock server.stop to raise an exception
         opcua_server.server.stop.side_effect = Exception("Stop error")
 
-        with patch('builtins.print') as mock_print:
+        with patch("builtins.print") as mock_print:
             # Stop the server
             await opcua_server.stop()
 
@@ -302,20 +334,28 @@ class TestOpcUaServer:
 
     def test_default_interface(self, mock_dht_device, mock_gpio):
         """Test server initialization with default interface."""
-        with patch('app.raspi.modules.opc_ua.server.adafruit_dht.DHT22', return_value=mock_dht_device), \
-                patch('app.raspi.modules.opc_ua.server.GPIO', mock_gpio), \
-                patch('app.raspi.modules.opc_ua.server.board'), \
-                patch('app.raspi.modules.opc_ua.server.Server'):
+        with patch(
+            "app.raspi.modules.opc_ua.server.adafruit_dht.DHT22",
+            return_value=mock_dht_device,
+        ), patch("app.raspi.modules.opc_ua.server.GPIO", mock_gpio), patch(
+            "app.raspi.modules.opc_ua.server.board"
+        ), patch(
+            "app.raspi.modules.opc_ua.server.Server"
+        ):
 
             server = OpcuaServer("/test/cert.pem", "/test/key.pem")
             assert server.interface == "wlan0"  # Default value
 
     def test_custom_interface(self, mock_dht_device, mock_gpio):
         """Test server initialization with custom interface."""
-        with patch('app.raspi.modules.opc_ua.server.adafruit_dht.DHT22', return_value=mock_dht_device), \
-                patch('app.raspi.modules.opc_ua.server.GPIO', mock_gpio), \
-                patch('app.raspi.modules.opc_ua.server.board'), \
-                patch('app.raspi.modules.opc_ua.server.Server'):
+        with patch(
+            "app.raspi.modules.opc_ua.server.adafruit_dht.DHT22",
+            return_value=mock_dht_device,
+        ), patch("app.raspi.modules.opc_ua.server.GPIO", mock_gpio), patch(
+            "app.raspi.modules.opc_ua.server.board"
+        ), patch(
+            "app.raspi.modules.opc_ua.server.Server"
+        ):
 
             server = OpcuaServer("/test/cert.pem", "/test/key.pem", interface="eth0")
             assert server.interface == "eth0"

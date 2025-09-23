@@ -7,6 +7,4 @@ This module provides classes for OPC UA server
 
 from .server import OpcuaServer
 
-__all__ = [
-    "OpcuaServer"
-]
+__all__ = ["OpcuaServer"]

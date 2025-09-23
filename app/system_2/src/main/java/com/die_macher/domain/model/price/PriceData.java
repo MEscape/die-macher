@@ -4,25 +4,25 @@ import java.time.Instant;
 import java.util.Map;
 
 public record PriceData(
-        Instant startTimestamp,
-        Instant endTimestamp,
-        double marketprice,
-        double priceInEurPerKwh,
-        String unit,
-        String startTimeFormatted,
-        String endTimeFormatted,
-        Map<String, String> metadata // optional, falls du Meta-Daten möchtest
-) {
+    Instant startTimestamp,
+    Instant endTimestamp,
+    double marketprice,
+    double priceInEurPerKwh,
+    String unit,
+    String startTimeFormatted,
+    String endTimeFormatted,
+    Map<String, String> metadata // optional, falls du Meta-Daten möchtest
+    ) {
 
   public PriceData(
-          Instant startTimestamp,
-          Instant endTimestamp,
-          double marketprice,
-          double priceInEurPerKwh,
-          String unit,
-          String startTimeFormatted,
-          String endTimeFormatted,
-          Map<String, String> metadata) {
+      Instant startTimestamp,
+      Instant endTimestamp,
+      double marketprice,
+      double priceInEurPerKwh,
+      String unit,
+      String startTimeFormatted,
+      String endTimeFormatted,
+      Map<String, String> metadata) {
     this.startTimestamp = validateTimestamp(startTimestamp, "startTimestamp");
     this.endTimestamp = validateTimestamp(endTimestamp, "endTimestamp");
     this.startTimeFormatted = startTimeFormatted;
@@ -39,24 +39,23 @@ public record PriceData(
 
   // Konstruktor koji prima timestamp u milisekundama (kao što dolazi iz JSON-a)
   public PriceData(
-          long startTimestampMillis,
-          long endTimestampMillis,
-          double marketprice,
-          double priceInEurPerKwh,
-          String unit,
-          String startTimeFormatted,
-          String endTimeFormatted,
-          Map<String, String> metadata) {
+      long startTimestampMillis,
+      long endTimestampMillis,
+      double marketprice,
+      double priceInEurPerKwh,
+      String unit,
+      String startTimeFormatted,
+      String endTimeFormatted,
+      Map<String, String> metadata) {
     this(
-            Instant.ofEpochMilli(startTimestampMillis),
-            Instant.ofEpochMilli(endTimestampMillis),
-            marketprice,
-            priceInEurPerKwh,
-            unit,
-            startTimeFormatted,
-            endTimeFormatted,
-            metadata
-    );
+        Instant.ofEpochMilli(startTimestampMillis),
+        Instant.ofEpochMilli(endTimestampMillis),
+        marketprice,
+        priceInEurPerKwh,
+        unit,
+        startTimeFormatted,
+        endTimeFormatted,
+        metadata);
   }
 
   private static Instant validateTimestamp(Instant timestamp, String fieldName) {
@@ -132,14 +131,14 @@ public record PriceData(
 
     public PriceData build() {
       return new PriceData(
-              startTimestamp,
-              endTimestamp,
-              marketprice,
-              priceInEurPerKwh,
-              unit,
-              startTimeFormatted,
-              endTimeFormatted,
-              metadata);
+          startTimestamp,
+          endTimestamp,
+          marketprice,
+          priceInEurPerKwh,
+          unit,
+          startTimeFormatted,
+          endTimeFormatted,
+          metadata);
     }
   }
 }

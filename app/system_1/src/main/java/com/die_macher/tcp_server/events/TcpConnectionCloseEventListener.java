@@ -10,20 +10,21 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class TcpConnectionCloseEventListener {
-    private static final Logger logger = LoggerFactory.getLogger(TcpConnectionCloseEventListener.class);
+  private static final Logger logger =
+      LoggerFactory.getLogger(TcpConnectionCloseEventListener.class);
 
-    private final ConnectionRepository connectionManager;
-    public TcpConnectionCloseEventListener(ConnectionRepository connectionManager) {
-        this.connectionManager = connectionManager;
-    }
+  private final ConnectionRepository connectionManager;
 
-    @Bean
-    public ApplicationListener<TcpConnectionCloseEvent> connectionCloseListener(){
-        return event -> {
-            String connectionId = event.getConnectionId();
-            connectionManager.removeConnection(connectionId);
-            logger.info("Connection {} has been closed", connectionId);
-        };
-    }
+  public TcpConnectionCloseEventListener(ConnectionRepository connectionManager) {
+    this.connectionManager = connectionManager;
+  }
 
+  @Bean
+  public ApplicationListener<TcpConnectionCloseEvent> connectionCloseListener() {
+    return event -> {
+      String connectionId = event.getConnectionId();
+      connectionManager.removeConnection(connectionId);
+      logger.info("Connection {} has been closed", connectionId);
+    };
+  }
 }
